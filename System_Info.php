@@ -1,59 +1,35 @@
 <?php
 /*
 Plugin Name: System Info
-Plugin URI: http://www.robertmeyerjr.com/plugins/system-info
-Description: (Write this later)
+Plugin URI: http://www.github.com/robertmeyerjr/wordpress-system-info/
+Description: This needs a lot of work before it can be released. 
 Version: 1.0a
 Author: Robert Meyer Jr.
 Author URI: http://www.robertmeyerjr.com
 License: GPL2
+
 */
 
 /*
 
 SHOW VARIABLES LIKE 'have_query_cache';
 SHOW STATUS LIKE 'Qcache%';
-SHOW STATUS LIKE 'Questions%';
-
-
 mysqlcheck -c %DATABASE% -u root -p
-
-List Apache Modules:	apachectl -t -D DUMP_MODULES
-	Disable Unneeded
-
-Cleanup
-		Post Revisions
-		Auto Drafts
-		Spam Comments
-		Optimize Tables ()
-	
 
 nmap -sT localhost
 netstat -ano
-
-
 Permissions: 
 	Directories:		find /path/to/your/wordpress/install/ -type d -exec chmod 755 {} \;
-	Files:				find /path/to/your/wordpress/install/ -type f -exec chmod 644 {} \;
-	top -b -n 1 |grep ^Cpu
-	ps -eo pcpu,pid,user,args | sort -r -k1 | less
-	
+	Files:				find /path/to/your/wordpress/install/ -type f -exec chmod 644 {} \;	
 */	
-if( !function_exists('logger') ){
-	function logger($msg, $title='', $logname = 'log'){
-		call_user_func(array('System_info','log'), func_get_args());
-	}
-}
-
-#logger('testing');
 
 System_Info::init();
 class System_Info{
 	public static $cpu_info;
-	public static $load_time 		= array();
+	public static $load_time 			= array();
 	public static $_profile 			= array();
-	public static $_function_count 	= array();
-	public static $_hook_history 	= array();
+	public static $_function_count 		= array();
+	public static $_hook_history 		= array();
 	public static $_total_hook_time 	= array();
 	public static $_path;
 	public static $_last_time;
@@ -63,89 +39,13 @@ class System_Info{
 	
 	public static $messages = array();
 	
-	public static function output_file(){
-		static $request_added = false;
-		foreach(self::$messages as $msg){
-			#error_log("<div class=event><div class=msg>{$msg}</div>{$info_block}</div>", 3, $file_path);
-		}
-	
-		if(!file_exists($file_path)){
-			$style = "<style>
-				*{font-size:13px;font-family:consolas, sans-serif;}
-				h1{margin:0;padding:0;}
-				.trace{font-size:0.6em;color:green;font-style:italic;}
-				.date{color:blue;font-size:0.6em;font-style:italic;}
-				.info_block{padding-right:10px;width:20%;margin-top:5px;display:inline-block;}			
-				.msg{display:inline-block;width:75%;}
-				.event{clear:both;margin-top:15px;margin:0 auto;border-radius:5px;}
-				.event:hover{background-color:rgba(255,255,100,0.4);}
-				.red{color:red}
-				.green{color:green}
-				.yellow{color:yellow;}
-				.request{border:1px solid black;border-radius:5px;padding:5px;}
-			</style>";
-			error_log($style, 3, $file_path);
-		}
-		
-		if( !$request_added ){
-			$hdr = "<div class=request>{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']} From {$_SERVER['REMOTE_ADDR']}</div>";
-			if(class_exists('Kint'))
-				$hdr .= @d($_REQUEST);
-			else
-				$hdr.=print_r($_REQUEST,true);
-			error_log($hdr, 3, $file_path);
-			$request_added = true;
-		}
-	}
-	
-	public static function log( $data ){
-	
-		if(is_array($data) && isset($data['msg'])){
-			extract( $data );
-		}
-		else{
-			$msg 	 = $args[0];
-			$title 	 = $args[1] ?: '';
-			$logname = $args[2] ?: 'info';
-		}
-	
-		$bt = debug_backtrace();
-		if(is_array($msg) || is_object($msg)){
-			if(class_exists('Kint')){
-				$msg = @d($msg);
-				$msg = preg_replace('/<footer>(.*?)<\/footer>/s', '', $msg);
-			}
-			else{
-				$msg = "<pre>".var_export($msg, true)."</pre>";
-			}
-		}
-		$date = date_i18n('F j, Y, g:i:sa');	#Wordpress date is always UTC bases, we want local
-		$info_block = "<div class=info_block>
-					<span class=date>{$date}</span><br/>
-					<span class=trace>{$bt[0]['file']}<br>Line:{$bt[0]['line']}</span>
-				 </div>";
-		if($msg === false) 			$msg = '<span class=red>False</span>';
-		else if($msg === true) 		$msg = '<span class=green>True</span>';
-		else if( is_null($msg) ) 	$msg = '<span class=red>( NULL )</span>';
-		else 						$msg = ( !empty($msg) ) ?  $msg : '<span class=red>( Empty Variable )</span>';
-		$msg = (!empty($title)) ? "<h1>{$title}</h1>{$msg}" : "{$msg}<br/>";
-		
-		self::$messages[$logname][] = array(
-			'msg'		=> $msg,
-			'info'		=> $info_block,
-			'date'		=> $date,
-			'backtrace'	=> $bt
-		);
-		
-		#error_log("<div class=event><div class=msg>{$msg}</div>{$info_block}</div>", 3, $file_path);
-	}
-	
 	public static function init(){		
-		self::$_path = realpath( dirname( __FILE__ ) );
-		self::$_last_time = microtime(true);
+		self::$_path 		= realpath( dirname( __FILE__ ) );
+		self::$_last_time 	= microtime(true);
+		
 		add_action('init', array(__CLASS__, 'startup'));		
 		
-		#Should only do this if logged in as admin, but we don't know that yet
+		#Add some initial start times
 		self::$load_time['start']  = ( empty($_SERVER['REQUEST_TIME_FLOAT']) ) ? $_SERVER['REQUEST_TIME'] : $_SERVER['REQUEST_TIME_FLOAT'];
 		self::$load_time['Core Load'] = microtime(true) - self::$load_time['start'];
 		
@@ -153,7 +53,7 @@ class System_Info{
 		if( isset($_GET['sysinfo_bench']) && $_GET['sysinfo_bench'] == 1 ){
 			define('SAVEQUERIES', true );			
 			self::benchmarking();
-			self::onRequestStart();
+			self::getCpuUsage();
 		}							
 		
 	}
@@ -206,11 +106,7 @@ class System_Info{
 		#self::out_table($out);
 		#print_r($out);
 	}
-	public function record_load_template($template_name, $load, $require_once){
-		#ToDO: Backtrace and record where included from
-		self::$_templates_used[] = $template_name;
-		return $template_name;
-	}
+	
 	#-------------------------------
 	public static function startup(){		
 		if(is_user_logged_in() && current_user_can('administrator') ){
@@ -225,15 +121,21 @@ class System_Info{
 			add_action('wp_ajax_sysinfo_explain_query', 	array(__CLASS__, 'explain_query'));
 			add_action('wp_ajax_sysinfo_run_code', 			array(__CLASS__, 'run_code'));
 			
-			#This filter will be in 3.6
-			add_filter('locate_template', array(__CLASS__,'record_load_template'), 10, 3);
+			#This filter will be in Wordpress 3.6
+			add_filter('locate_template', function($template_name, $load, $require_once){
+				#ToDO: Backtrace and record where included from
+				System_Info::$_templates_used[] = $template_name;
+				return $template_name;
+			}, 10, 3);
 			
-			add_action('init', function(){ 
-						if( isset($_GET['noadminbar']) )
-							add_filter('show_admin_bar', '__return_false'); 
-				}, 9);			
+			add_filter('show_admin_bar', array(__CLASS__,'admin_bar')); 
 		}
 	}
+	
+	public static function admin_bar($bar){
+		return $bar;
+	}
+	
 	public static function timer_start($input){
 		$filter = current_filter();
 		$filter = current_filter();
@@ -253,8 +155,6 @@ class System_Info{
 		return $input;
 	}
 	
-	public static function run_query(){
-	}
 	public static function explain_query(){
 		global $wpdb;
 		$sql = "EXPLAIN ".stripslashes($_POST['sql']); 
@@ -300,8 +200,6 @@ class System_Info{
 		$bt 			= debug_backtrace();
 		$hook_type 		= $bt[3]['function'];
 		
-		//We should sort by the class or file
-		#self::$_total_hook_time[] += microtime(true);
 		self::$_hook_history[] = array(
 			'tag'			=>	$tag,
 			'type'			=>	$hook_type,
@@ -314,18 +212,14 @@ class System_Info{
 	public static function benchmarking(){
 		$FIRST_ACTION 		= -99999;
 		$LAST_ACTION	 	=  99999;
-
+		//We want a hook on all, late and early
 		add_action( 'all', array(__CLASS__,'all_hook'), $FIRST_ACTION);
 		add_action( 'all', array(__CLASS__,'all_hook'), $LAST_ACTION);
 
-		//We want a hook on all, late and early
-		
 		add_action('muplugins_loaded',	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
 		add_action('muplugins_loaded',	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
 		
-		
 		add_action('muplugins_loaded',	function(){ System_Info::$_CORE_MEM_USAGE = memory_get_peak_usage();  },	$LAST_ACTION);
-		
 		
 		add_action('plugins_loaded', 	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
 		add_action('plugins_loaded',	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
@@ -355,23 +249,19 @@ class System_Info{
 		add_filter('the_content',		array(__CLASS__,'timer_start'),	$FIRST_ACTION);
 		add_filter('the_content',		array(__CLASS__,'timer_stop'),	$LAST_ACTION);
 		
-		#Do something to register for all hooks
+		#Used for graphs
 		wp_enqueue_script('google_jsapi', 'https://www.google.com/jsapi');
-		
 		wp_enqueue_script('datatables','http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js', array('jquery'));
 		wp_enqueue_style('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css'); 
 		wp_enqueue_style('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css'); 
-		
 		
 		add_action('init', function(){
 			wp_enqueue_script('jquery-ui-dialog');
 			wp_enqueue_script('jquery-ui-accordion');
 			wp_enqueue_script('jquery-ui-tabs');
-		});
-		
+		});		
 		wp_enqueue_style('jquery-ui-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css'); 
-		wp_enqueue_script('tablesorter', 'http://cachedcommons.org/cache/jquery-table-sorter/2.0.3/javascripts/jquery-table-sorter-min.js', array('jquery'));
-		
+		#wp_enqueue_script('tablesorter', 'http://cachedcommons.org/cache/jquery-table-sorter/2.0.3/javascripts/jquery-table-sorter-min.js', array('jquery'));
 		
 		declare(ticks = 1);
 		register_tick_function(array(__CLASS__, 'tick'), true);		
@@ -489,13 +379,11 @@ class System_Info{
 	}
 	public static function benchmark_output(){		 
 			global $wpdb,$template,$EZSQL_ERROR,$wp_query,$wp,$wp_object_cache,$bp;
-			//return self::file_output();
-			//if( !current_user_can('administrator') )
-				//return;
+			if( !current_user_can('administrator') )
+				return;
 			/*
 			if( headers_sent() ){
 				$headers = headers_list();
-				#self::file_output();
 				return;
 			}
 			*/
@@ -527,6 +415,53 @@ class System_Info{
 			#sysinfo-logger-bar .green{color:green}
 			#sysinfo-logger-bar .yellow{color:yellow;}
 			#sysinfo-logger-bar .request{border:1px solid black;border-radius:5px;padding:5px;}
+			.query_table{width:90%;margin:0 auto;}
+			.query_table th{background-color:black;color:white;}			
+			.query_display{width:100%;}
+			.query_display thead{
+				background-color:black;
+				color:white;			
+			}			
+			.sysbench_output{font-size:16px;}			
+			.sysbench_output table{border-collapse:collapse;}			
+			.sysbench_output td.query{
+				font-size:11px;
+				width:80%;
+				text-align:left;
+				padding:3px;
+				font-family: consolas, san-serif;
+			}
+			
+			.sysbench_output td.backtrace{font-size:11px;}
+			
+			
+			.sysbench_output .delete{color:red;}
+			.sysbench_output .select,
+			.sysbench_output .update,
+			.sysbench_output .join,
+			.sysbench_output .from{ color:green; }
+			
+			.sysbench_output .where{color:#013d7e;}
+			.sysbench_output .clause{ color:orange; }
+			
+			.sysbench_output .order,
+			.sysbench_output .limit,
+			.sysbench_output .group{ color:purple; }
+			
+			.sysbench_output .string{color:#0e722c;font-style:italic;}
+			.sysbench_output .func{color:#800000;}
+			
+			.sysbench_tab_menu li{
+				display:inline-block;
+				background-color:white;
+				color:black;
+				border-radius: 5px 5px 0 0;
+				padding: 2px 5px;
+			}
+			.sysbench_tab_menu li.active{
+				color:red;
+			}
+			
 			</style>
 			
 			<div id=sysinfo-logger-bar>
@@ -581,55 +516,6 @@ class System_Info{
 					arsort(self::$section);
 					arsort( $plugin_times );						
 				?>
-			<style>
-			.query_table{width:90%;margin:0 auto;}
-			.query_table th{background-color:black;color:white;}			
-			.query_display{width:100%;}
-			.query_display thead{
-				background-color:black;
-				color:white;			
-			}			
-			.sysbench_output{font-size:16px;}			
-			.sysbench_output table{border-collapse:collapse;}			
-			.sysbench_output td.query{
-				font-size:11px;
-				width:80%;
-				text-align:left;
-				padding:3px;
-				font-family: consolas, san-serif;
-			}
-			
-			.sysbench_output td.backtrace{font-size:11px;}
-			
-			
-			.sysbench_output .delete{color:red;}
-			.sysbench_output .select,
-			.sysbench_output .update,
-			.sysbench_output .join,
-			.sysbench_output .from{ color:green; }
-			
-			.sysbench_output .where{color:#013d7e;}
-			.sysbench_output .clause{ color:orange; }
-			
-			.sysbench_output .order,
-			.sysbench_output .limit,
-			.sysbench_output .group{ color:purple; }
-			
-			.sysbench_output .string{color:#0e722c;font-style:italic;}
-			.sysbench_output .func{color:#800000;}
-			
-			.sysbench_tab_menu li{
-				display:inline-block;
-				background-color:white;
-				color:black;
-				border-radius: 5px 5px 0 0;
-				padding: 2px 5px;
-			}
-			.sysbench_tab_menu li.active{
-				color:red;
-			}
-			
-			</style>
 			<div id=sysbench_output class=sysbench_output style='display:none'>
 				<div id=sysbench_tabs>
 					<ul class=sysbench_tab_menu>
@@ -1785,8 +1671,6 @@ class System_Info{
 	public static function running_procs(){
 		if( self::is_windows() ){
 			$result = self::run_command("tasklist /v /fo CSV");
-			#$procs = self::wmic_to_array($result);			
-			#$procs = str_getcsv($result);
 			print_r($result);			
 		}
 		else{
@@ -1828,7 +1712,6 @@ class System_Info{
 	}
 	
 	public static function cpu_info(){
-	
 		if(self::is_windows()){
 			/*
 			echo %PROCESSOR_ARCHITECTURE% %PROCESSOR_IDENTIFIER% %PROCESSOR_LEVEL% %PROCESSOR_REVISION%
@@ -1918,46 +1801,7 @@ class System_Info{
 				";	
 		$wpdb->get_results($sql);
 	}
-	public static function page_db_info(){
-		?>
-		<h3 class=hndle>Tables</h3>
-					<table class='wp-list-table widefat fixed'>
-						<thead>
-							<tr>
-								<th>Name</th>
-								<th>Engine</th>
-								<th>Rows</th>
-								<th>Created</th>
-								<th>Collation</th>
-								<th>Size</th>
-								<th>Fragmentation</th>
-								<th></th>
-							</tr>
-						</thead>
-					</thead>
-					<tbody>
-						<?php 			
-						$tables = self::get_tables();
-						$i = 0;
-						foreach($tables as $t){ ?>
-							<tr class="table-<?php echo $t->Name?> <?php echo ($i++%2)?'alternate':''?>">
-								<td><?php echo $t->Name?></td>
-								<td><?php echo $t->Engine?></td>
-								<td><?php echo $t->Rows?></td>
-								<td><?php echo $t->Create_time?></td>
-								<td><?php echo $t->Collation?></td>
-								<td><?php echo self::formatBytes($t->Data_length)?></td>
-								<td><?php echo $t->fragmentation?></td>
-								<td><?php if($t->Data_length < 1000000) : ?>
-									<a href=# class=button-secondary onClick='optimizeTable("<?php echo $t->Name?>");'>Optimize</a>
-									<?php else : ?>
-									(Must be optimized Manually)
-									<?php endif; ?>
-						<?php } ?>
-					</tbody>
-					</table>
-		<?
-	}
+	
 	public static function optimize_table($table){
 		global $wpdb;
 		$sql = $wpdb->prepare("OPTIMIZE TABLE %s", $table);
@@ -1965,7 +1809,16 @@ class System_Info{
 		$result = $wpdb->get_results($sql);
 		self::out_table($result);
 	}
-	
+	public static function get_tables(){
+		global $wpdb;
+		$tables = $wpdb->get_results("SHOW TABLE STATUS");
+		foreach($tables as &$t){	 
+			if($t->Data_length > 0){
+				$t->fragmentation =  round( ($t->Data_free * 100 / $t->Data_length), 2)."%";
+			}
+		}
+		return $tables;
+	}
 	public static function list_databases(){
 		global $wpdb;
 		$sql = "SELECT count(*) tables,
@@ -1993,6 +1846,14 @@ class System_Info{
 		}
 	}
 	
+	public static function formatBytes($bytes, $precision = 2){ 
+		$units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+		$bytes = max($bytes, 0); 
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+		$pow = min($pow, count($units) - 1); 
+		$bytes /= pow(1024, $pow);		
+		return round($bytes, $precision) . ' ' . $units[$pow]; 
+	}
 	public static function color_format($v){
 		$classes 	= array();
 		$truthy 	= array('ON',1,'ENABLED','YES','TRUE');
@@ -2040,25 +1901,6 @@ class System_Info{
 	}
 
 	
-	public static function get_tables(){
-		global $wpdb;
-		$tables = $wpdb->get_results("SHOW TABLE STATUS");
-		foreach($tables as &$t){	 
-			if($t->Data_length > 0){
-				$t->fragmentation =  round( ($t->Data_free * 100 / $t->Data_length), 2)."%";
-			}
-		}
-		return $tables;
-	}
-	
-	public static function formatBytes($bytes, $precision = 2){ 
-		$units = array('B', 'KB', 'MB', 'GB', 'TB'); 
-		$bytes = max($bytes, 0); 
-		$pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-		$pow = min($pow, count($units) - 1); 
-		$bytes /= pow(1024, $pow);		
-		return round($bytes, $precision) . ' ' . $units[$pow]; 
-	}
 	
 	public static function info_page(){
 		global $wpdb;
@@ -2113,11 +1955,7 @@ class System_Info{
 				}
 				
 			});
-			//This should be called on each
-			//jQuery('#tabs table').tablesorter();
 		});
-		function loadTab(){
-		}
 		function optimizeTable(table){
 			jQuery.ajax({
 				url: ajaxurl,
@@ -2179,12 +2017,7 @@ class System_Info{
 		<?
 	}
 	
-	public static function clear_error_log(){
-		$log = ini_get('error_log');
-		if(!empty($log))
-		unlink( $log );
-		exit;
-	}
+	
 	
 	public static function page_services(){
 		if(self::is_windows()){
@@ -2197,7 +2030,46 @@ class System_Info{
 		}
 		print_r($out);		
 	}
-	
+	public static function page_db_info(){
+		?>
+		<h3 class=hndle>Tables</h3>
+					<table class='wp-list-table widefat fixed'>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Engine</th>
+								<th>Rows</th>
+								<th>Created</th>
+								<th>Collation</th>
+								<th>Size</th>
+								<th>Fragmentation</th>
+								<th></th>
+							</tr>
+						</thead>
+					</thead>
+					<tbody>
+						<?php 			
+						$tables = self::get_tables();
+						$i = 0;
+						foreach($tables as $t){ ?>
+							<tr class="table-<?php echo $t->Name?> <?php echo ($i++%2)?'alternate':''?>">
+								<td><?php echo $t->Name?></td>
+								<td><?php echo $t->Engine?></td>
+								<td><?php echo $t->Rows?></td>
+								<td><?php echo $t->Create_time?></td>
+								<td><?php echo $t->Collation?></td>
+								<td><?php echo self::formatBytes($t->Data_length)?></td>
+								<td><?php echo $t->fragmentation?></td>
+								<td><?php if($t->Data_length < 1000000) : ?>
+									<a href=# class=button-secondary onClick='optimizeTable("<?php echo $t->Name?>");'>Optimize</a>
+									<?php else : ?>
+									(Must be optimized Manually)
+									<?php endif; ?>
+						<?php } ?>
+					</tbody>
+					</table>
+		<?
+	}
 	public static function page_errors(){
 		?>
 		<div style='overflow:auto;width:100%;;height:500px;'>
@@ -2223,7 +2095,12 @@ class System_Info{
 		</script>		
 		<?
 	}
-	
+	public static function clear_error_log(){
+		$log = ini_get('error_log');
+		if(!empty($log))
+		unlink( $log );
+		exit;
+	}
 	public static function tail($file, $lines, $asArray=false) {
 		//global $fsize;
 		$handle = fopen($file, "r");
@@ -2311,35 +2188,24 @@ class System_Info{
 		#glob(ABSPATH,		
 	}
 	
-	public static function file_output(){
-		foreach(self::$messages as $log=>$msgs){
-			$file_path = ABSPATH.'/_logs/'.$log.'.html';
-			foreach($msgs as $m){
-				error_log($m, 3, $file_path);
-			}
-		}
-	}
-	
-	function onRequestStart(){
+	function getCpuUsage() {
 		if(!function_exists('getrusage'))
 			return false;
-		$dat = getrusage();
-		define('PHP_TUSAGE', microtime(true));
-		define('PHP_RUSAGE', $dat["ru_utime.tv_sec"]*1e6+$dat["ru_utime.tv_usec"]);
-	}
-	 
-	function getCpuUsage() {
-		$dat = getrusage();
-		$dat["ru_utime.tv_usec"] = ($dat["ru_utime.tv_sec"]*1e6 + $dat["ru_utime.tv_usec"]) - PHP_RUSAGE;
-		$time = (microtime(true) - PHP_TUSAGE) * 1000000;
-	 
-		// cpu per request
-		if($time > 0) {
-			$cpu = sprintf("%01.2f", ($dat["ru_utime.tv_usec"] / $time) * 100);
-		} else {
-			$cpu = '0.00';
+		$d = getrusage();	
+		if(!defined('PHP_TUSAGE')){
+			define('PHP_TUSAGE', microtime(true));
+			define('PHP_RUSAGE', $d["ru_utime.tv_sec"]*1e6+$d["ru_utime.tv_usec"]);
+			return;
 		}
-	 
+		else{
+			$d["ru_utime.tv_usec"] = ($d["ru_utime.tv_sec"]*1e6 + $d["ru_utime.tv_usec"]) - PHP_RUSAGE;
+			$time = (microtime(true) - PHP_TUSAGE) * 1000000;
+			if($time > 0) {
+				$cpu = sprintf("%01.2f", ($d["ru_utime.tv_usec"] / $time) * 100);
+			} else {
+				$cpu = '0.00';
+			}	 
+		}
 		return $cpu;
 	}
 	

@@ -72,7 +72,7 @@ class System_Info{
 		switch($_REQUEST['tab']){
 			case 'info': 			self::page_info(); break;
 			case 'phpinfo': 		self::page_php_info(); break;
-			case 'db': 				self::page_db_info(); break;
+			case 'db':				self::page_db_info(); break;
 			case 'perm': 			self::page_permissions(); break;
 			case 'procs': 			self::page_procs(); break;
 			case 'rewrite': 		self::page_rewrite_rules(); break;

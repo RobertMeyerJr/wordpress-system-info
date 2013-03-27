@@ -61,13 +61,15 @@ class System_Info{
 	public static function read_csv_array($arr, $delimiter=','){		
 		foreach($arr as &$a){
 			$a = explode(',', $a);
-			d($a);
 		}
 		return $arr;
-		#return array_map('explode', $arr, array($delimiter));
 	}
 	
 	public static function ajax_tab(){
+		
+		if(!current_user_can('administrator'))
+			return;
+			
 		$start = microtime(true);
 		switch($_REQUEST['tab']){
 			case 'info': 			self::page_info(); break;
@@ -102,9 +104,7 @@ class System_Info{
 	public static function page_open_ports(){
 		$cmd = (self::is_windows()) ? 'netstat -ano | find "LISTENING"':'lsof -i -n | egrep "COMMAND|LISTEN"';
 		$out = self::read_csv_array( self::run_command( $cmd ),"\t");
-		d($out);
-		#self::out_table($out);
-		#print_r($out);
+		self::out_table($out);
 	}
 	
 	#-------------------------------
@@ -146,12 +146,7 @@ class System_Info{
 		$filter = current_filter();
 		$time = microtime(true) - self::$load_time[$filter];
 		self::$load_time[$filter] = $time;
-		if($filter == 'setup_theme'){
-			self::$load_time['until_theme'] = $time;
-		}
-		elseif($filter == 'init'){
-			#self::$load_time[''] = 
-		}
+		
 		return $input;
 	}
 	
@@ -382,12 +377,12 @@ class System_Info{
 			if( !current_user_can('administrator') )
 				return;
 			/*
+			//Are we an AJAX Request? Do we Want to Log to a file?
 			if( headers_sent() ){
 				$headers = headers_list();
 				return;
 			}
-			*/
-			//Are we an AJAX Request? Do we Want to Log to a file?
+			*/			
 			self::$load_time['stop'] = microtime(true);			
 			{{
 			?>
@@ -460,10 +455,12 @@ class System_Info{
 			}
 			.sysbench_tab_menu li.active{
 				color:red;
-			}
+			}			
+			
+			.hook_times td:nth-child(1){text-align:left;}
+			.hook_times td:nth-child(2){text-align:right;}
 			
 			</style>
-			
 			<div id=sysinfo-logger-bar>
 				<ul class=menu>
 					<li><a href=Queries>Queries</a></li>
@@ -526,58 +523,61 @@ class System_Info{
 						<li><a href=#cache>Cache</a></li>
 					</ul>
 						<div id=sysbench_graphs>
-							<h2>Total Load Time: <?php echo round($total_time,2)?> seconds</h2>
-							<h2>Query Time: <?php echo number_format($wpdb_query_time,4)?> seconds</h2>
-							
-							<?php if( !self::is_windows() ) : ?>
-								<h2>CPU Usage: <?php echo self::getCpuUsage()?></h2>
-							<?php endif; ?>
-							
 							<table class=hook_times style='float:left'>
-								<?php foreach(self::$load_time as $hook=>$time) : if(in_array($hook,array('start','stop'))) continue; ?>
-									<tr><th><?php echo $hook?></th><td><?php echo round($time,4)?></td></tr>
-								<?php endforeach; ?>
+								<thead><tr><th>Area<th>Time</tr></thead>									
+								<tbody>
+									<?php $total = 0; ?>
+									<?php foreach(self::$load_time as $hook=>$time) : if(in_array($hook,array('start','stop'))) continue; ?>
+										<?php $total += $time; ?>
+										<tr><th><?php echo $hook?></th><td><?php echo round($time,4)?></td></tr>
+									<?php endforeach; ?>
+								</tbody>
+								<tfoot><tr><td></td><td><?=round($total,4);?></td></tr></tfoot>
 							</table>
 							
+							<table>
+								<tr>
+									<th>Load Time<td><?php echo round($total_time,2)?> seconds
+									<th>Query Time<td><?php echo number_format($wpdb_query_time,4)?> seconds
+									<th>CPU<td><?php echo (!self::is_windows()) ? self::getCpuUsage():'(Unable to retrieve in windows)'; ?>
+							
+							<tr>
 							<?php 
 								$qo = get_queried_object();
 								if ( $qo && isset( $qo->post_type ) )
 									$post_type = get_post_type_object( $qo->post_type );
-								
-								if ( !empty($template) )
-									echo '<h2><span>Query Template:</span>' . basename($template) . "</h2>\n";
-									
-								echo "Request URI {$_SERVER['REQUEST_URI']}</br>";
+								echo '<th>Query Template:</th><td>' . basename($template);
+								echo "<th>Request URI<td>{$_SERVER['REQUEST_URI']}";
 								if ( empty($wp->matched_rule) )
 									$matched_rule = 'None';
 								else
 									$matched_rule = $wp->matched_rule;
-
-								echo '<h3>Matched Rewrite Rule:</h3>';
-								echo '<p>' . esc_html( $matched_rule ) . '</p>';	
+								echo '<th>Matched Rewrite Rule<td>'.esc_html( $matched_rule );
 								
-								if(!empty($bp)){
-									echo '<h3>Buddypress:</h3>';
-									echo '<p>current_component ' . esc_html( $bp->current_component ) . '</p>';	
-									echo '<p>current_action ' . esc_html( $bp->current_action ) . '</p>';										
+								if(!empty($bp) && !empty($bp->current_component)){
+									echo '<tr><th>Buddypress<';
+									echo '<td>current_component ' . esc_html( $bp->current_component );
+									echo '<td>current_action ' . esc_html( $bp->current_action );
 								}
 								
 								$usage 			= self::formatBytes( memory_get_peak_usage() );
 								$core_usage 	= self::formatBytes( self::$_CORE_MEM_USAGE );
 								$current_usage 	= self::formatBytes( memory_get_usage() );
-								echo '<h3>Current Memory Usage:</h3>';
-								echo "<p>{$current_usage}</p>";	
-								echo '<h3>Peak Memory Usage:</h3>';
-								echo "<p>{$usage}</p>";	
-								echo '<h3>WP Core Memory Usage:</h3>';
-								echo "<p>{$core_usage}</p>";									
+								
+								echo "<tr><th>Current Memory Usage<td>{$current_usage}";
+								echo "<th>Peak<td>{$usage}";	
+								echo "<th>WP Core Memory Usage<td>{$core_usage}";									
 							?>
+							</table>
+							<table>
+								<tr>
+									<td><div id=load_gauge></div> </td>
+									<td><div id=load_chart1></div></td>
+									<td><div id=load_chart2></div></td>
+								</tr>
+								<tr><td colspan=3><div id=plugin_chart></div></td></tr>
+							</table>
 							
-							<div id=load_gauge style='float:left'></div>
-							<div id=load_chart1 style='float:left'></div>
-							<div id=load_chart2 style='float:left'></div>
-							<br style='clear:both' />
-							<div id=plugin_chart></div>
 						</div>
 						<div id=sysbench_queries>
 							<h2><?php echo get_num_queries()?> SQL Queries took <?php echo number_format($wpdb_query_time,4)?> seconds</h2>
@@ -731,7 +731,6 @@ class System_Info{
 					minWidth: 	'600px',
 				});
 				jQuery('#sysbench_tabs').tabs();
-				jQuery('table.time_table').tablesorter({selectorHeaders: '> thead > tr > th'});
 				
 				jQuery('.sysbench_tab_menu a').click(function(){
 					var tab = jQuery(this).attr('href');
@@ -788,10 +787,8 @@ class System_Info{
 					txt = txt.replace(/(\sAVG)/ig,'<b class=func>$1</b>') ;
 					txt = txt.replace(/(\sDISTINCT)/ig,'<b class=func>$1</b>') ;
 					me.html(txt);
-				});
-				
-				drawGauge();
-				
+				});				
+				drawGauge();				
 				//if(console != 'undefined' && console.profileEnd != 'undefined')
 					//console.profileEnd()
 				console.timeEnd('SysInfo');	
@@ -803,7 +800,7 @@ class System_Info{
 				]);
 
 				var options = {
-				  width: 150, height: 150,
+				  width: 200, height: 200,
 				  redFrom: 6, redTo: 10,
 				  yellowFrom: 3, yellowTo: 6,
 				  greenFrom:0, 	greenTo:3,
@@ -833,16 +830,17 @@ class System_Info{
 
 				// Create and draw the visualization.
 				new google.visualization.ColumnChart(document.getElementById('plugin_chart')).draw(
-					data,
-					{
-						chartArea:{width:"60%"},
+					data,{
+						//chartArea:{width:"80%"},
 						title:"Time Per Plugin",
-						width: '90%', 
+						width:  900, 
 						height: 500,
 						backgroundColor:'transparent'
 					}
 				);				
 			}
+			var pie_width=375;
+			var pie_height=350;
 			function pie2(){
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Section');
@@ -858,7 +856,7 @@ class System_Info{
 								["WP Load",<?php echo self::$load_time['Core Load']?>]								
 							]);
 				var options = {
-					'title':'Load Time By Area', 'width':325, 'height':300,
+					'title':'Load Time By Area', 'width':pie_width, 'height':pie_height,
 					backgroundColor:'transparent'
 				};
 				var chart2 = new google.visualization.PieChart(document.getElementById('load_chart2'));
@@ -883,8 +881,8 @@ class System_Info{
 							]);
 				var options = {
 					'title':'Hook Time',
-					'width':325,
-					'height':300,
+					'width':pie_width,
+					'height':pie_height,
 					backgroundColor:'transparent'
 				};
 				var chart1 = new google.visualization.PieChart(document.getElementById('load_chart1'));
@@ -972,7 +970,7 @@ class System_Info{
 	}
 	public function admin_menu(){
 		//Should probably go under tools
-		add_menu_page('Info', 'Server Info', 10, 'sys_info', array(__CLASS__,'info_page')); #, CIQ_TPL . '/images/ciq-icon.png' );
+		add_menu_page('Info', 'System Info', 10, 'sys_info', array(__CLASS__,'info_page')); #, CIQ_TPL . '/images/ciq-icon.png' );
 	}
 	
 	public function maintenance_mode() {
@@ -1470,6 +1468,7 @@ class System_Info{
 	}
 	
 	public static function page_php_info(){
+		$mem_usage = memory_get_usage();
 		?>
 		
 		<h2>PHP Settings</h2>
@@ -1804,8 +1803,8 @@ class System_Info{
 	
 	public static function optimize_table($table){
 		global $wpdb;
-		$sql = $wpdb->prepare("OPTIMIZE TABLE %s", $table);
-		echo "<p>{$sql}</p>";
+		$sql = $wpdb->prepare("OPTIMIZE TABLE {$table}");
+		 echo "<p>{$sql}</p>";
 		$result = $wpdb->get_results($sql);
 		self::out_table($result);
 	}
@@ -1814,7 +1813,7 @@ class System_Info{
 		$tables = $wpdb->get_results("SHOW TABLE STATUS");
 		foreach($tables as &$t){	 
 			if($t->Data_length > 0){
-				$t->fragmentation =  round( ($t->Data_free * 100 / $t->Data_length), 2)."%";
+				$t->fragmentation =  round( ($t->Data_free * 100 / $t->Data_length), 2);
 			}
 		}
 		return $tables;
@@ -2059,11 +2058,14 @@ class System_Info{
 								<td><?php echo $t->Create_time?></td>
 								<td><?php echo $t->Collation?></td>
 								<td><?php echo self::formatBytes($t->Data_length)?></td>
-								<td><?php echo $t->fragmentation?></td>
-								<td><?php if($t->Data_length < 1000000) : ?>
-									<a href=# class=button-secondary onClick='optimizeTable("<?php echo $t->Name?>");'>Optimize</a>
+								<td><?php echo $t->fragmentation?>%</td>
+								<td>
+									<?php if($t->fragmentation == 0) : ?>
+									
+									<?php elseif($t->Data_length < 5000000) : ?>
+										<a href=# class=button-secondary onClick='optimizeTable("<?php echo $t->Name?>");'>Optimize</a>
 									<?php else : ?>
-									(Must be optimized Manually)
+										(Too Large, Must be optimized Manually)
 									<?php endif; ?>
 						<?php } ?>
 					</tbody>
@@ -2089,6 +2091,7 @@ class System_Info{
 				url:ajaxurl,
 				data:{action:'sysinfo_clear_error_log'},
 				success:function(){
+					alert('Cleared');
 				}
 			});
 		}
@@ -2102,7 +2105,7 @@ class System_Info{
 		exit;
 	}
 	public static function tail($file, $lines, $asArray=false) {
-		//global $fsize;
+		try{
 		$handle = fopen($file, "r");
 		$linecounter = $lines;
 		$pos = -2;
@@ -2128,9 +2131,11 @@ class System_Info{
 		fclose ($handle);
 		$result = array_reverse($text);
 		if($asArray)
-			return $result;
-		
+			return $result;		
 		return implode("\n", $result);
+		}catch(Exception $err){
+			return "Error Reading File";
+		}
 	}
 	
 	public static function permissions(){
@@ -2152,17 +2157,9 @@ class System_Info{
 		return $perms;
 	}
 	
-	#Dup code
 	public static function run_code(){
-		$code = stripslashes($_POST['code']);
-		$result = eval($code);
-		if(function_exists('d'))
-			d( $result );
-		else{
-			echo "<pre>";
-				print_r($result, true);
-			echo "</pre>";		
-		}
+		$code 	= stripslashes($_POST['code']);
+		$result = eval($code);		
 		exit;
 	}
 	
@@ -2210,9 +2207,3 @@ class System_Info{
 	}
 	
 }
-
-?>
-
-
-
-

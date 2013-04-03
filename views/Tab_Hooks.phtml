@@ -1,0 +1,19 @@
+<label>Hook/Filter Name</label>
+<input type=text id=action_search>
+<button id=search_hooks>Search</button>
+<div id=hook_area></div>
+<script>
+	jQuery('#search_hooks').click(function(){  
+		var search = jQuery('#action_search').val();
+		var type = jQuery('#search_type').val();
+		jQuery.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {action:'sysinfo_search_hooks',
+				search:search,type:type},
+			success:function(h){
+				jQuery('#hook_area').html(h);
+			}
+		});
+	});
+</script>

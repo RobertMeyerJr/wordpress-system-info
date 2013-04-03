@@ -1,0 +1,13 @@
+<table class='wp-list-table widefat fixed proc_table datatable'><thead><tr>
+	<?php $procs = System_Info_Bench::running_procs(); $keys = array_keys($procs[0]); ?>
+	<?php foreach($keys as $h): ?>
+		<th><?php echo $h?>					
+	<?php endforeach; ?>
+	</thead>
+	 <?php $i=0; foreach($procs as $p) : ?>
+		<tr <?php echo ($i++%2)?'class=alternate':''?>>
+		<?php foreach($p as $d) : ?>
+			<td><?php echo $d?>
+		<?php endforeach; ?>
+	<?php endforeach; ?>
+</table>

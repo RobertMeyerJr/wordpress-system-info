@@ -1,0 +1,65 @@
+<h2>PHP Settings</h2>
+		<label>Loaded Configuration</label><?php echo php_ini_loaded_file();?><br/>
+		<label>Extensions Directory</label><?php echo PHP_EXTENSION_DIR?><br/>
+		<label>max_execution_time</label><?php echo ini_get('max_execution_time');?><br/>
+		<label>post_max_size</label><?php echo ini_get('post_max_size');?><br/>
+		<label>upload_max_filesize</label><?php echo ini_get('upload_max_filesize');?><br/>
+		<label>memory_limit</label><?php echo ini_get('memory_limit');?><br/>
+		<label>open_basedir</label><?php echo ini_get('open_basedir');?><br/>
+		<label>short_open_tag</label><?php echo ini_get('short_open_tag');?><br/>
+		<label>safe_mode</label><?php echo ini_get('safe_mode');?><br/>
+		
+		<?php if(function_exists('apc_cache_info')) : $info = apc_cache_info(); ?>
+			<label>APC</label>
+			<pre><?php 
+				$fields = array(
+					'num_slots',       
+					'ttl',                 
+					'num_hits',            
+					'num_misses',          
+					'num_inserts',         
+					'expunges',            
+					'start_time',          
+					'mem_size',            
+					'num_entries',         
+					'file_upload_progress',
+					'memory_type',         
+					'locking_type',        
+				);
+				foreach($fields as $f)
+					echo "<label></label> {$info[$f]}<br/>";
+			?></pre>
+		<?php endif; ?>
+		
+		<label>OpCode Cache</label>
+		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
+		<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
+		<?php elseif( extension_loaded( 'eaccelerator' ) ) : ?>EAccelerator
+		<?php elseif( extension_loaded( 'Zend Optimizer+' ) ) : ?>Zend Optimizer+
+		<?php elseif( extension_loaded( 'wincache' ) ) : ?>WinCache
+		<?php else: ?>None
+		<?php endif; ?>
+		<br/>
+		
+		<?php $disabled = ini_get('disable_functions'); ?>
+		<label>Disabled Functions</label>
+		<?php if(!empty($disabled)) :?> 
+		<?php foreach($disabled as $d) : ?>
+			<?php echo $d?> is Disabled<br/>
+		<?php endforeach; ?>
+		<?php else: ?>
+			None<br/>
+		<?php endif; ?>
+		<label>PHP Memory Usage: </label><?php echo System_Info_Tools::formatBytes($mem_usage,2)?></br>
+		<ul class=threecol>
+		<?php 
+		/*
+		$extensions = get_loaded_extensions();
+		foreach($extensions as $e): ?>
+			<li><a href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
+		<?php endforeach; ?>
+		</ul>
+		*/ ?>
+		<?php 
+		phpinfo(); ?>
+		<?

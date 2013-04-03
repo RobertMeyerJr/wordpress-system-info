@@ -1,0 +1,487 @@
+<div id=sysinfo-logger-bar>
+				<ul class=menu>
+					<li><a href=Queries>Queries</a></li>
+				</ul>
+				<table>
+					<thead><tr><th>Area</th><th>Message</th></tr></thead>
+					<tbody>
+						<?php foreach(self::$messages as $log=>$msgs) : ?>
+							<?php foreach(self::$messages as $log=>$msgs) : ?>
+								<tr>
+									<th><?php echo $log?></th>
+									<td><?php echo $msgs?></td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+			
+			<div id=sysbench_output class=sysbench_output style='display:none'>
+				
+				<div id=sysbench_tabs>
+					<ul class=sysbench_tab_menu>
+						<li><a href=#sysbench_graphs>Graphs</a></li>
+						<li><a href=#frontend>Frontend</a></li>
+						<li><a href=#sysbench_queries>Queries</a></li>
+						<li><a href=#sysbench_files>Files</a></li>
+						<li><a href=#sysbench_hooks>Hooks</a></li>
+						<li><a href=#cache>Cache</a></li>
+					</ul>						
+						<div id=sysbench_graphs>
+							
+							<table id=user_performance></table>
+							
+							<table class=hook_times style='float:left'>
+								<thead><tr><th>Area<th>Time</tr></thead>									
+								<tbody>
+									<?php $total = 0; ?>
+									<?php foreach(self::$load_time as $hook=>$time) : if(in_array($hook,array('start','stop'))) continue; ?>
+										<?php $total += $time; ?>
+										<tr><th><?php echo $hook?></th><td><?php echo round($time,4)?></td></tr>
+									<?php endforeach; ?>
+								</tbody>
+								<tfoot><tr><td></td><td><?=round($total,4);?></td></tr></tfoot>
+							</table>
+							
+							<table>
+								<tr>
+									<th>Load Time<td><?php echo round($total_time,2)?> seconds
+									<th>Query Time<td><?php echo number_format($wpdb_query_time,4)?> seconds
+									<th>CPU<td><?php echo (!System_Info_Tools::is_windows()) ? self::getCpuUsage():'(Unable to retrieve in windows)'; ?>
+							
+							<tr>
+							<?php 
+								$qo = get_queried_object();
+								if ( $qo && isset( $qo->post_type ) )
+									$post_type = get_post_type_object( $qo->post_type );
+								echo '<th>Query Template:</th><td>' . basename($template);
+								echo "<th>Request URI<td>{$_SERVER['REQUEST_URI']}";
+								if ( empty($wp->matched_rule) )
+									$matched_rule = 'None';
+								else
+									$matched_rule = $wp->matched_rule;
+								echo '<th>Matched Rewrite Rule<td>'.esc_html( $matched_rule );
+								
+								if(!empty($bp) && !empty($bp->current_component)){
+									echo '<tr><th>Buddypress<';
+									echo '<td>current_component ' . esc_html( $bp->current_component );
+									echo '<td>current_action ' . esc_html( $bp->current_action );
+								}
+								
+								$usage 			= System_Info_Tools::formatBytes( memory_get_peak_usage() );
+								$core_usage 	= System_Info_Tools::formatBytes( self::$_CORE_MEM_USAGE );
+								$current_usage 	= System_Info_Tools::formatBytes( memory_get_usage() );
+								
+								echo "<tr><th>Current Memory Usage<td>{$current_usage}";
+								echo "<th>Peak<td>{$usage}";	
+								echo "<th>WP Core Memory Usage<td>{$core_usage}";									
+							?>
+							</table>
+							<table>
+								<tr>
+									<td><div id=load_gauge></div> </td>
+									<td><div id=load_chart1></div></td>
+									<td><div id=load_chart2></div></td>
+								</tr>
+								<tr><td colspan=3><div id=plugin_chart></div></td></tr>
+							</table>
+							
+						</div>
+						<div id=frontend>
+							<table id=resources style='width:90%'></table>
+						</div>
+						<div id=sysbench_queries>
+							<h2><?php echo get_num_queries()?> SQL Queries took <?php echo number_format($wpdb_query_time,4)?> seconds</h2>
+							<table class='datatable query_display'>
+								<thead><tr><th>Time<th>Query<th>Backtrace<th>&nbsp;</thead>
+								<tbody>
+								<?php foreach($wpdb->queries as $q) : ?>								
+								<?php list($query, $elapsed, $debug) = $q; ?>
+									<tr>
+										<td style='width:10%'><?php echo number_format($elapsed, 4)?></td>
+										<td style='width:50%' class=query><?php echo $query?></td>
+										<td style='width:30%' class=backtrace><?php 
+											$qi = explode(',',$debug);
+											echo implode('<br/>',$qi);
+										?>
+										<td style='width:10%'><button class=button-secondary onClick="sysinfo_explain(this);">Explain</button></td>
+									</tr>
+								<?php endforeach; ?>
+								</tbody>
+								<tfoot>
+									<tr>
+										<th style="text-align:right" colspan=3>Total:</th>
+										<th></th>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+						<div id=sysbench_files>
+							<?php 
+								$wp_content_dir = str_replace('\\','/',WP_CONTENT_DIR.'/'); 
+								echo "<h2>".$wp_content_dir."</h2>";
+							?>
+							<?php $total_known = array_sum(self::$section);?>
+							<label>Total Known Time</label> <?php echo $total_known?><br/>
+							
+							<table class=datatable>
+								<thead>
+										<tr>
+											<th>Section</th>
+											<th>File</th>
+											<th>Function</th>
+											<th>Count</th>
+											<th>Time</th>
+										</tr>
+								</thead>
+								<tbody>
+								<?php foreach(self::$_profile as $section=>$data) :?>											
+										<?php foreach($data as $file=>$data) : ?>
+											<?php foreach($data as $function=>$t) : ?>												
+													<tr>
+														<td><?php echo $section?></td>														
+														<td><?php echo str_replace($wp_content_dir,'',$file)?></td>
+														<td><?php echo $function?></td>
+														<td><?php echo self::$_function_count[$section][$file][$function]?></td>
+														<td class=time><?php echo number_format($t,5)?></td>
+													</tr>
+												<?php endforeach; ?>
+										 <?php endforeach; ?>
+								<?php endforeach; ?>							
+								</tbody>
+								<tfoot>
+									<tr>
+										<th style="text-align:right" colspan=4>Total:</th>
+										<th></th>
+									</tr>
+								</tfoot>
+							</table>
+							<?php #d( self::$_profile ); ?>
+					</div>
+					<div id=sysbench_hooks>		
+					
+						<?php d(self::$_profile); ?>
+					
+						<table>
+							<thead>
+								<tr><th>Hook<th>Type<th>Time
+							<tbody>
+						<?php foreach(self::$_hook_history as $h) :?>
+							<tr>
+								<td><?php echo $h['tag']?>
+								<td><?php echo $h['type']?>
+								<td><?php echo $h['time']?>
+						<?php endforeach; ?>
+						</table>
+					</div>
+					<div id=cache>
+						<?php 
+							if( !empty($wp_object_cache) && method_exists($wp_object_cache,'stats') )
+								$wp_object_cache->stats();
+						?>
+						<?php if( extension_loaded( 'wincache' ) ) : ?>
+							Wincache
+							<?php 
+								s( wincache_ucache_meminfo() );
+								s( wincache_ucache_info() );
+								s( wincache_scache_info() );
+								
+								s( wincache_ocache_fileinfo() );
+								s( wincache_ocache_meminfo() );
+								
+								s( wincache_fcache_fileinfo() );
+								s( wincache_fcache_meminfo() );
+							?>
+						<?php elseif( extension_loaded( 'apc' ) ) : ?>
+							APC
+							<?php 
+								s( apc_cache_info('user') );
+								s( apc_cache_info('filehits') );
+								s( apc_cache_info() );
+							?>
+						<?php else: ?>
+							No Cache found (Currently only Wincache and APC are supported)
+						<?php endif; ?>
+					</div>
+				</div>
+			<div class=clear></div>
+			<script>
+			var pie_width=375;
+			var pie_height=350;
+			
+			jQuery(window).load(function(){
+				setTimeout(do_benchmarking, 1000);
+			});
+			
+			function do_benchmarking(){
+				jQuery('#sysbench_output').dialog({
+					title: 		'System Info - Benchmarking',
+					width:		'80%',
+					minWidth: 	'600px',
+				});
+				
+				if(window.performance){
+						setTimeout(function(){							
+						var now = new Date().getTime();
+						var t = window.performance.timing; 									
+						var request_time 	= t.responseEnd - t.navigationStart 									
+						var page_load_time 	= t.domInteractive - t.navigationStart;									  
+						var dom_load 		= t.domInteractive - t.domLoading;
+						var net_done 		= t.responseEnd;
+						var latency 		= t.responseEnd - t.fetchStart;
+						var dom_complete 	= ((t.domComplete)? t.domComplete:t.loadEventStart) - t.domLoading;
+						var load_event		= t.loadEventEnd - t.loadEventStart;
+						var network = Math.round(request_time - <?=$total_time?>,0);
+						
+						var h = '';
+						h+='<tr><th>Request Time<td>'+request_time+'ms';
+						h+='<tr><th>Network Latency<td>'+latency+'ms';
+						h+='<tr><th>Network Time<td>'+network+'ms';
+						h+='<tr><th>Perceived Load Time<td>'+page_load_time+'ms';
+						h+='<tr><th>Dom Load<td>'+dom_load+'ms';
+						h+='<tr><th>Dom Complete<td>'+dom_complete+'ms';
+						h+='<tr><th>Load Event<td>'+load_event+'ms';
+						jQuery('#user_performance').html(h);
+					}, 100 );
+				}
+				
+				jQuery('script').each(function(){ 
+					jQuery('#resources').append('<tr><th>Script</th><td>'+jQuery(this).attr('src') );
+				});
+				jQuery('link[type="text/css"]').each(function(){ 
+					jQuery('#resources').append('<tr><th>CSS</th><td>'+jQuery(this).attr('href') );
+				});
+				jQuery('img').each(function(){ 
+					jQuery('#resources').append('<tr><th>Image</th><td>'+jQuery(this).attr('src') );
+				});
+				jQuery('#sysbench_tabs').tabs();
+				jQuery('.sysbench_tab_menu a').click(function(){
+					var tab = jQuery(this).attr('href');
+					jQuery('.sysbench_tabs > div').hide();					
+					jQuery('.sysbench_tab_menu a').parent().removeClass('active');
+					jQuery(tab).show();
+					jQuery(this).parent().addClass('active');
+					return false;
+				});
+				jQuery('.sysbench_tab_menu a:first').click();
+				jQuery('.section_accordion').accordion({
+					collapsible: true,
+					alwayOpen: false,
+					active: false 
+				});
+				jQuery('#sysbench_output td.query').each(function(){
+					var me = jQuery(this);
+					var txt = me.text();
+					txt = txt.replace(/(SELECT\s)/ig,'<b class=select>$1</b>');
+					txt = txt.replace(/(UPDATE\s)/i,'<b class=update>$1</b>');
+					txt = txt.replace(/(DELETE\s)/i,'<b class=delete>$1</b>');
+					
+					txt = txt.replace(/(\sFROM\s)/ig,'<b class=from>$1</b>' );
+					txt = txt.replace(/(\sWHERE\s)/ig,'<b class=where>$1</b>' );
+					txt = txt.replace(/(\RIGHT JOIN\s)/ig,'<br/><b class=join>$1</b>' );
+					txt = txt.replace(/(\sLEFT JOIN\s)/ig,'<br/><b class=join>$1</b>' );
+					txt = txt.replace(/(\sINNER JOIN\s)/ig,'<br/><b class=join>$1</b>' );
+					txt = txt.replace(/(\sJOIN\s)/ig,'<br><b class=join>$1</b>' );
+					
+					//txt = txt.replace(/(<)/ig,'<b class=clause>$1</b>') ;
+					//txt = txt.replace(/(>)/ig,'<b class=clause>$1</b>') ;
+					txt = txt.replace(/(\s=)/ig,'<b class=clause>$1</b> ') ;
+					txt = txt.replace(/(!=)/ig,'<b class=clause>$1</b> ') ;
+					txt = txt.replace(/(\sLIKE\s)/ig,'<b class=clause>$1</b> ') ;
+					txt = txt.replace(/(\sSET\s)/ig,'<b class=clause>$1</b> ') ;
+					
+					txt = txt.replace(/(\sAND\s)/ig,'<b class=clause>$1</b> ') ;
+					txt = txt.replace(/(\sON\s)/ig,'<b class=clause>$1</b> ') ;
+					txt = txt.replace(/(\sOR\s)/ig,'<b class=clause>$1</b> ') ;
+					txt = txt.replace(/(\sGROUP BY\s)/ig,'<br><b class=group>$1</b>') ;
+					txt = txt.replace(/(\sORDER BY\s)/ig,'<br><b class=order>$1</b>') ;
+					txt = txt.replace(/(\DESC\s)/ig,'<b class=order>$1</b>') ;
+					txt = txt.replace(/(\ASC\s)/ig,'<b class=order>$1</b>') ;
+					txt = txt.replace(/(\sLIMIT\s)/ig,'<b class=limit>$1</b>') ;
+					txt = txt.replace(/('[^']*')/ig,'<b class=string>$1</b> ') ;
+					
+					txt = txt.replace(/(\sCOUNT\([\w]+\))/ig,'<b class=func>$1</b>') ;
+					txt = txt.replace(/(\sSUM)/ig,'<b class=func>$1</b>') ;
+					txt = txt.replace(/(\sAVG)/ig,'<b class=func>$1</b>') ;
+					txt = txt.replace(/(\sDISTINCT)/ig,'<b class=func>$1</b>') ;
+					me.html(txt);
+				});				
+				
+				load_google_api();
+			}
+			
+			function google_api_loaded(){
+				google.load('visualization', 1, {
+						packages:['corechart','gauge'],
+						callback: function(){
+							pie1();
+							pie2();
+							plugin_chart();
+							drawGauge();
+						}
+					}
+				);				
+			}
+			function load_google_api(){
+				jQuery.getScript('http://www.google.com/jsapi',google_api_loaded);
+				jQuery.getScript('http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js',function(){
+					jQuery('table.datatable').dataTable({
+						"bPaginate": false,
+						 "bJQueryUI": true,
+						 'bRetrieve':true,
+						 "sScrollY": "300px",
+						 "fnFooterCallback": calc_footer
+					});
+				});
+			}
+			function calc_footer(nRow, aaData, iStart, iEnd, aiDisplay){
+				try{
+				var last = aaData[0].length - 1;
+				var total = 0;
+				for( var i=0 ; i<aaData.length ; i++ ){
+					var n = parseFloat( aaData[i][last] );
+					total += n; 
+				}
+				var visible_total = 0;
+				for ( var i=iStart ; i<iEnd ; i++ ){
+					visible_total += aaData[ aiDisplay[i] ][last]*1;
+				}
+				var nCells = nRow.getElementsByTagName('th');
+				nCells[0].innerHTML = visible_total.toFixed(4)+' / '+total.toFixed(4);
+				nCells[1].innerHTML = ((total - visible_total)*100 / 100).toFixed(4);
+				}catch(err){
+					console.log(err);
+				}
+			}
+			function drawGauge(){
+				var data = google.visualization.arrayToDataTable([
+					  ['Label', 'Value'],
+					  ['Time', <?php echo round($total_time,2)?>],
+				]);
+				var options = {
+				  width: 200, height: 200,
+				  redFrom: 6, redTo: 10,
+				  yellowFrom: 3, yellowTo: 6,
+				  greenFrom:0, 	greenTo:3,
+				  minorTicks: 0.25,
+				  min: 0, max: 10,
+				  backgroundColor:'transparent'
+				};
+
+				var chart = new google.visualization.Gauge(document.getElementById('load_gauge'));
+				chart.draw(data, options);			
+			}
+			function plugin_chart(){
+				try{
+				var data_arr = [
+					[ 'Plugin',
+						<?php 
+							$keys = array_keys($plugin_times);
+							$keys = array_map(function($v){ return "'{$v}'"; },$keys);
+							echo implode(',', $keys); 
+						?>,
+						'Theme <?php echo wp_get_theme()?>', 
+						'(Other)',
+						'(Benchmarking)',
+						'Wordpress Core'
+					],
+					[
+						'Time',
+						<?php echo implode(',',$plugin_times); ?>,
+						<?php echo self::$section['Theme']?>,
+						<?php echo self::$section['Other']?>,
+						<?php echo self::$section['System Info']?>,
+						<?php echo self::$load_time['Core Load']?>
+					]					
+				];
+				var total = 0;
+				for(var i=1;i<data_arr[1].length;i++)
+					total += parseFloat(data_arr[1][i]);
+				var data = google.visualization.arrayToDataTable(data_arr);
+
+				//data.sortColumns({column: 1}); 
+				
+				// Create and draw the visualization.
+				new google.visualization.ColumnChart(document.getElementById('plugin_chart')).draw(
+					data,{
+						chartArea:{width:"70%"},
+						title:"Load Time by Area ("+total+")",
+						width:  960, 
+						height: 650,
+						backgroundColor:'transparent'
+					}
+				);			
+				}catch(err){	
+					console.log(err);
+				}				
+			}
+			function pie2(){
+				var data = new google.visualization.DataTable();
+				data.addColumn('string', 'Section');
+				data.addColumn('number', 'Time');
+				var time_plugin 	= <?php echo self::$load_time['plugins_loaded']?>;
+				var time_theme 		= <?php echo self::$load_time['setup_theme']?>;
+				var time_init 		= <?php echo self::$load_time['init']?>;
+				var time_query 		= <?php echo $wpdb_query_time?>;
+				data.addRows([ 
+							<?php foreach(self::$section as $name=>$time):?>
+								["<?php echo $name?> \t<?php echo round($time,2)?>",<?php echo $time?>],
+							<?php endforeach; ?>
+								["WP Load",<?php echo self::$load_time['Core Load']?>]								
+							]);
+				var options = {
+					'title':'Load Time By Area', 'width':pie_width, 'height':pie_height,
+					backgroundColor:'transparent'
+				};
+				var chart2 = new google.visualization.PieChart(document.getElementById('load_chart2'));
+				chart2.draw(data, options);
+			}
+			function pie1(){
+				var data = new google.visualization.DataTable();
+				data.addColumn('string', 'Module');
+				data.addColumn('number', 'Time');
+				var time_plugin 	= <?php echo round(self::$load_time['plugins_loaded'],2)?>;
+				var time_theme 		= <?php echo round(self::$load_time['setup_theme'],2)?>;
+				var time_init 		= <?php echo round(self::$load_time['init'],2)?>;
+				var time_query 		= <?php echo round($wpdb_query_time,2)?>;
+				data.addRows([ 
+								['Load Plugins '+time_plugin, 	time_plugin		], 
+								['Load Theme '+time_theme,		time_theme		], 
+								['Init '+time_init,			time_init		], 
+								<?php if(!empty(self::$load_time['the_content'])) : ?>
+									['Process Content <?php echo self::$load_time['the_content']?>', <?php echo self::$load_time['the_content']?>	], 
+								<?php endif; ?>
+								['SQL Queries', 	time_query		]
+							]);
+				var options = {
+					'title':'Hook Time',
+					'width':pie_width,
+					'height':pie_height,
+					backgroundColor:'transparent'
+				};
+				var chart1 = new google.visualization.PieChart(document.getElementById('load_chart1'));
+				chart1.draw(data, options);
+			}
+			function sysinfo_explain(element){
+				var $td = jQuery(element).parent().parent().find('td.query');
+				var sql = $td.text();
+				sql_html = $td.html();
+				jQuery.ajax({
+					url: 	'/wp-admin/admin-ajax.php',
+					type:	'POST',
+					data: 	{action:'sysinfo_explain_query',sql:sql},
+					success:function(h){
+						var d = '<div class=sysbench_output>'+sql_html+'<p>'+h+'<p></div>';
+						jQuery(d).dialog({
+							buttons: { "Ok": function () { jQuery(this).dialog("close"); } },
+							close: function (event, ui) { jQuery(this).remove(); },
+							modal: true,
+							title: 'Query Explained',
+							zIndex: 999999999,
+							width: '960px'
+						});
+					}					
+				});
+			}
+			</script>

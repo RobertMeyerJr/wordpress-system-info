@@ -23,10 +23,15 @@ class System_Info_Bench{
 		self::$load_time['start']  = ( empty($_SERVER['REQUEST_TIME_FLOAT']) ) ? $_SERVER['REQUEST_TIME'] : $_SERVER['REQUEST_TIME_FLOAT'];
 		self::$load_time['Core Load'] = microtime(true) - self::$load_time['start'];
 		
+		#add_action('wp_enqueue_scripts', array(__CLASS__,'scripted_added'));
+		
 		define('SAVEQUERIES', true );
 		self::benchmarking();
 		self::get_cpu_usage();
 		add_action('init', array(__CLASS__, 'init'));			
+	}
+	
+	public static function scripted_added($script){
 	}
 	
 	public static function init(){
@@ -36,6 +41,8 @@ class System_Info_Bench{
 				System_Info::$_templates_used[] = $template_name;
 				return $template_name;
 		}, 10, 3);	
+		wp_enqueue_script('system-info-bench', plugins_url().'/system-info/views/benchmark.js');
+		
 	}
 	
 	public static function get_cpu_usage() {
@@ -97,7 +104,7 @@ class System_Info_Bench{
 		add_action('muplugins_loaded',	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
 		add_action('muplugins_loaded',	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
 		
-		add_action('muplugins_loaded',	function(){ self::$_CORE_MEM_USAGE = memory_get_peak_usage();  },	$LAST_ACTION);
+		add_action('muplugins_loaded',	array(__CLASS__,'record_core_mem_usage'),	$LAST_ACTION);
 		
 		add_action('plugins_loaded', 	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
 		add_action('plugins_loaded',	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
@@ -131,18 +138,26 @@ class System_Info_Bench{
 		wp_enqueue_style('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css'); 
 		wp_enqueue_style('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css'); 
 		
+		wp_enqueue_style('system-info', plugins_url().'/system-info/views/system-info.css');
+		
 		add_action('init', function(){
 			wp_enqueue_script('jquery-ui-dialog');
 			wp_enqueue_script('jquery-ui-accordion');
 			wp_enqueue_script('jquery-ui-tabs');
+			
+			wp_enqueue_style('si-jquery-ui-css','http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/themes/smoothness/jquery-ui.css');					
 		});		
-		wp_enqueue_style('jquery-ui-style'); 
 		
 		declare(ticks = 1);
 		register_tick_function(array(__CLASS__, 'tick'), true);		
 		add_action('shutdown', array(__CLASS__, 'benchmark_output'), $LAST_ACTION);
 		#Maybe register an error handler to catch all errors?		
 	}
+	
+	public static function record_core_mem_usage(){
+		self::$_CORE_MEM_USAGE = memory_get_peak_usage();
+	}
+	
 	public static function tick(){
 		static $last_time = 0;
 		static $last_call = null;
@@ -288,7 +303,7 @@ class System_Info_Bench{
 		$total_time = self::$load_time['stop'] - self::$load_time['start'];
 		
 		
-		foreach(self::$_profile['Plugins'] as $k=>$values){
+		foreach((array)self::$_profile['Plugins'] as $k=>$values){
 			$name = str_replace($plugin_dir,'',$k);
 			$name = str_replace($muplugin_dir,'',$name);
 			$name = str_replace('\\','/',$name);
@@ -297,13 +312,11 @@ class System_Info_Bench{
 			$plugin_name = substr($name, 1, $dash_pos);
 			
 			$plugin_times[$plugin_name] += array_sum($values); 
-		}
-		
+		}		
 		
 		arsort(self::$section);
 		arsort( $plugin_times );											
 
-		
 		include(__DIR__.'/../views/Benchmark.phtml');			
 	}
 	public static function timer_start($input){
@@ -315,9 +328,7 @@ class System_Info_Bench{
 	public static function timer_stop($input){
 		$filter = current_filter();
 		$time = microtime(true) - self::$load_time[$filter];
-		self::$load_time[$filter] = $time;
-		
+		self::$load_time[$filter] = $time;	
 		return $input;
-	}
-	
+	}	
 }

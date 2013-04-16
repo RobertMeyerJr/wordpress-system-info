@@ -9,28 +9,27 @@ Author URI: http://www.robertmeyerjr.com
 License: GPL2
 
 */	
-add_action( 'init', function(){
-	#If we aren't admin, dont even run
-	if(is_user_logged_in() && current_user_can('administrator') ){
-		try{
-			include('inc/SI_Admin.php');
-			include('inc/SI_AJAX.php');
-			include('inc/SI_SQL.php');
-			include('inc/SI_Tools.php');
-			System_Info_Admin::init();			
-		}catch(Exception $e){
-			add_action( 'admin_notices', function(){ 
-				echo "<div class=updated><p>System_Info - Error<br/><pre>".print_r($e,true)."</pre></p></div>";
-			});
-		}
-	}
-});
-
 System_Info::startup();
 class System_Info{	
 	public static function startup(){
+		add_action( 'init', array(__CLASS__,'init'));
 		register_activation_hook(__FILE__, array(__CLASS__,'activate'));
 		register_deactivation_hook(__FILE__, array(__CLASS__,'activate'));
+	}	
+	public static function init(){
+		if(is_user_logged_in() && current_user_can('administrator') ){ #If we aren't admin, dont even run
+			try{
+				include('inc/SI_Admin.php');
+				include('inc/SI_AJAX.php');
+				include('inc/SI_SQL.php');
+				include('inc/SI_Tools.php');
+				System_Info_Admin::init();			
+			}catch(Exception $e){
+				add_action( 'admin_notices', function(){ 
+					echo "<div class=updated><p>System_Info - Error<br/><pre>".print_r($e,true)."</pre></p></div>";
+				});
+			}
+		}
 	}
 	public static function activate(){
 		error_log("Activating...\r\n",3,__DIR__.'/test.log');
@@ -40,8 +39,7 @@ class System_Info{
 		
 		if( !is_dir($mu_plugins) ){
 			mkdir($mu_plugins);
-		}
-		
+		}		
 		if( copy($from,$file_path) ){
 			add_action( 'admin_notices', function(){ 
 				echo "<div class=updated><p>System_Info - Must-Use Bootstrapper Installed</p></div>";

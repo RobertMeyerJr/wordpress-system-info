@@ -15,9 +15,9 @@ class System_Info_Admin{
 	
 	#-------------------------------
 	public static function init(){				
-		add_action('admin_enqueue_scripts', 			array(__CLASS__, 'admin_scripts'), 90);
-		add_action('admin_menu', 						array(__CLASS__, 'admin_menu'));			
-		add_action('wp_ajax_sysinfo', 					array(__CLASS__, 'ajax_tab'));		
+		add_action('admin_enqueue_scripts', 				array(__CLASS__, 'admin_scripts'), 90);
+		add_action('admin_menu', 								array(__CLASS__, 'admin_menu'));			
+		add_action('wp_ajax_sysinfo', 						array(__CLASS__, 'ajax_tab'));		
 		add_action('wp_ajax_sysinfo_optimize_table', 	array(__CLASS__, 'ajax_optimize_table'));							
 		add_action('wp_ajax_sysinfo_clear_error_log', 	array(__CLASS__, 'clear_error_log'));			
 		add_action('wp_ajax_sysinfo_replace_content', 	array(__CLASS__, 'ajax_replace_content'));							
@@ -28,7 +28,14 @@ class System_Info_Admin{
 		add_filter('show_admin_bar', array(__CLASS__,'admin_bar')); 		
 	}
 	
-	public static function admin_bar($bar){
+	public static function admin_bar($bar){	
+		global $wp_admin_bar;
+		$wp_admin_bar ->add_menu(array(	
+			#'parent' => 'MY ACCOUNT',
+			'id' => 'sysinfo-benchmark',
+			'title' => 'Run Benchmark',
+			'href' => $_SERVER['PATH_INFO']
+		));		
 		return $bar;
 	}
 	

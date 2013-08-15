@@ -1,46 +1,147 @@
-<table class=server_info>
-			<tr><th colspan=2 class=hdr>Software
-			<tr><th>OS<td><?php echo System_Info_Tools::color_format(php_uname())?>
-			<tr><th>PHP Version<td><?php echo PHP_VERSION?>
-			<tr><th>MySQL Version<td><?php echo System_Info_Tools::color_format($wpdb->db_version()); ?>
-			<tr><th>Webserver<td><?php echo System_Info_Tools::color_format($_SERVER['SERVER_SOFTWARE'])?>
-			<tr><th>Webserver User<td><?php echo (System_Info_Tools::is_windows()) ? get_current_user():exec('whoami');?></tr>
-			<tr><th colspan=2 class=hdr>Wordpress Info</th></tr>
-			<tr><th>Wordpress Version</th><td><?php echo $wp_version?></tr>
-			<tr><th>WP_DEBUG</th><td><?php echo System_Info_Tools::color_format((WP_DEBUG)?'Yes':'No')?></tr>
-			<tr><th>WP_DEBUG_DISPLAY</th><td><?php echo System_Info_Tools::color_format((WP_DEBUG_DISPLAY)?'Yes':'No')?></tr>
-			<tr><th>WP_DEBUG_LOG</th><td><?php echo System_Info_Tools::color_format(WP_DEBUG_LOG)?></td></tr>
-			<tr><th>WP_PLUGIN_DIR</th><td><?php echo System_Info_Tools::color_format(WP_PLUGIN_DIR)?></tr>
-			<tr><th>FS_METHOD</th><td><?php echo System_Info_Tools::color_format(FS_METHOD)?></tr>			
-			<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
-			<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>
-			<tr><th colspan=2 class=hdr>MySQL Info</th></tr>
-			<tr><th>MySQL Query Cache Size</th><td><?php 
-				$query_cache = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
-				if(!$query_cache)
-					echo "<span class=red>Query Cache Not Enabled!</span>";
-				else 
-					echo System_Info_Tools::formatBytes($query_cache->Value);
-			?></td></tr>
-			<?php $slow_queries = System_Info_SQL::check_query_log(); ?>
-			<tr><th>Slow Query Output</th><td><?php echo $slow_queries->log_output?></td></tr>
-			<tr><th>Slow Query Location</th><td><?php echo $slow_queries->slow_query_log?></td></tr>
-			<tr><th>Slow Query Not Using Indexes</th><td><?php echo $slow_queries->log_not_using_indexes?></td></tr>
-			<tr><th>Database<td><?php echo DB_NAME?>
-			<tr><th>User<td><?php echo DB_USER?>
-			<tr><th>Host<td><?php echo DB_HOST?>				
-			<tr><th colspan=2 class=hdr>Environment Info
-			<tr><?php if(!empty($_SERVER['APPLICATION_ENV']) ) : ?>
-				<th>Environment<td><?php echo System_Info_Tools::color_format($_SERVER['APPLICATION_ENV'])?>
-			<?php endif; ?>
-			<tr><th>Server API</th><td><?php echo System_Info_Tools::color_format(PHP_SAPI)?></td></tr>
-			<tr><th>Document Root</th><td><?php echo $_SERVER['DOCUMENT_ROOT'];?></th></tr>			
-			<?php if(($_SERVER['SERVER_SOFTWARE']=='Apache') && function_exists('apache_get_modules')) : 
-					$modules = apache_get_modules(); ?>	
-					<tr><th>Apache Modules</th>
-					<td>
-						<?php foreach($modules as $m) : ?>
-							<span><?php echo $m?></span>
-						<?php endforeach; ?>
-					</td></tr>
-			<?php endif; ?>
+<?php 
+global $_wp_additional_image_sizes; 
+?>
+
+<?php #global $wp_scripts; var_dump($wp_scripts); ?>
+<?php #global $wp_styles; var_dump($wp_styles); ?>
+
+<table class='wp-list-table widefat fixed server_info'>
+	<tr><th colspan=2 class=hdr>Software
+	<tr><th>OS<td><?php echo System_Info_Tools::color_format(php_uname())?>
+	<tr><th>PHP Version<td><?php echo PHP_VERSION?>
+	<tr><th>MySQL Version<td><?php echo System_Info_Tools::color_format($wpdb->db_version()); ?>
+	<tr><th>Webserver<td><?php echo System_Info_Tools::color_format($_SERVER['SERVER_SOFTWARE'])?>
+	<tr><th>Webserver User<td><?php echo (System_Info_Tools::is_windows()) ? get_current_user():exec('whoami');?></tr>
+	<tr><th colspan=2 class=hdr>Wordpress Info</th></tr>
+	<tr><th>Wordpress Version</th><td><?php echo $wp_version?></tr>
+	<tr><th>WP_DEBUG</th><td><?php echo System_Info_Tools::color_format((WP_DEBUG)?'Yes':'No')?></tr>
+	<tr><th>WP_DEBUG_DISPLAY</th><td><?php echo System_Info_Tools::color_format((WP_DEBUG_DISPLAY)?'Yes':'No')?></tr>
+	<tr><th>WP_DEBUG_LOG</th><td><?php echo System_Info_Tools::color_format(WP_DEBUG_LOG)?></td></tr>
+	<tr><th>WP_PLUGIN_DIR</th><td><?php echo System_Info_Tools::color_format(WP_PLUGIN_DIR)?></tr>
+	<tr><th>FS_METHOD</th><td><?php echo System_Info_Tools::color_format(FS_METHOD)?></tr>			
+	<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
+	<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>
+	<tr><th colspan=2 class=hdr>MySQL Info</th></tr>
+	<tr><th>MySQL Query Cache Size</th><td><?php 
+		$query_cache = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
+		if(!$query_cache)
+			echo "<span class=red>Query Cache Not Enabled!</span>";
+		else 
+			echo System_Info_Tools::formatBytes($query_cache->Value);
+	?></td></tr>
+	<?php $slow_queries = System_Info_SQL::check_query_log(); ?>
+	<tr><th>Slow Query Output</th><td><?php echo $slow_queries->log_output?></td></tr>
+	<tr><th>Slow Query Location</th><td><?php echo $slow_queries->slow_query_log?></td></tr>
+	<tr><th>Slow Query Not Using Indexes</th><td><?php echo $slow_queries->log_not_using_indexes?></td></tr>
+	<tr><th>Database<td><?php echo DB_NAME?>
+	<tr><th>User<td><?php echo DB_USER?>
+	<tr><th>Host<td><?php echo DB_HOST?>				
+	<tr><th colspan=2 class=hdr>Environment Info
+	<tr><?php if(!empty($_SERVER['APPLICATION_ENV']) ) : ?>
+		<th>Environment<td><?php echo System_Info_Tools::color_format($_SERVER['APPLICATION_ENV'])?>
+	<?php endif; ?>
+	<tr><th>Server API</th><td><?php echo System_Info_Tools::color_format(PHP_SAPI)?></td></tr>
+	<tr><th>Document Root</th><td><?php echo $_SERVER['DOCUMENT_ROOT'];?></th></tr>			
+	<?php if(($_SERVER['SERVER_SOFTWARE']=='Apache') && function_exists('apache_get_modules')) : 
+			$modules = apache_get_modules(); ?>	
+			<tr><th>Apache Modules</th>
+			<td>
+				<?php foreach($modules as $m) : ?>
+					<span><?php echo $m?></span>
+				<?php endforeach; ?>
+			</td></tr>
+	<?php endif; ?>
+</table>
+
+<h3>Image Sizes</h3>
+<table>
+<thead>
+	<tr>
+		<th>Name</th>
+		<th>Width</th>
+		<th>Height</th>
+		<th>Hard Crop</th>
+</thead>
+<tbody>
+<?php foreach($_wp_additional_image_sizes as $name=>$i) : ?>
+	<tr>
+		<td><?php echo $name?></td>
+		<td><?php echo $i['width'] ?></td>
+		<td><?php echo $i['height']?></td>
+		<td><?php echo ($i['crop'])?'Yes':'No'?></td>
+	</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+
+
+<h2>PHP Settings</h2>
+		<label>Loaded Configuration</label><?php echo php_ini_loaded_file();?><br/>
+		<label>Extensions Directory</label><?php echo PHP_EXTENSION_DIR?><br/>
+		<label>max_execution_time</label><?php echo ini_get('max_execution_time');?><br/>
+		<label>post_max_size</label><?php echo ini_get('post_max_size');?><br/>
+		<label>upload_max_filesize</label><?php echo ini_get('upload_max_filesize');?><br/>
+		<label>memory_limit</label><?php echo ini_get('memory_limit');?><br/>
+		<label>open_basedir</label><?php echo ini_get('open_basedir');?><br/>
+		<label>short_open_tag</label><?php echo ini_get('short_open_tag');?><br/>
+		<label>safe_mode</label><?php echo ini_get('safe_mode');?><br/>
+		
+		<?php if(function_exists('apc_cache_info')) : $info = apc_cache_info(); ?>
+			<label>APC</label>
+			<pre><?php 
+				$fields = array(
+					'num_slots',       
+					'ttl',                 
+					'num_hits',            
+					'num_misses',          
+					'num_inserts',         
+					'expunges',            
+					'start_time',          
+					'mem_size',            
+					'num_entries',         
+					'file_upload_progress',
+					'memory_type',         
+					'locking_type',        
+				);
+				foreach($fields as $f)
+					echo "<label></label> {$info[$f]}<br/>";
+			?></pre>
+		<?php endif; ?>
+		
+		<label>OpCode Cache</label>
+		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
+		<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
+		<?php elseif( extension_loaded( 'eaccelerator' ) ) : ?>EAccelerator
+		<?php elseif( extension_loaded( 'Zend Optimizer+' ) ) : ?>Zend Optimizer+
+		<?php elseif( extension_loaded( 'wincache' ) ) : ?>WinCache
+		<?php else: ?>None
+		<?php endif; ?>
+		<br/>
+		
+		<?php $disabled = ini_get('disable_functions'); ?>
+		<label>Disabled Functions</label>
+		<?php if(!empty($disabled)) :?> 
+		<?php foreach($disabled as $d) : ?>
+			<?php echo $d?> is Disabled<br/>
+		<?php endforeach; ?>
+		<?php else: ?>
+			None<br/>
+		<?php endif; ?>
+		<label>PHP Memory Usage: </label><?php echo System_Info_Tools::formatBytes($mem_usage,2)?></br>
+		<ul class=threecol>
+		<?php 
+		/*
+		$extensions = get_loaded_extensions();
+		foreach($extensions as $e): ?>
+			<li><a href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
+		<?php endforeach; ?>
+		</ul>
+		*/ ?>
+		
+<?php 
+global $wp_styles,$wp_scripts;
+
+?>		
+		
+		
+<?php phpinfo(); ?>

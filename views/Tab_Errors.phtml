@@ -3,8 +3,15 @@
 			<h2>Error Log Location <?php echo $error_log?> <a href=# onClick="sysinfo_clear_log();" class=button-secondary>Clear Log</a></h2>
 			<?php #preg_match('\[(.*)\] (.*) on line (\d+)', $l, $m); ?>
 			<?php if(file_exists($error_log) && !empty($error_log)) : ?>
-				<pre><?php echo htmlspecialchars(System_Info_Tools::tail($error_log, 500));?></pre>
-				<label>Log Size</label> <?php echo System_Info_Tools::formatBytes(filesize($error_log),2); ?>
+				<pre>
+					<?php 
+						$error_string = System_Info_Tools::tail($error_log, 500);
+						$error_string = Log_Highlight::string($error_string);
+						echo htmlspecialchars($error_string);
+					?>
+				</pre>
+				<label>Log Size</label> 
+				<?php echo System_Info_Tools::formatBytes(filesize($error_log),2); ?>
 			<?php else : ?>
 				<label class=update>Log is Empty</label>
 			<?php endif; ?>

@@ -1,53 +1,16 @@
 <?php global $wpdb; ?>
 <div id=icon-tools class=icon32></div>
-		<h2>System Information</h2><br/>
-		<script>
-		jQuery(document).ready(function() {
-			jQuery('#tabs').tabs({
-				cache: true,
-				load: function(e,ui){
-					 jQuery(ui.panel).find(".tab-loading").remove();
-				},
-				select: function(e,ui){
-					 var panel = jQuery(ui.panel);
-					 if (panel.is(":empty")) {
-						 panel.append("<div class='tab-loading'>Loading...</div>")
-					}
-				},
-				load : function(){
-					jQuery('#tabs .datatable').datatable({
-						"bPaginate": false,
-						 "bJQueryUI": true,
-						 'bRetrieve':true
-					});
-				}
-				
-			});
-		});
-		function optimizeTable(table){
-			jQuery.ajax({
-				url: ajaxurl,
-				data:{action:'sysinfo_optimize_table', table:table},
-				dataType:'html',
-				success:function(h){
-					h = '<div>'+h+'</div>';
-					jQuery(h).dialog({
-						modal: true,
-						buttons: { Ok: function() { jQuery( this ).dialog( "close" );}}
-					});
-				}
-			});
-		}
-		</script>
+		<h2>System Information</h2>
+		<br/>
 		<div class='wrap infopage'>		
 			<div id=tabs>
 				<ul>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=info'>Info</a></li>
-					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=phpinfo'>PHP Info</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=mysql_info'>MySQL Info</a></li>
+					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=mysql_perf'>MySQL Performance</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=db'>Database</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=perm'>Permissions</a></li>
-					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=procs'>Procceses</a></li>
+					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=procs'>Procs</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=services'>Services</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=ports'>Open Ports</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=rewrite'>Rewrite Rules</a></li>
@@ -55,13 +18,15 @@
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=dns'>DNS</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=whois'>Whois</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=errors'>Error Log</a></li>
+					<!--
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=tools'>Tools</a></li>
+					-->
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=hooks'>Hooks</a></li>
 					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=functions'>Functions</a></li>
-					<li><a href='<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=sysinfo&tab=shell'>Shell</a></li>
 				</ul>
 				<div id=info></div>
 				<div id=mysql_info></div>
+				<div id=mysql_perf></div>
 				<div id=php></div>
 				<div id=db></div>
 				<div id=perm></div>
@@ -82,3 +47,42 @@
 				<div id=shell></div>
 			</div>
 		</div>
+<script>
+	jQuery(document).ready(function() {
+		jQuery('#tabs').tabs({
+			cache: true,
+			load: function(e,ui){
+				 jQuery(ui.panel).find(".tab-loading").remove();
+			},
+			select: function(e,ui){
+				 var panel = jQuery(ui.panel);
+				 if (panel.is(":empty")) {
+					 panel.append("<div class='tab-loading'>Loading...</div>")
+				}
+			},
+			load : function(){
+				jQuery('#tabs .datatable').datatable({
+					"bPaginate": false,
+					 "bJQueryUI": true,
+					 'bRetrieve':true
+				});
+			}
+			
+		});
+	});
+	function optimizeTable(table){
+		jQuery.ajax({
+			url: ajaxurl,
+			data:{action:'sysinfo_optimize_table', table:table},
+			dataType:'html',
+			success:function(h){
+				h = '<div>'+h+'</div>';
+				jQuery(h).dialog({
+					modal: true,
+					buttons: { Ok: function() { jQuery( this ).dialog( "close" );}}
+				});
+			}
+		});
+	}
+</script>
+				

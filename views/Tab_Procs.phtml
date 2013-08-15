@@ -1,5 +1,5 @@
 <table class='wp-list-table widefat fixed proc_table datatable'><thead><tr>
-	<?php $procs = System_Info_Bench::running_procs(); $keys = array_keys($procs[0]); ?>
+	<?php $procs = System_Info_Tools::running_procs(); $keys = array_keys($procs[0]); ?>
 	<?php foreach($keys as $h): ?>
 		<th><?php echo $h?>					
 	<?php endforeach; ?>

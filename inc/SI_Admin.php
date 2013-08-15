@@ -23,18 +23,16 @@ class System_Info_Admin{
 		add_action('wp_ajax_sysinfo_replace_content', 	array(__CLASS__, 'ajax_replace_content'));							
 		add_action('wp_ajax_sysinfo_search_hooks', 		array(__CLASS__, 'get_hooks'));			
 		add_action('wp_ajax_sysinfo_search_functions', 	array(__CLASS__, 'ajax_function_search'));			
-		add_action('wp_ajax_sysinfo_explain_query', 	array(__CLASS__, 'explain_query'));
-		add_action('wp_ajax_sysinfo_run_code', 			array(__CLASS__, 'run_code'));
-		add_filter('show_admin_bar', array(__CLASS__,'admin_bar')); 		
+		add_action('wp_ajax_sysinfo_explain_query', 		array(__CLASS__, 'explain_query'));
+		add_action('wp_ajax_sysinfo_run_code', 			array('System_Info_Tools', 'run_code'));
+		#add_filter('admin_bar_menu', array(__CLASS__,'admin_bar')); 		
 	}
 	
 	public static function admin_bar($bar){	
-		global $wp_admin_bar;
-		$wp_admin_bar ->add_menu(array(	
-			#'parent' => 'MY ACCOUNT',
+		$bar->add_menu(array(	
 			'id' => 'sysinfo-benchmark',
 			'title' => 'Run Benchmark',
-			'href' => $_SERVER['PATH_INFO']
+			'href' => $_SERVER['PATH_INFO'].'?=sysinfo_benchmark=1'
 		));		
 		return $bar;
 	}
@@ -48,15 +46,18 @@ class System_Info_Admin{
 		wp_enqueue_script('jquery-ui-tabs');			
 		wp_enqueue_script('jquery-ui-datepicker');		
 		
-		
-		
 		wp_enqueue_script('tablesorter', 'http://cachedcommons.org/cache/jquery-table-sorter/2.0.3/javascripts/jquery-table-sorter-min.js', array('jquery'));	
 		wp_enqueue_script('google_jsapi', 'https://www.google.com/jsapi');
 		
 		wp_enqueue_style('jquery-ui-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css'); 
+		
 		#$css_url = WP_PLUGIN_URL.'/system-info/system_info.css');
 		#wp_enqueue_style('system_info', $css_url );
 		
+		
+		wp_enqueue_script('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js');
+		wp_enqueue_style('datatables','http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css');
+	
 	}
 	public function admin_menu(){
 		//Should probably go under tools
@@ -70,7 +71,7 @@ class System_Info_Admin{
 		$start = microtime(true);
 		switch($_REQUEST['tab']){
 			case 'info': 			self::page_info(); break;
-			case 'phpinfo': 		self::page_php_info(); break;
+			#case 'phpinfo': 		self::page_php_info(); break;
 			case 'db':				self::page_db_info(); break;
 			case 'perm': 			self::page_permissions(); break;
 			case 'procs': 			self::page_procs(); break;
@@ -84,6 +85,7 @@ class System_Info_Admin{
 			case 'shell': 			self::page_shell(); break;
 			case 'functions': 		self::page_func(); break;
 			case 'mysql_info':		self::page_mysql_info(); break;
+			case 'mysql_perf':		self::page_mysql_perf(); break;
 			case 'services':		self::page_services(); break;
 			case 'ports':			self::page_open_ports(); break;
 			default: echo "No such Tab"; break;			
@@ -97,7 +99,9 @@ class System_Info_Admin{
 		$out = $wpdb->get_results('SHOW VARIABLES');
 		System_Info_Tools::out_table( $out, null, true);		
 	}
-	
+	public function page_mysql_perf(){
+		include(__DIR__.'/../views/Tab_Mysql_Perf.phtml');
+	}
 	public function get_hooks(){
 		global $wp_filter,$wp_actions,$merged_filters;		
 		$hook = $wp_filter;
@@ -109,9 +113,22 @@ class System_Info_Admin{
 	
 	#-----------------Work in progress
 	public static function page_open_ports(){
-		$cmd = (System_Info_Tools::is_windows()) ? 'netstat -ano | find "LISTENING"':'lsof -i -n | egrep "COMMAND|LISTEN"';
-		$out = System_Info_Tools::read_csv_array( System_Info_Tools::run_command( $cmd ),"\t");
-		System_Info_Tools::out_table($out);
+		if( System_Info_Tools::is_windows() ){
+			$cmd = 'netstat -ano | find "LISTENING"';
+			$out = System_Info_Tools::read_csv_array( System_Info_Tools::run_command( $cmd ),"\t");
+			
+			$data = array();
+			foreach($out as $l){
+				
+			}
+			
+			System_Info_Tools::out_table($out);
+		}
+		else{
+			$cmd = 'lsof -i -n | egrep "COMMAND|LISTEN"';
+			$out = System_Info_Tools::read_csv_array( System_Info_Tools::run_command( $cmd ),"\t");
+			System_Info_Tools::out_table($out);
+		}
 	}
 	public static function page_services(){
 		if(System_Info_Tools::is_windows()){
@@ -151,13 +168,17 @@ class System_Info_Admin{
 		include(__DIR__.'/../views/Tab_DNS.phtml');
 	}
 	public static function page_cron(){$cron = _get_cron_array(); include(__DIR__.'/../views/Tab_Cron.phtml'); }
-	public static function page_php_info(){ $mem_usage = memory_get_usage(); include(__DIR__.'/../views/Tab_PHP.phtml');}
+	#public static function page_php_info(){ $mem_usage = memory_get_usage(); include(__DIR__.'/../views/Tab_PHP.phtml');}
 	public static function page_procs(){ $mem_usage = memory_get_usage(); include(__DIR__.'/../views/Tab_Procs.phtml');}
 	public static function page_permissions(){ include(__DIR__.'/../views/Tab_Permissions.phtml');}
 	public static function page_tools(){ include(__DIR__.'/../views/Tab_Tools.phtml'); }
 	public static function page_rewrite_rules(){
 		$rules = ( System_Info_Tools::is_windows() ) ? file_get_contents(ABSPATH.'/web.config') : file_get_contents(ABSPATH.'/.htaccess');
-		echo "<pre>".htmlspecialchars($rules)."</pre>";
+		
+		if( System_Info_Tools::is_windows() )
+			echo "<pre>".System_Info_Tools::xml_highlight( $rules )."</pre>";
+		else
+			echo "<pre>".htmlspecialchars($rules)."</pre>";
 	}
 	
 	public static function ajax_function_search(){	

@@ -1,8 +1,11 @@
-<!--
+<?php 
+
+/*
 <progress max=100 value=34></progress>
 <meter></meter>
--->
-<div id=sysbench_output class=sysbench_output style='display:none'>				
+*/
+?>
+<div id=sysbench_output class=sysbench_output style='display:none;z-index:99999;'>				
 	<div id=sysbench_tabs>
 		<ul class=sysbench_tab_menu>
 			<li><a href=#sysbench_graphs>Graphs</a></li>
@@ -11,11 +14,11 @@
 			<li><a href=#sysbench_files>Files</a></li>
 			<li><a href=#sysbench_hooks>Hooks</a></li>
 			<li><a href=#cache>Cache</a></li>
+			
 		</ul>						
 			<div id=sysbench_graphs>
-			
 				<div id=load_bar_area></div>
-			
+				<br/>
 				<table id=user_performance></table>				
 				<table class=hook_times style='float:left'>
 					<thead><tr><th>Area<th>Time</tr></thead>									
@@ -34,7 +37,6 @@
 						<th>Load Time<td><?php echo round($total_time,2)?> seconds
 						<th>Query Time<td><?php echo number_format($wpdb_query_time,4)?> seconds
 						<th>CPU<td><?php echo (!System_Info_Tools::is_windows()) ? self::getCpuUsage():'(Unable to retrieve in windows)'; ?>
-				
 				<tr>
 				<?php 
 					$qo = get_queried_object();
@@ -214,10 +216,10 @@ var plugin_data_arr = [
 		],
 		[
 			'',
-			<?php echo implode(',',$plugin_times); ?>,
-			<?php echo self::$section['Theme']?>,
-			<?php echo self::$section['Other']?>,
-			<?php echo self::$section['System Info']?>,
+			<?php if( !empty($plugin_times) ) echo implode(',', $plugin_times); ?>,
+			<?php echo self::$section['Theme']?:0 ?>,
+			<?php echo self::$section['Other']?:0 ?>,
+			<?php echo self::$section['System Info']?:0 ?>,
 			<?php echo self::$load_time['Core Load']?>
 		]					
 	];

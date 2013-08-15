@@ -41,14 +41,18 @@
 		?>
 		</table>
 		<script>jQuery('.wpcron_jobs').accordion({collapsible: true,allwayOpen: false});</script>
-		<h3>crontab</h3>
-		<?php
-		if( self::is_windows() ){
-			$xmlString = self::run_command(exec('schtasks /query /XML'));
+		
+		<?php if( System_Info_Tools::is_windows() ) : ?>
+			<h3>Scheduled Tasks</h3>
+			<?php 
+			$xmlString = System_Info_Tools::run_command(exec('schtasks /query /XML'));
 			$xml = simplexml_load_string($xmlString);
 			print_r( $xmlString );
-		}
-		else{
-			$out = self::run_command("/usr/bin/crontab -l");
-			print_r($cout);
-		}
+			?>
+		<?php else: ?>
+			<h3>crontab</h3>
+			<?php
+				$out = System_Info_Tools::run_command("/usr/bin/crontab -l");
+				print_r($cout);
+			?>
+		<?php endif; ?>

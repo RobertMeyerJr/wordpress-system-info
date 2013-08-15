@@ -1,19 +1,20 @@
-//if(console.profile)
-	//console.profile('System Info Load');
-		
+/*
+if(console.profile)
+	console.profile('System Info Load');
+http://www.webpagetest.org/runtest.php?url={$url}
+*/
+console.log('in benchmark.js');
+
 jQuery(window).load(function(){
+	console.log('do_benchmarking');
 	setTimeout(SI_BenchMark.do_benchmarking, 1000);	
 });
 
-/*
-http://www.webpagetest.org/runtest.php?url={$url}
-*/
 
 SI_BenchMark = {
 	pie_width :		375,
 	pie_height : 	350,
 	startup: 		function(){
-		console.info('called');
 		SI_BenchMark.load_google_api();
 	},
 	google_api_loaded : function(){
@@ -82,8 +83,12 @@ SI_BenchMark = {
 		try{				
 			var total = 0;
 			var data_arr = plugin_data_arr;
-			for(var i=1;i<data_arr[1].length;i++)
+			
+			for(var i=1;i<data_arr[1].length;i++){
+				if(!data_arr[1][i])
+					data_arr[1][i] = 0;
 				total += parseFloat(data_arr[1][i]);
+			}
 			var data = google.visualization.arrayToDataTable(data_arr);
 			new google.visualization.ColumnChart(document.getElementById('plugin_chart')).draw(
 				data,{
@@ -95,6 +100,7 @@ SI_BenchMark = {
 				}
 			);			
 		}catch(err){	
+			console.log('Error Drawing Plugin Chart');
 			console.log(err);
 		}				
 	},
@@ -114,7 +120,7 @@ SI_BenchMark = {
 		var app_time	= total_time;	
 		var total 		= t.loadEventEnd-t.navigationStart;		
 		
-		console.info('Total Load Time'+total);
+		console.info('Total Load Time: '+total);
 		var totals = {
 			net_1	: (t.connectEnd - t.fetchStart), 					
 			app 	: (t.domInteractive - t.responseEnd), 				
@@ -211,6 +217,7 @@ SI_BenchMark = {
 		});
 	},
 	do_benchmarking : function(){	
+		var http_host = location.protocol+'//'+window.location.hostname;
 		if(console.profileEnd)
 			console.profileEnd();
 		if( window.performance )
@@ -219,7 +226,7 @@ SI_BenchMark = {
 		jQuery('#sysbench_output').dialog({
 			title: 		'System Info - Benchmarking',
 			width:		'80%',
-			minWidth: 	'600px',
+			minWidth: 	'600px'
 		});
 		jQuery('script').each(function(){ 
 			var source = jQuery(this).attr('src');
@@ -230,6 +237,7 @@ SI_BenchMark = {
 				}
 				else{
 					var link = '<a href="'+source+'">'+source+'</a>';
+					link = link.replace('/^'+http_host+'/', link);
 					jQuery('#si_scripts table').append('<tr><th>Script</th><td>'+link);
 				}
 		});
@@ -290,16 +298,16 @@ SI_BenchMark = {
 	}
 };
 
-
+/*
+Idea with this was to loop through each element and check for background-image
+this is too slow and not worth it.
+*/
 function bimages(){
 	elems = document.getElementsByTagName('*');
 	var nElems = elems.length;
-	
 	for ( var i = 0; i < nElems; i++ ) {
 	}
 }
-
-
 function sysinfo_explain(element){
 	var $td = jQuery(element).parent().parent().find('td.query');
 	var sql = $td.text();

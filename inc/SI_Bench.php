@@ -1,6 +1,7 @@
 <?php 
-
+//This file gets included by the System_Info_Bootstrap if $_GET['sysinfo_bench']==1
 System_Info_Bench::startup();
+System_Info_Bench::benchmarking();
 class System_Info_Bench{
 	public static $cpu_info;
 	public static $load_time 			= array();
@@ -23,25 +24,18 @@ class System_Info_Bench{
 		self::$load_time['start']  = ( empty($_SERVER['REQUEST_TIME_FLOAT']) ) ? $_SERVER['REQUEST_TIME'] : $_SERVER['REQUEST_TIME_FLOAT'];
 		self::$load_time['Core Load'] = microtime(true) - self::$load_time['start'];
 		
-		#add_action('wp_enqueue_scripts', array(__CLASS__,'scripted_added'));
-		
 		define('SAVEQUERIES', true );
-		self::benchmarking();
 		self::get_cpu_usage();
+		
 		add_action('init', array(__CLASS__, 'init'));			
 	}
 	
-	public static function scripted_added($script){
-	}
-	
+	public static function scripted_added($script){ }
 	public static function init(){
-		#This filter will be in Wordpress 3.6
-		add_filter('locate_template', function($template_name, $load, $require_once){
-				#ToDO: Backtrace and record where included from
-				System_Info::$_templates_used[] = $template_name;
-				return $template_name;
-		}, 10, 3);	
-		wp_enqueue_script('system-info-bench', plugins_url().'/system-info/views/benchmark.js');
+		#The locate_template filter may or may not ever appear 
+		#http://core.trac.wordpress.org/ticket/13239
+		
+		wp_enqueue_script('system-info-bench', '/wp-content/plugins/wordpress-system-info/views/benchmark.js', array('jquery'));		
 		
 	}
 	
@@ -72,7 +66,6 @@ class System_Info_Bench{
 		$wpdb_query_time = 0;
 		#Sort by time taken
 		$wpdb_queries = isort($wpdb->queries, 1); #nope, change this, isort is from util.php
-		#$wpdb_queries = $wpdb->queries; #No Sorting, in Order
 		$total_query_time = 0;
 		foreach($wpdb_queries as $q){
 			$wpdb_query_time += $q[1];
@@ -90,79 +83,54 @@ class System_Info_Bench{
 			'type'			=>	$hook_type,
 			'time'			=>	microtime(true),
 			'arguments'		=>	$args
-		);
-		
+		);		
 		return $input;
 	}
 	public static function benchmarking(){
+		declare(ticks = 1);
+		register_tick_function(array(__CLASS__, 'tick'), true);		
+	
 		$FIRST_ACTION 		= -99999;
 		$LAST_ACTION	 	=  99999;
 		//We want a hook on all, late and early
+		
 		add_action( 'all', array(__CLASS__,'all_hook'), $FIRST_ACTION);
 		add_action( 'all', array(__CLASS__,'all_hook'), $LAST_ACTION);
-
-		add_action('muplugins_loaded',	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('muplugins_loaded',	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
 		add_action('muplugins_loaded',	array(__CLASS__,'record_core_mem_usage'),	$LAST_ACTION);
-		
-		add_action('plugins_loaded', 	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('plugins_loaded',	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_action('setup_theme',		array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('setup_theme',		array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_action('after_setup_theme',		array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('after_setup_theme',		array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_action('init',					array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('init',					array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_action('wp_loaded',				array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('wp_loaded',				array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_action('template_redirect',		array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('template_redirect',		array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		
-		add_action('wp_head',			array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('wp_head',			array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_action('shutdown',			array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_action('shutdown',			array(__CLASS__,'timer_stop'),	$LAST_ACTION);
-		
-		add_filter('the_content',		array(__CLASS__,'timer_start'),	$FIRST_ACTION);
-		add_filter('the_content',		array(__CLASS__,'timer_stop'),	$LAST_ACTION);
+		$timers = array(
+			'muplugins_loaded','plugins_loaded','setup_theme',
+			'after_setup_theme','init','wp_loaded',
+			'template_redirect','wp_head','shutdown','the_content'
+		);
+		foreach($timers as $t){
+			add_action($t,	array(__CLASS__,'timer_start'),	$FIRST_ACTION);
+			add_action($t,	array(__CLASS__,'timer_stop'),	$LAST_ACTION);
+		}
 		
 		#Used for graphs
-		wp_enqueue_style('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css'); 
-		wp_enqueue_style('datatables', 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css'); 
-		
+		wp_enqueue_style('datatables', '//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css'); 
+		wp_enqueue_style('datatables', '//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css'); 
 		wp_enqueue_style('system-info', plugins_url().'/system-info/views/system-info.css');
 		
 		add_action('init', function(){
 			wp_enqueue_script('jquery-ui-dialog');
 			wp_enqueue_script('jquery-ui-accordion');
 			wp_enqueue_script('jquery-ui-tabs');
-			
-			wp_enqueue_style('si-jquery-ui-css','http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/themes/smoothness/jquery-ui.css');					
+			wp_enqueue_style('si-jquery-ui-css','//ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/themes/smoothness/jquery-ui.css');					
 		});		
-		
-		declare(ticks = 1);
-		register_tick_function(array(__CLASS__, 'tick'), true);		
+				
 		add_action('shutdown', array(__CLASS__, 'benchmark_output'), $LAST_ACTION);
 		#Maybe register an error handler to catch all errors?		
 	}
 	
-	public static function record_core_mem_usage(){
-		self::$_CORE_MEM_USAGE = memory_get_peak_usage();
-	}
+	public static function record_core_mem_usage(){ self::$_CORE_MEM_USAGE = memory_get_peak_usage(); }
 	
 	public static function tick(){
 		static $last_time = 0;
 		static $last_call = null;
 		static $CONTENT = '';
 		static $THEMES 	= '';
+		
 		if ( empty( $CONTENT ) ) {
 			$CONTENT = basename( WP_CONTENT_DIR );
 			$THEMES = $CONTENT.'.themes';
@@ -217,28 +185,15 @@ class System_Info_Bench{
 	
 		#Function
 		$function = (isset($frame['object'])) ? get_class($frame['object']) . '::' . $frame['function'] : $frame['function'];
-		$file = str_replace('\\','/',$file); #Because f-u windows
-		/*
-		This is generic, does not take into account changes of defaults
-		*/
-		if(stripos($file, 'wp-includes') !== false){
-			$area = 'WP Core';
-		}
-		else if(stripos($file, 'SI_Bench.php') !== false){
-			$area = 'System Info';
-		}
-		else if(stripos($file, 'plugins') !== false){
-			$area = 'Plugins';			
-		}
-		else if(stripos($file, 'themes') !== false){
-			$area = 'Theme';
-		}
-		else if(stripos($file, 'wp-admin') !== false){
-			$area = 'Wordpress Admin';
-		}
-		else{
-			$area = 'Other';
-		}
+		$file = str_replace('\\','/',$file); #For Windows
+		
+		#This is generic, does not take into account changes of defaults
+		if(stripos($file, 'wp-includes') !== false) 		$area = 'WP Core';
+		else if(stripos($file, 'SI_Bench.php') !== false) 	$area = 'System Info';
+		else if(stripos($file, 'plugins') !== false) 		$area = 'Plugins';			
+		else if(stripos($file, 'themes') !== false) 		$area = 'Theme';
+		else if(stripos($file, 'wp-admin') !== false) 		$area = 'Wordpress Admin';		
+		else	$area = 'Other';
 		
 		$time = microtime(true) - self::$_last_time;
 		
@@ -246,14 +201,12 @@ class System_Info_Bench{
             self::$_profile[$area] = array();
 			self::$_function_count[$area] = array();			
 			self::$section[$area] = 0;			
-        }
-		
+        }		
 		#Create the entry for the file
-		if( !isset(self::$_profile[$area][$file]) ){
+		if( !isset( self::$_profile[$area][$file] ) ){
 			self::$_profile[$area][$file] = array();
 			self::$_function_count[$area][$file] = array();				
 		}
-		
 		#Create the entry for the function
         if ( !isset( self::$_profile[$area][$file][$function] ) ){
             self::$_profile[$area][$file][$function] = 0;
@@ -267,8 +220,7 @@ class System_Info_Bench{
 			self::$_function_count[$area][$file][$function]++;
 			$last_call = $current_call;
 		}
-        self::$_last_time = microtime(true);
-		 
+        self::$_last_time = microtime(true);		 
 	}
 	public static function benchmark_output(){		 
 		global $wpdb,$template,$EZSQL_ERROR,$wp_query,$wp,$wp_object_cache,$bp;
@@ -283,7 +235,7 @@ class System_Info_Bench{
 		*/			
 		self::$load_time['stop'] = microtime(true);		
 
-		if(System_Info_Tools::is_windows()){
+		if( System_Info_Tools::is_windows() ){
 			$plugin_dir 	= str_replace('\\','/',WP_PLUGIN_DIR);
 			$muplugin_dir 	= str_replace('\\','/',WP_CONTENT_DIR).'/mu-plugins';												
 		}
@@ -292,16 +244,16 @@ class System_Info_Bench{
 			$plugin_dir 	= str_replace('\\','/',WP_PLUGIN_DIR);
 		}	
 
-		$wpdb_queries = $wpdb->queries; 
-		$wpdb_query_time = 0;
-		$profiles = array();
-			$plugin_times = array();
+		$wpdb_queries 		= $wpdb->queries; 
+		$wpdb_query_time 	= 0;
+		$profiles 			= array();
+		$plugin_times 		= array();
+		
 		foreach($wpdb_queries as $q){
 			$wpdb_query_time += $q[1];
 		}				
 		uasort($wpdb_queries,function($a,$b){ return $a[1]<$b[1];  });
 		$total_time = self::$load_time['stop'] - self::$load_time['start'];
-		
 		
 		foreach((array)self::$_profile['Plugins'] as $k=>$values){
 			$name = str_replace($plugin_dir,'',$k);
@@ -309,14 +261,13 @@ class System_Info_Bench{
 			$name = str_replace('\\','/',$name);
 			$pos = strpos($name, '/',1)-1;
 			$dash_pos = ($pos<0) ? strlen($name):$pos;
-			$plugin_name = substr($name, 1, $dash_pos);
-			
+			$plugin_name = substr($name, 1, $dash_pos);			
 			$plugin_times[$plugin_name] += array_sum($values); 
 		}		
 		
 		arsort(self::$section);
 		arsort( $plugin_times );											
-
+		
 		include(__DIR__.'/../views/Benchmark.phtml');			
 	}
 	public static function timer_start($input){

@@ -9,6 +9,13 @@ Author URI: http://www.robertmeyerjr.com
 License: GPL2
 
 */	
+#See which of these can be conditional
+include('inc/SI_Admin.php');
+include('inc/Log_Highlight.php');
+include('inc/SI_AJAX.php');
+include('inc/SI_SQL.php');
+include('inc/SI_Tools.php');
+
 System_Info::startup();
 class System_Info{	
 	public static function startup(){
@@ -18,11 +25,7 @@ class System_Info{
 	}	
 	public static function init(){
 		if(is_user_logged_in() && current_user_can('administrator') ){ #If we aren't admin, dont even run
-			try{
-				include('inc/SI_Admin.php');
-				include('inc/SI_AJAX.php');
-				include('inc/SI_SQL.php');
-				include('inc/SI_Tools.php');
+			try{				
 				System_Info_Admin::init();			
 			}catch(Exception $e){
 				add_action( 'admin_notices', function(){ 
@@ -31,8 +34,9 @@ class System_Info{
 			}
 		}
 	}
+	//This process is not yet working
 	public static function activate(){
-		error_log("Activating...\r\n",3,__DIR__.'/test.log');
+		#error_log("Activating...\r\n",3,__DIR__.'/activate.log');
 		$mu_plugins = self::get_mu_plugins_dir();
 		$file_path = $mu_plugins.'/System_Info_Bootstrap.php';
 		$from = __DIR__.'/inc/System_Info_Bootstrap.php';
@@ -52,7 +56,7 @@ class System_Info{
 		}
 	}
 	public static function deactivate(){
-		error_log("Deactivating...\r\n",3,__DIR__.'/test.log');
+		#error_log("Deactivating...\r\n",3,__DIR__.'/deactivate.log');
 		$mu_plugins = self::get_mu_plugins_dir();
 		$file_path = $mu_plugins.'/System_Info_Bootstrap.php';
 		if( file_exists($file_path) )

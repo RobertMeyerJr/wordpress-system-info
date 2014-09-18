@@ -1,0 +1,16 @@
+.cBlue{color:#3498db !important;}
+.cRed{color:#c0392b !important;}
+.cGreen{color:#27ae60 !important;}
+.cPurple{color:#8e44ad !important;}
+.cOrange{color:#f39c12 !important;}
+.cDark{color:#2c3e50 !important;}
+
+.b{font-weight:bold;}
+
+
+.truthy{color:#27ae60 !important;}
+.falsy{color:#c0392b !important;}
+.number{color:#3498db !important;}
+.date{color:#27ae60 !important;}
+.string{color:#27ae60 !important;}
+.object{color:#8e44ad !important;}

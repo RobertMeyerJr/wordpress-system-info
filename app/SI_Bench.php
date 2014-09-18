@@ -1,7 +1,8 @@
 <?php 
 //This file gets included by the System_Info_Bootstrap if $_GET['sysinfo_bench']==1
-System_Info_Bench::startup();
+System_Info_Bench::run();
 System_Info_Bench::benchmarking();
+
 class System_Info_Bench{
 	public static $cpu_info;
 	public static $load_time 			= array();
@@ -16,7 +17,7 @@ class System_Info_Bench{
 	public static $_templates_used = array();
 	public static $messages = array();
 	
-	public static function startup(){		
+	public static function run(){		
 		self::$_path 		= realpath( dirname( __FILE__ ) );
 		self::$_last_time 	= microtime(true);
 		
@@ -24,13 +25,11 @@ class System_Info_Bench{
 		self::$load_time['start']  = ( empty($_SERVER['REQUEST_TIME_FLOAT']) ) ? $_SERVER['REQUEST_TIME'] : $_SERVER['REQUEST_TIME_FLOAT'];
 		self::$load_time['Core Load'] = microtime(true) - self::$load_time['start'];
 		
-		define('SAVEQUERIES', true );
-		self::get_cpu_usage();
+		define('SAVEQUERIES', true ); // Redefine?
 		
 		add_action('init', array(__CLASS__, 'init'));			
 	}
 	
-	public static function scripted_added($script){ }
 	public static function init(){
 		#The locate_template filter may or may not ever appear 
 		#http://core.trac.wordpress.org/ticket/13239
@@ -39,26 +38,7 @@ class System_Info_Bench{
 		
 	}
 	
-	public static function get_cpu_usage() {
-		if(!function_exists('getrusage'))
-			return false;
-		$d = getrusage();	
-		if(!defined('PHP_TUSAGE')){
-			define('PHP_TUSAGE', microtime(true));
-			define('PHP_RUSAGE', $d["ru_utime.tv_sec"]*1e6+$d["ru_utime.tv_usec"]);
-			return;
-		}
-		else{
-			$d["ru_utime.tv_usec"] = ($d["ru_utime.tv_sec"]*1e6 + $d["ru_utime.tv_usec"]) - PHP_RUSAGE;
-			$time = (microtime(true) - PHP_TUSAGE) * 1000000;
-			if($time > 0) {
-				$cpu = sprintf("%01.2f", ($d["ru_utime.tv_usec"] / $time) * 100);
-			} else {
-				$cpu = '0.00';
-			}	 
-		}
-		return $cpu;
-	}
+	
 	
 	public static function benchmark(){
 		global $wpdb;

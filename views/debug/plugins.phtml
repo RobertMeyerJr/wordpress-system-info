@@ -1,0 +1,28 @@
+<h3>Plugins</h3>
+	<?php 	
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$plugins 			= get_plugins();
+		$active_plugins 	= get_option('active_plugins');
+	?>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>URI</th>
+			<th>Version</th>
+			<th>Description</th>
+			<th>Author</th>
+			<th>Author URI</th>
+		</tr>
+		<tbody>			
+		<?php foreach ( $plugins as $plugin_path => $p ) : ?>
+			<?php if( in_array( $plugin_path, $active_plugins ) ) : ?>
+			   <tr>
+					<td><?php echo $p['Name']?></td>
+					<td><?php echo $p['Version']?></td>		
+					<td><?php echo $p['URI']?></td>					
+					<td><?php echo $p['Description']?></td>
+				</tr>
+			<?php endif; ?>
+		<?php endforeach; ?>
+		</tbody>
+	</table>

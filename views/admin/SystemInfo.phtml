@@ -1,0 +1,81 @@
+<?php 
+global $wpdb; 
+$tab = isset($_GET['tab']) ? $_GET['tab']:'info';
+$start = microtime(true);
+?>
+<div class=wrap>
+	<h2><i class='dashicons dashicons-gauge'></i> System Information</h2>
+	<br/>
+	<?php 
+		$tabs = array(
+			'Info'				=>	'info',		
+			'MySQL Info'		=>	'mysql_info',	
+			'MySQL Performance'	=>	'mysql_perf',	
+			'Database'			=>	'db',			
+			'Permissions'		=>	'perm',		
+			'Procs'				=>	'procs',		
+			'Services'			=>	'services',	
+			'Open Ports'		=>	'ports',		
+			'Rewrite Rules'		=>	'rewrite',		
+			'Cron'				=>	'cron',		
+			'DNS'				=>	'dns',			
+			'Whois'				=>	'whois',		
+			'Error Log'			=>	'errors',		
+			'Tools'				=>	'tools',		
+			'Hooks'				=>	'hooks',		
+			'Functions'			=>	'functions',	
+			'WP Options'		=>	'options'		
+		);
+	?>
+	<div class="nav-tab-wrapper">
+		<?php 
+			foreach($tabs as $name=>$param){
+				$class = ($param==$tab) ? 'nav-tab-active':'';
+				echo "<a class=\"nav-tab {$class}\" href=/wp-admin/admin.php?page=sys_info&tab={$param}>{$name}</a>";
+			}
+		?>			
+	</div>
+	<div>
+		<?php 			
+			switch($tab){
+				case 'info': 			System_Info_Admin::page_info(); break;
+				case 'db':				System_Info_Admin::page_db_info(); break;
+				case 'perm': 			System_Info_Admin::page_permissions(); break;
+				case 'procs': 			System_Info_Admin::page_procs(); break;
+				case 'rewrite': 		System_Info_Admin::page_rewrite_rules(); break;
+				case 'cron': 			System_Info_Admin::page_cron(); break;
+				case 'hooks': 			System_Info_Admin::page_hooks(); break;
+				case 'dns': 			System_Info_Admin::page_dns(); break;
+				case 'whois': 			System_Info_Admin::page_whois(); break;
+				case 'errors': 			System_Info_Admin::page_errors(); break;
+				case 'tools': 			System_Info_Admin::page_tools(); break;
+				case 'shell': 			System_Info_Admin::page_shell(); break;
+				case 'functions': 		System_Info_Admin::page_func(); break;
+				case 'mysql_info':		System_Info_Admin::page_mysql_info(); break;
+				case 'mysql_perf':		include('Tab_Mysql_Perf.phtml'); ;break;
+				case 'services':		System_Info_Admin::page_services(); break;
+				case 'ports':			System_Info_Admin::page_open_ports(); break;
+				case 'options': 		include('Tab_Options.phtml'); break;
+				default: echo "No such Tab '{$tab}'"; break;			
+			}		
+			$total = microtime(true) - $start;
+			echo "<h4>Total Time - ".number_format($total*1000,2)."ms</h4>";
+		?>
+	</div>
+</div>
+<script>
+	function optimizeTable(table){
+		jQuery.ajax({
+			url: ajaxurl,
+			data:{action:'sysinfo_optimize_table', table:table},
+			dataType:'html',
+			success:function(h){
+				h = '<div>'+h+'</div>';
+				jQuery(h).dialog({
+					modal: true,
+					buttons: { Ok: function() { jQuery( this ).dialog( "close" );}}
+				});
+			}
+		});
+	}
+</script>

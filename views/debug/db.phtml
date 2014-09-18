@@ -1,0 +1,43 @@
+<h2>
+	<?php 
+		echo "{$wpdb->num_queries} Queries in {$total_query_time_ms}ms";
+		if(!empty($query_percentage)){
+			echo " {$query_percentage}% of Request Time ";
+			echo "<progress max=100 value={$query_percentage}></progress>";
+		}		
+	?>
+</h2>	
+<?php if(!empty($wpdb->queries)) : ?>
+	<table>
+		<thead>
+			<tr>
+				<th>Duration</th>
+				<th>Query</th>
+				<th>Trace</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach($wpdb->queries as $q) :?>
+				<?php list($sql, $elapsed, $trace) = $q; ?>
+				<tr>
+					<th><?php echo number_format($elapsed*1000,2) ?>ms</th>
+					<td class=qry>						
+						<code class=sql><?php echo $sql ?></cod>
+					</td>
+					<td>
+						<ol>
+						<?php 
+							$trace_parts = explode(',',$trace);
+							foreach($trace_parts as $p){
+								echo "<li>".hilight_trace_part($p)."</li>";
+							}
+						?>
+						</ol>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+<?php else: ?>
+	No Queries Record. Ensure SAVEQUERIES is enabled
+<?php endif; ?>

@@ -8,9 +8,13 @@ class System_Info_Tools{
 		}
 		return $arr;
 	}
-	public static function run_command($cmd, $return_as=null){
-		if( !empty( $cmd ) )
+	/*
+	
+	*/
+	public static function run_command($cmd, $return_as=null){		
+		if( !empty( $cmd ) ){
 			exec($cmd, $output);
+		}
 		return $output;
 	}
 	public static function get_domain($url){
@@ -23,6 +27,7 @@ class System_Info_Tools{
 	}
 	public static function is_windows(){ return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'); }
 	public static function can_exec(){
+		#if(function_exists('exec')
 		exec('echo test', $output);
 		if(strstr($output,'test')===false)
 			return false;
@@ -242,9 +247,6 @@ class System_Info_Tools{
 	
 	public static function cpu_info(){
 		if(self::is_windows()){
-			/*
-			echo %PROCESSOR_ARCHITECTURE% %PROCESSOR_IDENTIFIER% %PROCESSOR_LEVEL% %PROCESSOR_REVISION%
-			*/
 			exec("wmic CPU get name, NumberOfCores,description, LoadPercentage, maxclockspeed, extclock, manufacturer, revision /format:csv", $info);
 			$cpu_info = self::wmic_to_array($info);											
 		}
@@ -312,6 +314,7 @@ class System_Info_Tools{
 		if(in_array($upper, $falsy, true)) 	$classes[] = 'falsy';
 		if(is_numeric($v))					$classes[] = 'number';
 		if(is_date($v))						$classes[] = 'date';
+		if(is_string($v))					$classes[] = 'string';
 		$c = implode(' ', $classes);
 		return "<span class='{$c}'>{$v}</span>";	
 	}
@@ -390,6 +393,9 @@ class System_Info_Tools{
 	}
 		
 		
+	/*
+	Cheap, ugly
+	*/	
 	public static function xml_highlight($s){
 	  $s = preg_replace("|<([^/?])(.*)\s(.*)>|isU", "[1]<[2]\\1\\2[/2] [5]\\3[/5]>[/1]", $s);
 	  $s = preg_replace("|</(.*)>|isU", "[1]</[2]\\1[/2]>[/1]", $s);

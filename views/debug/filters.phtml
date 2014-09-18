@@ -1,0 +1,31 @@
+<h2>Filters, Actions, and their duration</h2>
+<h3>Total Duration <?php echo number_format($total_filter_duration, 8)?>ms</h3>
+
+<?php 
+	$filter_percentage 		= number_format(($total_filter_duration/$time_taken) * 100, 2);
+	if(!empty($filter_percentage)){
+		echo " {$filter_percentage}% of Request Time ";
+		echo "<progress max=100 value=\"{$filter_percentage}\"></progress>";
+	}		
+	d($dbg_filter_calls);
+?>
+
+
+<table class=widefat>
+	<thead>
+		<tr>
+			<th>Filter</th>
+			<th>Duration</th>
+			<th>Calls</th>
+		</tr>
+	</thead>
+	<tbody>
+	<?php foreach($GLOBALS[dbg_filter_times] as $filter=>$duration) : ?>
+		<tr>
+			<th><?php echo $filter ?></th>
+			<td><?php echo number_format($duration, 8)?>ms</td>
+			<td><?php echo $dbg_filter_calls[$filter]?></td>
+		</tr>
+	<?php endforeach; ?>
+	</tbody>
+</table>

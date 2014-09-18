@@ -1,5 +1,6 @@
 <?php 
 global $_wp_additional_image_sizes; 
+#global $wp_styles,$wp_scripts;
 ?>
 
 <?php #global $wp_scripts; var_dump($wp_scripts); ?>
@@ -12,13 +13,25 @@ global $_wp_additional_image_sizes;
 	<tr><th>MySQL Version<td><?php echo System_Info_Tools::color_format($wpdb->db_version()); ?>
 	<tr><th>Webserver<td><?php echo System_Info_Tools::color_format($_SERVER['SERVER_SOFTWARE'])?>
 	<tr><th>Webserver User<td><?php echo (System_Info_Tools::is_windows()) ? get_current_user():exec('whoami');?></tr>
+	
+	<?php if(($_SERVER['SERVER_SOFTWARE']=='Apache') && function_exists('apache_get_modules')) : 
+			$modules = apache_get_modules(); ?>	
+			<tr><th>Apache Modules</th>
+			<td>
+				<?php foreach($modules as $m) : ?>
+					<span><?php echo $m?></span>
+				<?php endforeach; ?>
+			</td></tr>
+	<?php endif; ?>
+		
+	
 	<tr><th colspan=2 class=hdr>Wordpress Info</th></tr>
 	<tr><th>Wordpress Version</th><td><?php echo $wp_version?></tr>
 	<tr><th>WP_DEBUG</th><td><?php echo System_Info_Tools::color_format((WP_DEBUG)?'Yes':'No')?></tr>
 	<tr><th>WP_DEBUG_DISPLAY</th><td><?php echo System_Info_Tools::color_format((WP_DEBUG_DISPLAY)?'Yes':'No')?></tr>
 	<tr><th>WP_DEBUG_LOG</th><td><?php echo System_Info_Tools::color_format(WP_DEBUG_LOG)?></td></tr>
 	<tr><th>WP_PLUGIN_DIR</th><td><?php echo System_Info_Tools::color_format(WP_PLUGIN_DIR)?></tr>
-	<tr><th>FS_METHOD</th><td><?php echo System_Info_Tools::color_format(FS_METHOD)?></tr>			
+	<tr><th>FS_METHOD</th><td><?php if (defined('FS_METHOD')) echo System_Info_Tools::color_format(FS_METHOD)?></tr>			
 	<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
 	<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>
 	<tr><th colspan=2 class=hdr>MySQL Info</th></tr>
@@ -50,44 +63,46 @@ global $_wp_additional_image_sizes;
 					<span><?php echo $m?></span>
 				<?php endforeach; ?>
 			</td></tr>
-	<?php endif; ?>
+	<?php endif; ?>			
 </table>
 
 <h3>Image Sizes</h3>
-<table>
-<thead>
-	<tr>
-		<th>Name</th>
-		<th>Width</th>
-		<th>Height</th>
-		<th>Hard Crop</th>
-</thead>
-<tbody>
-<?php foreach($_wp_additional_image_sizes as $name=>$i) : ?>
-	<tr>
-		<td><?php echo $name?></td>
-		<td><?php echo $i['width'] ?></td>
-		<td><?php echo $i['height']?></td>
-		<td><?php echo ($i['crop'])?'Yes':'No'?></td>
-	</tr>
-<?php endforeach; ?>
-</tbody>
+<table class='widefat'>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Width</th>
+			<th>Height</th>
+			<th>Hard Crop</th>
+			<th>Size</th>
+	</thead>
+	<tbody>
+	<?php foreach($_wp_additional_image_sizes as $name=>$i) : ?>
+		<tr>
+			<td><?php echo $name?></td>
+			<td><?php echo $i['width'] ?></td>
+			<td><?php echo $i['height']?></td>
+			<td><?php echo ($i['crop'])?'Yes':'No'?></td>
+			<td><div style='background-color:red;width:<?php echo $i['width']?>px;height:<?php echo $i['height']?>px'></div></td>
+		</tr>
+	<?php endforeach; ?>
+	</tbody>
 </table>
 
 
 <h2>PHP Settings</h2>
-		<label>Loaded Configuration</label><?php echo php_ini_loaded_file();?><br/>
-		<label>Extensions Directory</label><?php echo PHP_EXTENSION_DIR?><br/>
-		<label>max_execution_time</label><?php echo ini_get('max_execution_time');?><br/>
-		<label>post_max_size</label><?php echo ini_get('post_max_size');?><br/>
-		<label>upload_max_filesize</label><?php echo ini_get('upload_max_filesize');?><br/>
-		<label>memory_limit</label><?php echo ini_get('memory_limit');?><br/>
-		<label>open_basedir</label><?php echo ini_get('open_basedir');?><br/>
-		<label>short_open_tag</label><?php echo ini_get('short_open_tag');?><br/>
-		<label>safe_mode</label><?php echo ini_get('safe_mode');?><br/>
-		
+<table class='widefat'>
+<tr><th>Loaded Configuration</th><td><?php echo php_ini_loaded_file();?></td></tr>
+	<tr><th>Extensions Directory</th><td><?php echo PHP_EXTENSION_DIR?></td></tr>
+	<tr><th>max_execution_time</th><td><?php echo ini_get('max_execution_time');?></td></tr>
+	<tr><th>post_max_size</th><td><?php echo ini_get('post_max_size');?></td></tr>
+	<tr><th>upload_max_filesize</th><td><?php echo ini_get('upload_max_filesize');?></td></tr>
+	<tr><th>memory_limit</th><td><?php echo ini_get('memory_limit');?></td></tr>
+	<tr><th>open_basedir</th><td><?php echo ini_get('open_basedir');?></td></tr>
+	<tr><th>short_open_tag</th><td><?php echo ini_get('short_open_tag');?></td></tr>
+	<tr><th>safe_mode</th><td><?php echo ini_get('safe_mode');?></td></tr>		
 		<?php if(function_exists('apc_cache_info')) : $info = apc_cache_info(); ?>
-			<label>APC</label>
+			<tr><th>APC</th><td>
 			<pre><?php 
 				$fields = array(
 					'num_slots',       
@@ -106,42 +121,35 @@ global $_wp_additional_image_sizes;
 				foreach($fields as $f)
 					echo "<label></label> {$info[$f]}<br/>";
 			?></pre>
-		<?php endif; ?>
-		
-		<label>OpCode Cache</label>
-		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
-		<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
-		<?php elseif( extension_loaded( 'eaccelerator' ) ) : ?>EAccelerator
-		<?php elseif( extension_loaded( 'Zend Optimizer+' ) ) : ?>Zend Optimizer+
-		<?php elseif( extension_loaded( 'wincache' ) ) : ?>WinCache
-		<?php else: ?>None
-		<?php endif; ?>
-		<br/>
-		
+		<?php endif; ?></td></tr>
+		<tr><th>OpCode Cache</th><td>
+			<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
+			<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
+			<?php elseif( extension_loaded( 'eaccelerator' ) ) : ?>EAccelerator
+			<?php elseif( extension_loaded( 'Zend Optimizer+' ) ) : ?>Zend Optimizer+
+			<?php elseif( extension_loaded( 'wincache' ) ) : ?>WinCache
+			<?php else: ?>None
+			<?php endif; ?>
+		</td></tr>
 		<?php $disabled = ini_get('disable_functions'); ?>
-		<label>Disabled Functions</label>
+		<tr><th>Disabled Functions</th><td>
 		<?php if(!empty($disabled)) :?> 
 		<?php foreach($disabled as $d) : ?>
-			<?php echo $d?> is Disabled<br/>
+			<?php echo $d?> is Disabled 
 		<?php endforeach; ?>
 		<?php else: ?>
-			None<br/>
+			None
 		<?php endif; ?>
-		<label>PHP Memory Usage: </label><?php echo System_Info_Tools::formatBytes($mem_usage,2)?></br>
-		<ul class=threecol>
-		<?php 
-		/*
-		$extensions = get_loaded_extensions();
-		foreach($extensions as $e): ?>
-			<li><a href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
-		<?php endforeach; ?>
-		</ul>
-		*/ ?>
+		</td></tr>
+		<tr><th>PHP Extensions</th>
+		<td>
+			<ul class=threecol>		
+			<?php $extensions = get_loaded_extensions(); ?>
+			<?php foreach($extensions as $e): ?>
+				<li><a href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
+			<?php endforeach; ?>
+			</ul> 	
+		</td>
+		</tr>
+</table>				
 		
-<?php 
-global $wp_styles,$wp_scripts;
-
-?>		
-		
-		
-<?php phpinfo(); ?>

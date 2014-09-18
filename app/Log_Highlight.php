@@ -1,16 +1,16 @@
 <?php
 
 class Log_Highlight{
-	function file($file){
+	public static function file($file){
 		return SELF::string( file_get_contents($file) );
 	}
-	function string($str){
+	public static function string($str){
 		$lines = explode(PHP_EOL, $str); 
 		foreach($lines as $line){
 			echo self::line($line);
 		} 
 	}
-	function line($line){	
+	public static function line($line){	
 		$pos_end_bracket = strpos($line,']',1);
 		$time 	= date('m/d/Y h:ia', strtotime(substr($line, 1, $pos_end_bracket)) );
 		$level 	= substr($line, $pos_end_bracket, strpos($line,':',$pos_end_bracket) - $pos_end_bracket);

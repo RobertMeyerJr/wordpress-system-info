@@ -40,10 +40,8 @@ class System_Info_SQL{
 	
 	public static function optimize_table($table){
 		global $wpdb;
-		$sql = $wpdb->prepare("OPTIMIZE TABLE {$table}");
-		 echo "<p>{$sql}</p>";
-		$result = $wpdb->get_results($sql);
-		System_Info_Tools::out_table($result);
+		$sql = "OPTIMIZE TABLE {$table}";
+		return $wpdb->get_results($sql);
 	}
 	public static function get_tables(){
 		global $wpdb;
@@ -69,17 +67,6 @@ class System_Info_SQL{
 			ORDER BY sum(data_length+index_length) DESC";
 		$result = $wpdb->get_results($sql);	
 		System_Info_Tools::out_table($result, null, true);	
-	}
-	public static function convert_to_file_per_table(){	
-		global $wpdb;
-		return;
-		$sql = "SELECT concat('ALTER TABLE ',TABLE_SCHEMA ,'.',table_name,' ENGINE=InnoDB;') 
-				FROM INFORMATION_SCHEMA.tables where table_type='BASE TABLE' and engine = 'InnoDB';";
-		$sql = "ALERT TABLE {$schema}.{$table} ENGINE=InnoDB;";		
-		#$result = $wpdb->FetchObjects('OPTIMIZE TABLE :table', array('table'=>$tbl));
-		foreach($result as $r){
-			#$wpdb->query($r);
-		}
 	}
 	public static function explain_query(){
 		global $wpdb;

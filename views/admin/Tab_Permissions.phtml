@@ -36,12 +36,12 @@
 								$world .= (($perms & 0x0001) ? (($perms & 0x0200) ? 't' : 'x' ) : (($perms & 0x0200) ? 'T' : '-'));
 							?>
 							<tr>
-								<th><?php echo $p['path']?></th>
-								<td><?php echo $type?></td>
-								<th><?php echo substr(sprintf('%o', $p['permissions']), -4);?></th>
-								<td><?php echo $user?></td>
-								<td><?php echo $group?></td>
-								<td><?php echo $world?></td>
+								<th class=cBlue><?php echo $p['path']?></th>
+								<td class=cPurple><?php echo $type?></td>
+								<th class=cOrange><?php echo substr(sprintf('%o', $p['permissions']), -4);?></th>
+								<td class=cRed><?php echo $user?></td>
+								<td class=cRed><?php echo $group?></td>
+								<td class=cRed><?php echo $world?></td>
 							</tr>
 						<?php endforeach; ?>
 					</tbody>

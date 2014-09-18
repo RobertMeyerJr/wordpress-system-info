@@ -7,7 +7,7 @@ global $wpdb;
 	query_cache_limit	
 */
 
-$slow_queries = $wpdb->get_results("SELECT db,user_host,
+$slow_queries = $wpdb->get_results($wpdb->prepare("SELECT db,user_host,
 						avg(query_time) query_time,
 						avg(rows_sent) rows_sent,
 						avg(rows_examined) rows_examined,
@@ -17,8 +17,7 @@ $slow_queries = $wpdb->get_results("SELECT db,user_host,
 				WHERE db = %s
 				GROUP BY sql_text
 				ORDER BY query_time DESC,times_called DESC
-				LIMIT 200", DB_NAME);
-
+				LIMIT 200", DB_NAME));
 ?>
 <table>
 	<thead>

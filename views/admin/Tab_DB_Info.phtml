@@ -1,3 +1,13 @@
+<?php 
+/*
+thread_cache_size = 8
+innodb_buffer_pool_size = 1G
+key_buffer_size = 128M
+table_cache = 1024
+*/
+
+?>
+
 <h3 class=hndle>Tables in Database: <span style='color:blue;font-weight:bold;'><?php echo DB_NAME?></span></h3>
 <table class='wp-list-table widefat fixed'>
 	<thead>
@@ -19,14 +29,14 @@
 	$i = 0;
 	foreach($tables as $t){ ?>
 		<tr class="table-<?php echo $t->Name?> <?php echo ($i++%2)?'alternate':''?>">
-			<td><?php echo $t->Name?></td>
-			<td><?php echo $t->Engine?></td>
-			<td><?php echo number_format($t->Rows)?></td>
-			<td style='color:green'><?php echo date('m/d/Y h:ia',strtotime($t->Create_time))?></td>
-			<td><?php echo $t->Collation?></td>
-			<td style='color:blue'><?php echo System_Info_Tools::formatBytes($t->Data_length)?></td>
-			<td><?php echo $t->fragmentation?>%</td>
-			<td>
+			<td class=cGreen><?php echo $t->Name?></td>
+			<td class=cDark><?php echo $t->Engine?></td>
+			<td class=cBlue><?php echo number_format($t->Rows)?></td>
+			<td class=cGreen><?php echo date('m/d/Y h:ia',strtotime($t->Create_time))?></td>
+			<td class=cPurple><?php echo $t->Collation?></td>
+			<td class=cOrange><?php echo System_Info_Tools::formatBytes($t->Data_length)?></td>
+			<td class=cRed><?php echo $t->fragmentation?>%</td>
+			<td class=cPurple>
 				<?php if($t->fragmentation == 0) : ?>
 				
 				<?php elseif($t->Data_length < 5000000) : ?>

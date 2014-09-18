@@ -1,0 +1,39 @@
+<?php d(WP_PLUGIN_DIR); ?> 
+<table class=dbg_table>
+	<thead>
+		<tr>
+			<thead>
+				<th>Order</th>
+				<th>Part</th>
+				<th>File</th>
+			</thead>
+		</tr>
+	</thead>
+	<tbody>	
+		<?php $plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';
+		<?php $i=1; foreach($files as $f): ?>	
+			<?php 
+				if(false !== strpos($f, $plugins_path)){
+					$part = 'Plugin';						
+				}
+				else if(false !== strpos($f, WP_CONTENT_DIR)){
+					$part = 'Theme';
+				}
+				else if(false !== strpos($f, WPINC)){
+					$part = 'WP-Includes';
+				}
+				else if(false !== strpos($f, ABSPATH)){
+					$part = 'WP-Core';
+				}
+				else{
+					$part = 'Other';
+				}
+			?>
+			<tr>
+				<td><?php echo $i++?></td>				
+				<td class="file-<?php echo $part?>"><?php echo $f?></td>
+				<td><?php echo $part?></td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+</table>

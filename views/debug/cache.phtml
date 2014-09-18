@@ -1,0 +1,22 @@
+<h2>WP Object Cache</h2>
+<?php 
+if( !empty($wp_object_cache) && method_exists($wp_object_cache,'stats') ){
+	$wp_object_cache->stats();
+}
+?>
+<h2>Other</h2>
+<?php if( extension_loaded( 'wincache' ) ) : ?>
+	Wincache
+	<table>
+		<tr><th>Mem Info<td><?php d( wincache_ucache_meminfo() ) ?>
+	</table>
+<?php elseif( extension_loaded( 'apc' ) ) : ?>
+	APC
+	<?php 
+		echo "User: ".apc_cache_info('user');
+		echo "Hits: ".apc_cache_info('filehits');
+		print_r( apc_cache_info() );
+	?>
+<?php else: ?>
+	No Cache found (Currently only Wincache and APC are supported)
+<?php endif; ?>

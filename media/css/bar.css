@@ -1,0 +1,119 @@
+body{margin-bottom:50px;}
+#dbg_bar *{box-sizing:border-box;}
+#dbg_bar{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	margin: 0;	
+	padding: 0;
+	z-index:100;
+}
+#debug-bar-resize{
+	height: 4px;
+	width: 100%;
+	background: #fff;
+	cursor: move;	
+}
+
+#debug-bar-resize:hover{
+	
+}
+
+#dbg_bar .tabs{	
+	background: #f5f5f5;
+	border-top:1px solid grey;	
+	padding: 10px 10px 0 0;
+}
+#dbg_bar .tabs li:not(.right){
+	border-right:1px solid black;
+	position:relative;	
+	display: inline-block;
+	vertical-align: top;
+	margin-top: 3px;
+	line-height: 36px;
+	font-weight: normal;
+	color: #999;
+	background: #fcfcfc;
+	border: solid #ddd;
+	border-width: 1px 1px 0;
+	border-radius: 5px 5px 0 0;
+	padding-bottom: 0;
+	bottom: auto;	
+}
+#dbg_bar .tabs li{display:inline-block;color:#555;text-decoration:none;}
+#dbg_bar .tabs li.current{
+	background-color:white;
+	color:blue;
+	border-top: 4px solid #4cc8f1;
+}
+#dbg_bar .tabs li.right{
+	float:right;
+	padding: 0 5px;
+}
+
+#dbg_bar .tabs a{
+	text-decoration:none;
+	display:inline-block;
+	width:100%;
+	height:100%;
+	padding:0 10px;
+	color:black;
+}
+
+
+
+#dbg_bar .dbg_body{background:white;height:	200px;overflow-y:scroll;}
+#dbg_bar .dbg_body .panel{display: none;padding:15px;}
+#dbg_bar .dbg_body .panel.active{display:block;}
+#dbg_bar .panel > table{width:100%;}
+#dbg_bar .panel > table td{padding:5px;}
+#dbg_bar .panel > table{width:100%;}
+#dbg_bar table thead th{
+	font-weight:bold;
+	text-align:left;
+	padding:3px;
+}
+#dbg_bar th{font-weight:bold;text-align:left;}
+#dbg_bar th.hdr{
+	font-weight:bold;
+	background-color:darkgrey;
+	text-align:center;
+}
+#dbg_bar tbody tr:nth-child(even){background-color:#f2f2f2;}
+#dbg_bar thead th{background:black;color:white;}
+
+
+
+.dbg_body code.sql{
+	max-width:70%;
+	display:block;
+	background-color:rgb(20, 20, 20);
+	border-radius:3px;
+	color:white;
+	padding:10px;
+}
+#dbg_bar .qry{width:70%;}
+#dbg_bar .dbg_body .mn{color:#c0392b;}
+#dbg_bar .dbg_body .op{color:#f1c40f;}
+#dbg_bar .dbg_body .cnd{color:#2980b9;}
+#dbg_bar .dbg_body .int{color:#2980b9;}
+#dbg_bar .dbg_body .str{color:#2ecc71}
+#dbg_bar h3{text-align:center;color:#2980b9;margin:20px;font-size:1.4em;}
+#dbg_bar .dbg_out td{padding:3px;}
+
+#dbg_files > ul li{display:inline-block;}
+
+#dbg_files .file-WP-Core{color:blue;}
+#dbg_files .file-WP-Includes{color:orange}
+#dbg_files .file-Plugin{color:purple}
+#dbg_files .file-Theme{color:orange}
+#dbg_files .file-Other{color:red;}
+#dbg_bar ol{list-style:decimal;}
+
+
+#dbg_bar i.time{
+	
+}
+#dbg_bar i.mem{
+}

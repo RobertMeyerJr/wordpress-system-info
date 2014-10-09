@@ -1,5 +1,13 @@
 <?php 
 class System_Info_SQL{
+
+
+	public static function option($o){
+		global $wpdb;
+		$sql = $wpdb->prepare("SHOW VARIABLES Like %s","%{$o}%");
+		return $wpdb->get_var($sql,1);
+	}
+
 	public static function slow_queries(){
 		global $wpdb;
 		return $wpdb->get_results('SELECT db,user_host,
@@ -41,7 +49,9 @@ class System_Info_SQL{
 	public static function optimize_table($table){
 		global $wpdb;
 		$sql = "OPTIMIZE TABLE {$table}";
-		return $wpdb->get_results($sql);
+		$result = $wpdb->get_results($sql);
+		$update_stats = "ANALYZE TABLE {$table}";
+		return $result;
 	}
 	public static function get_tables(){
 		global $wpdb;

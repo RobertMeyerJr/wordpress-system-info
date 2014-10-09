@@ -14,3 +14,6 @@
 .date{color:#27ae60 !important;}
 .string{color:#27ae60 !important;}
 .object{color:#8e44ad !important;}
+
+
+.toplevel_page_sys_info table.widefat tbody tr:nth-child(odd){background-color:rgba(0,0,0,0.02);}

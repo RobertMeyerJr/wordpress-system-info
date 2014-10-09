@@ -1,4 +1,9 @@
-<?php d(WP_PLUGIN_DIR); ?> 
+<ul class=tab-nav>
+	<li>Core</li>
+	<li>Theme</li>
+	<li>Other</li>
+	<li>Plugin</li>
+</ul>
 <table class=dbg_table>
 	<thead>
 		<tr>
@@ -10,7 +15,7 @@
 		</tr>
 	</thead>
 	<tbody>	
-		<?php $plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';
+		<?php $plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';?>
 		<?php $i=1; foreach($files as $f): ?>	
 			<?php 
 				if(false !== strpos($f, $plugins_path)){

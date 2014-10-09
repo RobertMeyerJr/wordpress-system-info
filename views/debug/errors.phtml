@@ -1,0 +1,38 @@
+<?php 
+
+global $SI_Errors;
+$last_error = error_get_last();
+#d($last_error);
+
+?>
+<table class=widefat>
+	<thead>
+		<tr>
+			<td>Error Number</td>
+			<td>Error</td>
+			<td>File</td>
+			<td>Line</td>
+			<td>Context</td>
+		</tr>
+	</thead>
+	<tbody>
+		<?php if( !empty($last_error) ) : ?>
+				<tr>
+					<td><?php echo $last_error['type']?></td>
+					<td><?php echo $last_error['message']?></td>
+					<td><?php echo $last_error['file']?></td>
+					<td><?php echo $last_error['line']?></td>
+					<td>CONTEXT</td>
+				</tr>
+		<?php  endif; ?>
+		<?php foreach($SI_Errors as $e) : list($errno,$errstr,$file,$line,$context) = $e; ?>
+			<tr>
+				<td><?php echo $errno?></td>
+				<td><?php echo $errstr?></td>
+				<td><?php echo $file?></td>
+				<td><?php echo $line?></td>
+				<td><?php echo $context?></td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+</table>

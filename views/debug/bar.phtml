@@ -1,12 +1,6 @@
 <?php
 /*
 
-Goals:
-	Secure
-	No altering of WP install or Styling
-	Near zero impact on load time when not used
-
-Set the time as the wpcore time	
 	
 */
 global $wpdb,$post,$wp_filter,$timestart,$wp_object_cache,$dbg_filter_calls;
@@ -15,135 +9,69 @@ global $wpdb,$post,$wp_filter,$timestart,$wp_object_cache,$dbg_filter_calls;
 $start_debug 	= microtime(true); 
 $tpl_dir 		= get_template_directory();
 
-
 $total_query_time=0;
 foreach($wpdb->queries as $q){
 	$total_query_time+= $q[1];
 }
 	
-$total_query_time_ms 		= number_format($total_query_time*1000,2);
-$time_taken 			= microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+$total_query_time_ms 	= number_format($total_query_time*1000,2);
+$time_taken 				= microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 $query_percentage 		= number_format(($total_query_time/$time_taken) * 100,2); //Backwards?
-$query_details 			= (empty($wpdb->queries)) ? '':"({$wpdb->num_queries} in {$total_query_time_ms}ms)";
+$query_details 			= (empty($wpdb->queries)) ? '':"{$wpdb->num_queries} in {$total_query_time_ms}ms";
 
 $files 					= get_included_files();
 $included_file_count 	= count($files);
 
-$total_filter_duration = array_sum($GLOBALS[dbg_filter_times]);
-$filter_details = number_format($total_filter_duration*1000,2)."ms";
+$total_filter_duration 	= array_sum($GLOBALS['dbg_filter_times']);
+$filter_details 		= number_format($total_filter_duration*1000,2)."ms";
 
 
-#Move These
-function query_type($sql){
-	/*
-	SELECT
-	UPDATE
-	INSERT	
-	return [type,READ or WRITE]
-	*/	
-}
-function print_filters_count($hook){
-	global $wp_filter;
-	return count($wp_filter[$hook]);
-}
-function print_filters_for( $hook = null ) {
-    global $wp_filter;
-    if( !empty($hook) && !isset( $wp_filter[$hook] ) )
-        return false;
-    print '<pre>';
-		if(empty($hook))
-			print_r( $wp_filter );
-		else
-			print_r( $wp_filter[$hook] );
-    print '</pre>';
-}
-function hilight_trace_part($str){
-	//require_once
-	//require
-	//->
-	//::
-	//()
-	return $str;
-}
-function dbg_style_out($v){
-	if(is_array($v) || is_object($v)){	
-		$str = var_export($v, true);
-		$str = htmlentities($str);
-		return "<pre>{$str}</pre>";		
-	}
-	elseif( is_numeric($v) ){		
-		return "<span class=int>{$v}</span>";
-	}
-	else{
-		$v = '1'; //htmlentities( $v ); //Not Working?
-		return "<span class=str>{$v}</span>";
-	}
-}
-function dbg_table_out($arr){
-	if( empty($arr) ){
-		return;
-	}
-	echo "<table class=dbg_out>";
-		echo "<thead><tr><th>Key</th><th>Value</th></tr></thead>";
-		echo "<tbody>";
-		$skip = array('_COOKIE','_FILES','_ENV','GLOBALS','_SERVER','_REQUEST','_GET','_POST','wp_filter');
-		foreach($arr as $k=>$v){
-			if( in_array($k,$skip) )
-				continue;
-			$value = $v;
-			echo "<tr><th>{$k}</th><td>".dbg_style_out($value)."</td></tr>";
-		}
-		echo "</tbody>";
-	echo "</table>";
-}
-
- 
+include('bar.php');
 
 ?>	
-
-
-
 <div id=dbg_bar>
 	<div id=debug-bar-resize></div>
 	<ul class=tabs>
-		<li class=current><a href=#dbg_info>Info</a></li>
-		<li><a href=#dbg_db>Queries <small><?php echo $query_details;?></small></a></li>
-		<li><a href=#dbg_filters>Filters <small><?php echo $filter_details;?></small></a></li>		
-		<li><a href=#dbg_files>Included Files (<?php echo $included_file_count?>)</a></li>
+		<li class=current><a href=#dbg_info><i class=fa-info></i> Info</a></li>
+		<li><a href=#dbg_errors><i class=fa-warning></i> Errors</a></li>
+		<li><a href=#dbg_db><i class=fa-database></i> Queries <small class=bdg><?php echo $query_details;?></small></a></li>
+		<li><a href=#dbg_filters><i class=fa-filter></i> Filters <small class=bdg><?php echo $filter_details;?></small></a></li>		
+		<li><a href=#dbg_files><i class=fa-file></i> Included Files <span class=bdg><?php echo $included_file_count?></span></a></li>
 		
-		<li><a href=#dbg_system>System</a></li>
-		<li><a href=#dbg_request>Request</a></li>
-		<li><a href=#dbg_server>Server</a></li>
-		<li><a href=#dbg_env>Env</a></li>		
-		<li><a href=#dbg_cookies>Cookies</a></li>
-		<li><a href=#dbg_session>Session</a></li>
+		<li><a href=#dbg_system><i class=fa-info></i> System</a></li>
+		<li><a href=#dbg_globals><i class=fa-globe></i> Globals</a></li>
+		<?php if(!empty($_SERVER)) 		: ?><li><a href=#dbg_server><i class=fa-desktop></i> Server</a></li><?php endif; ?>
+		<?php if(!empty($_COOKIE)) 		: ?><li><a href=#dbg_cookies><i class=fa-info></i> Cookies</a></li><?php endif; ?>
+		<?php if(!empty($_SESSION)) 	: ?><li><a href=#dbg_session><i class=fa-info></i> Session</a></li><?php endif; ?>
+		<?php if(!empty($_ENV)) 		: ?><li><a href=#dbg_env><i class=fa-info></i> Env</a></li><?php endif; ?>						
+		<?php if(!empty($_REQUEST)) 	: ?><li><a href=#dbg_request><i class=fa-info></i> Request</a></li><?php endif; ?>							
 		
-		<li><a href=#dbg_globals>Globals</a></li>							
+		<li><a href=#dbg_cache><i class=fa-info></i> Cache</a></li>				
+		<li><a href=#dbg_plugins><i class=fa-plug></i> Plugins</a></li>		
+		<li><a href=#dbg_timeline><i class=fa-clock-o></i> Timeline</a></li>				
 		
-		<li><a href=#dbg_cache>Cache</a></li>				
-		<li><a href=#dbg_plugins>Plugins</a></li>		
-		<li><a href=#dbg_timeline>Timeline</a></li>				
-		
-		<li class=right id=close_dbg>X</li>
+		<li class=right id=close_dbg><i class=fa-times></i></li>
 		<li class=right><i class=mem></i><?php echo number_format(memory_get_usage()/1024,0) ?>KB</li>
 		<li class=right><i class=time></i><?php echo number_format($time_taken,2) ?>ms</li>		
 	</ul>
 <div class=dbg_body>
 	<div class='panel active' id=dbg_info><?php include('info.phtml');?></div>
 	<div class=panel id=dbg_cache><?php 	include('cache.phtml'); ?></div>
+	
 	<div class=panel id=dbg_plugins><?php 	include('plugins.phtml');?></div>
 	<div class=panel id=dbg_globals><?php 	include('globals.phtml');?></div>
-	<div class=panel id=dbg_files><?php include('included_files.phtml'); ?></div>
-	<div class=panel id=dbg_server>	<?php if(!empty($_SERVER)) 		: ?><h3>Server</h3>		<?php 	dbg_table_out($_SERVER); 	?><?php else:?><h3>No Server Data</h3><?php endif; ?></div>
-	<div class=panel id=dbg_cookies><?php if(!empty($_COOKIE)) 		: ?><h3>Cookie</h3>		<?php	dbg_table_out($_COOKIE); 	?><?php else:?><h3>No Cookie Data</h3><?php endif; ?></div>
-	<div class=panel id=dbg_session><?php if(!empty($_SESSION)) 	: ?><h3>Session</h3>	<?php	dbg_table_out($_SESSION);	?><?php else:?><h3>No Session Data</h3><?php endif; ?></div>
-	<div class=panel id=dbg_env>	<?php if(!empty($_ENV)) 		: ?><h3>ENV</h3>		<?php	dbg_table_out($_ENV);		?><?php else:?><h3>No Environment Data (ENV)</h3><?php endif; ?></div>
-	<div class=panel id=dbg_request><?php if(!empty($_REQUEST)) 	: ?><h3>Request</h3>	<?php	dbg_table_out($_REQUEST);	?><?php endif; ?></div>
+	<div class=panel id=dbg_files><?php 	include('included_files.phtml'); ?></div>
 	<div class=panel id=dbg_filters><?php include('filters.phtml');?></div>
 	<div class=panel id=dbg_timeline><?php include('frontend.phtml'); ?></div>
 	<div class=panel id=dbg_system><?php include('system.phtml');?></div>
 	<div class=panel id=dbg_php><?php include('php.phtml');?></div>
-	<div id=dbg_db class=panel><?php include('db.phtml')?></div>
+	<div class=panel id=dbg_db><?php include('db.phtml')?></div>
+	<?php if(!empty($_SERVER)) 		: ?><div class=panel id=dbg_server>	<h3>Server</h3>		<?php 	dbg_table_out($_SERVER); 	?></div><?php endif; ?>
+	<?php if(!empty($_COOKIE)) 		: ?><div class=panel id=dbg_cookies><h3>Cookie</h3>		<?php	dbg_table_out($_COOKIE); 	?></div><?php endif; ?>
+	<?php if(!empty($_SESSION)) 	: ?><div class=panel id=dbg_session><h3>Session</h3>	<?php	dbg_table_out($_SESSION);	?></div><?php endif; ?>
+	<?php if(!empty($_ENV)) 		: ?><div class=panel id=dbg_env>	<h3>ENV</h3>		<?php	dbg_table_out($_ENV);		?></div><?php endif; ?>
+	<?php if(!empty($_REQUEST)) 	: ?><div class=panel id=dbg_request><h3>Request</h3>	<?php	dbg_table_out($_REQUEST);	?></div><?php endif; ?>
+	<div class=panel id=dbg_errors><?php 	include('errors.phtml');?></div>
 </div>
 
 

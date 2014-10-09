@@ -1,21 +1,10 @@
 <?php 
-/*
-SHOW VARIABLES LIKE 'have_query_cache';
-SHOW STATUS LIKE 'Qcache%';
-mysqlcheck -c %DATABASE% -u root -p
-
-nmap -sT localhost
-netstat -ano
-Permissions: 
-	Directories:		find /path/to/your/wordpress/install/ -type d -exec chmod 755 {} \;
-	Files:				find /path/to/your/wordpress/install/ -type f -exec chmod 644 {} \;	
-*/
 
 class System_Info_Admin{	
 	
 	#-------------------------------
 	public static function init(){				
-		add_action('admin_enqueue_scripts', 			array(__CLASS__, 'admin_scripts'), 90);
+		add_action('admin_enqueue_scripts', 			array(__CLASS__, 'admin_scripts'), 90); #Run Late
 		add_action('admin_menu', 						array(__CLASS__, 'admin_menu'));			
 		
 		#Move to AJAX
@@ -62,27 +51,27 @@ class System_Info_Admin{
 	public static function ajax_replace_content(){		
 		exit;
 	}
-	public static function ajax_optimize_table(){
-		wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table']));
-	}
+	public static function ajax_optimize_table(){ wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table'])); }
 	
 	public static function admin_scripts($suffix){
 		if($suffix != 'toplevel_page_sys_info'){
 			return;		
 		}
-		
-		
 		wp_enqueue_style( 'debug-bar', plugins_url( '../media/css/admin.css',__FILE__));
 		
 		wp_enqueue_script('jquery-ui-dialog');	
 		wp_enqueue_script('jquery-ui-accordion');
 		wp_enqueue_script('jquery-ui-tabs');			
-		wp_enqueue_script('jquery-ui-datepicker');		
-		
+		wp_enqueue_script('jquery-ui-datepicker');				
 		wp_enqueue_script('tablesorter', 'http://cachedcommons.org/cache/jquery-table-sorter/2.0.3/javascripts/jquery-table-sorter-min.js', array('jquery'));	
+		
+		//Enqueue if not already
+		if(!wp_style_is('font-awesome') && !wp_style_is('fontawesome') )
+			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
+		
 	}
 	public static function admin_menu(){
-		add_menu_page('Info', 'System Info', 'manage_options', 'sys_info', array(__CLASS__,'info_page'));
+		add_menu_page('Info', 'Developer Bar', 'manage_options', 'sys_info', array(__CLASS__,'main'));
 	}
 	
 	public static function get_hooks(){
@@ -93,7 +82,7 @@ class System_Info_Admin{
 		exit;
 	}
 	#-----------------------------Tabs
-	public static function info_page(){ include(__DIR__.'/../views/admin/SystemInfo.phtml'); }
+	public static function main(){ include(__DIR__.'/../views/admin/SystemInfo.phtml'); }
 	public static function page_mysql_info(){
 		global $wpdb;
 		$out = $wpdb->get_results('SHOW VARIABLES');
@@ -102,13 +91,13 @@ class System_Info_Admin{
 	public static function page_open_ports(){
 		if( System_Info_Tools::is_windows() ){
 			$cmd = 'netstat -ano | find "LISTENING"';
-			$out = System_Info_Tools::read_csv_array( System_Info_Tools::run_command( $cmd ),"\t");
-			
-			#$data = array();
-			#foreach($out as $l){
-			#	
-			#}
-			
+			$out = System_Info_Tools::run_command( $cmd );
+			$out = preg_replace('!\s+!', ' ', $out);
+			$out = str_replace(' ',',',$out);
+			$out = System_Info_Tools::read_csv_array( $out,",");
+			foreach($out as $k=>$o){
+				unset($out[$k][0]);
+			}
 			System_Info_Tools::out_table($out);
 		}
 		else{
@@ -121,42 +110,28 @@ class System_Info_Admin{
 		if(System_Info_Tools::is_windows()){
 			$cmd = 'sc query';
 			$out = System_Info_Tools::run_command($cmd);
+			d($out);
+			System_Info_Tools::out_table($out);
 		}
 		else{
-			$cmd = 'chkconfig --list';
-			$out = self::run_command($cmd);
+			$cmd = 'chkconfig --list'; #does this work everywhere?
+			$out = System_Info_Tools::run_command($cmd);
+			var_dump($out);
 		}
-		print_r($out);		
 	}
 	public static function page_db_info(){ include(__DIR__.'/../views/admin/Tab_DB_Info.phtml');}
 	public static function page_errors(){ include(__DIR__.'/../views/admin/Tab_Errors.phtml'); }
-	public static function page_func(){
-		$classes = get_declared_classes();
-		sort($classes);
-		/*
-		http://php.net/manual/en/language.functions.php
-		http://codex.wordpress.org/Function_Reference
-		http://phpxref.ftwr.co.uk/buddypress/nav.html?_functions/index.html
-		*/
-		include(__DIR__.'/../views/Tab_Functions.phtml');
-	}
+	public static function page_func(){ include(__DIR__.'/../views/Tab_Functions.phtml'); }
 	public static function page_shell(){ include(__DIR__.'/../views/admin/Tab_Shell.phtml');}
 	public static function page_hooks(){  include(__DIR__.'/../views/admin/Tab_Hooks.phtml'); }
-	public static function page_info(){ global $wpdb,$wp_version; include(__DIR__.'/../views/admin/Tab_Info.phtml'); }
-	public static function page_whois(){
-		$host = System_Info_Tools::get_domain( 'http://'.$_SERVER['HTTP_HOST'] );
-		System_Info_Tools::whois( $host );
-	}	
-	public static function page_dns(){	
-		$host 	= System_Info_Tools::get_domain( 'http://'.$_SERVER['HTTP_HOST'] );
-		$dns 	= dns_get_record( $host );
-		$c 		= count($dns);
-		include(__DIR__.'/../views/admin/Tab_DNS.phtml');
-	}
-	public static function page_cron(){$cron = _get_cron_array(); include(__DIR__.'/../views/admin/Tab_Cron.phtml'); }
-	public static function page_procs(){ $mem_usage = memory_get_usage(); include(__DIR__.'/../views/admin/Tab_Procs.phtml');}
+	public static function page_info(){ include(__DIR__.'/../views/admin/Tab_Info.phtml'); }
+	public static function page_whois(){ include(__DIR__.'/../views/admin/Tab_Whois.phtml'); }	
+	public static function page_dns(){	include(__DIR__.'/../views/admin/Tab_DNS.phtml'); }
+	public static function page_cron(){ include(__DIR__.'/../views/admin/Tab_Cron.phtml'); }
+	public static function page_procs(){ include(__DIR__.'/../views/admin/Tab_Procs.phtml');}
 	public static function page_permissions(){ include(__DIR__.'/../views/admin/Tab_Permissions.phtml');}
-	public static function page_tools(){ include(__DIR__.'/../views/admin/Tab_Tools.phtml'); }
+	public static function page_tools(){ require(__DIR__.'../views/admin/Tab_Tools.phtml'); }
+	
 	public static function page_rewrite_rules(){
 		$rules = ( System_Info_Tools::is_windows() ) ? file_get_contents(ABSPATH.'/web.config') : file_get_contents(ABSPATH.'/.htaccess');
 		
@@ -165,8 +140,6 @@ class System_Info_Admin{
 		else
 			echo "<pre>".htmlspecialchars($rules)."</pre>";
 	}
-	
-	
 	#----------------Server Details
 	public static function permissions(){
 		$uploads = wp_upload_dir();
@@ -211,14 +184,14 @@ class System_Info_Admin{
 	public static function quick_scan(){		
 		$suspicious('eval',
 					'base64_decode',
-					'shell_exec',
+					'exec('
+					'shell_exec(',
 					'hacked by',
 					'viagra',
 					'iframe'
 		);		
 		//  filemtime
 		// .htaccess		
-		#glob(ABSPATH,		
 	}
 	*/
 }

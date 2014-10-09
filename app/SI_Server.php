@@ -1,7 +1,10 @@
 <?php 
 
 class SI_Server{
-public static function get_cpu_usage() {
+	public static function disk_usage(){
+		
+	}
+	public static function get_cpu_usage() {
 		if(!function_exists('getrusage'))
 			return false;
 		$d = getrusage();	

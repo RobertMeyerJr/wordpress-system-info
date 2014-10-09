@@ -1,29 +1,34 @@
-<div style='overflow:auto;width:100%;;height:500px;'>
-			<?php $error_log = ini_get('error_log');?>
-			<h2>Error Log Location <?php echo $error_log?> <a href=# onClick="sysinfo_clear_log();" class=button-secondary>Clear Log</a></h2>
-			<?php #preg_match('\[(.*)\] (.*) on line (\d+)', $l, $m); ?>
-			<?php if(file_exists($error_log) && !empty($error_log)) : ?>
-				<pre>
-					<?php 
-						$error_string = System_Info_Tools::tail($error_log, 500);
-						$error_string = Log_Highlight::string($error_string);
-						echo htmlspecialchars($error_string);
-					?>
-				</pre>
-				<label>Log Size</label> 
-				<?php echo System_Info_Tools::formatBytes(filesize($error_log),2); ?>
-			<?php else : ?>
-				<label class=update>Log is Empty</label>
-			<?php endif; ?>
-		</div>				
-		<script>
-		function sysinfo_clear_log(){
-			jQuery.ajax({
-				url:ajaxurl,
-				data:{action:'sysinfo_clear_error_log'},
-				success:function(){
-					alert('Cleared');
-				}
-			});
+<div>
+	<?php $error_log = ini_get('error_log');?>
+	<h2>Error Log Location <?php echo $error_log?>
+	<a href=# onClick="sysinfo_clear_log();" class=button-secondary>Clear Log</a></h2>
+	<?php #preg_match('\[(.*)\] (.*) on line (\d+)', $l, $m); ?>
+<?php if(file_exists($error_log) && !empty($error_log)) : ?>
+<pre>
+<?php 
+	if( filesize($error_log) > 1000000)
+		$error_string = System_Info_Tools::tail($error_log, 1000);
+	else
+		$error_string = file_get_contents($error_log);
+		
+	$error_string = Log_Highlight::string($error_string);
+	echo htmlspecialchars($error_string);
+?>
+</pre>
+<label>Log Size</label> 
+<?php echo System_Info_Tools::formatBytes(filesize($error_log),2); ?>
+<?php else : ?>
+	<label class=update>Log is Empty</label>
+<?php endif; ?>
+</div>				
+<script>
+function sysinfo_clear_log(){
+	jQuery.ajax({
+		url:ajaxurl,
+		data:{action:'sysinfo_clear_error_log'},
+		success:function(){
+			alert('Cleared');
 		}
-		</script>
+	});
+}
+</script>

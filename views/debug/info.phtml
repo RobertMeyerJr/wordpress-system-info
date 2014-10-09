@@ -1,55 +1,32 @@
-<?php 
-global $SI_Errors;
-
-d($SI_Errors);
-
-#$last_error = error_get_last(); 
-
-?>
-
 <table>
-<?php foreach($SI_Errors as $e) : 
-		list($errno,$errstr,$file,$line,$context) = $e;
-	?>
-	<tr>
-		<td><?php echo $errno?></td>
-		<td><?php echo $errstr?></td>
-		<td><?php echo $file?></td>
-		<td><?php echo $line?></td>
-		<td><?php echo $context?></td>
-	</tr>
-<?php endforeach; ?>
+	<thead>
+		<tr><th>Key</th><th>Value</th></tr>
+	</thead>
+	<tbody>
+		<?php if(!empty($_SERVER['HTTP_REFERER'])) : ?>
+			<tr><th>Referrer</th><td><?php $_SERVER['HTTP_REFERER']?></td></tr>
+		<?php endif; ?>
+		<tr><th>User Agent</th><td><?php echo $_SERVER['HTTP_USER_AGENT']?></td></tr>
+		<tr><th>Host</th><td><?php echo $_SERVER['SERVER_NAME'] ?></td></tr>
+		<tr><th>URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>
+		<tr><th colspan=2 class=hdr>Parameters</th></tr>
+	</tbody>
 </table>
-
-<table>
-		<thead>
-			<tr><th>Key</th><th>Value</th></tr>
-		</thead>
-		<tbody>
-			<?php if(!empty($_SERVER['HTTP_REFERER'])) : ?>
-				<tr><th>Referrer</th><td><?php $_SERVER['HTTP_REFERER']?></td></tr>
-			<?php endif; ?>
-			<tr><th>User Agent</th><td><?php echo $_SERVER['HTTP_USER_AGENT']?></td></tr>
-			<tr><th>Host</th><td><?php echo $_SERVER['SERVER_NAME'] ?></td></tr>
-			<tr><th>URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>
-			<tr><th colspan=2 class=hdr>Parameters</th></tr>
-		</tbody>
-	</table>
 	
-	<table>
-		<tr><th>User ID</th><td><?php echo get_current_user_id(); ?></td></tr>
-		<tr><th>ABSPATH</th><td><?php echo ABSPATH; ?></td></tr>
-		<tr><th>DB_NAME</th><td><?php echo DB_NAME; ?></td></tr>
-		<tr><th>DB_HOST</th><td><?php echo DB_HOST; ?></td></tr>
-		<tr><th>Template Directory</th><td><?php echo $tpl_dir ?></td></tr>		
-		<tr><th>SERVER_SOFTWARE</th><td><?php echo $_SERVER['SERVER_SOFTWARE'] ?></td></tr>
-		<tr><th>REQUEST_URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>		
-		<tr><th>Computer Name</th><td><?php echo $_SERVER['COMPUTERNAME'] ?></td></tr>
-		<tr><th>NUMBER_OF_PROCESSORS</th><td><?php echo $_SERVER['NUMBER_OF_PROCESSORS'] ?></td></tr>
-		<tr><th>OS</th></td><td><?php echo $_SERVER['OS'] ?></tr>
-		<tr><th>Path</th><td><?php echo str_replace(';','<br/>',$_SERVER['Path']); ?></td></tr>
-		<tr><th>PROCESSOR_IDENTIFIER</th><td><?php echo $_SERVER['PROCESSOR_IDENTIFIER'] ?></td></tr>
-		<tr><th>SERVER_NAME</th><td><?php echo $_SERVER['SERVER_NAME'] ?></td></tr>
-		<tr><th>GATEWAY_INTERFACE</th><td><?php echo $_SERVER['GATEWAY_INTERFACE'] ?></td></tr>
-		<tr><th>HTTP_USER_AGENT</th><td><?php echo $_SERVER['HTTP_USER_AGENT'] ?></td></tr>		
-	</table>
+<table>
+	<tr><th>User ID</th><td><?php echo get_current_user_id(); ?></td></tr>
+	<tr><th>ABSPATH</th><td><?php echo ABSPATH; ?></td></tr>
+	<tr><th>DB_NAME</th><td><?php echo DB_NAME; ?></td></tr>
+	<tr><th>DB_HOST</th><td><?php echo DB_HOST; ?></td></tr>
+	<tr><th>Template Directory</th><td><?php echo $tpl_dir ?></td></tr>		
+	<tr><th>SERVER_SOFTWARE</th><td><?php echo $_SERVER['SERVER_SOFTWARE'] ?></td></tr>
+	<tr><th>REQUEST_URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>		
+	<tr><th>Computer Name</th><td><?php echo $_SERVER['COMPUTERNAME'] ?></td></tr>
+	<tr><th>NUMBER_OF_PROCESSORS</th><td><?php echo $_SERVER['NUMBER_OF_PROCESSORS'] ?></td></tr>
+	<tr><th>OS</th></td><td><?php echo $_SERVER['OS'] ?></tr>
+	<tr><th>Path</th><td><?php echo str_replace(';','<br/>',$_SERVER['Path']); ?></td></tr>
+	<tr><th>PROCESSOR_IDENTIFIER</th><td><?php echo $_SERVER['PROCESSOR_IDENTIFIER'] ?></td></tr>
+	<tr><th>SERVER_NAME</th><td><?php echo $_SERVER['SERVER_NAME'] ?></td></tr>
+	<tr><th>GATEWAY_INTERFACE</th><td><?php echo $_SERVER['GATEWAY_INTERFACE'] ?></td></tr>
+	<tr><th>HTTP_USER_AGENT</th><td><?php echo $_SERVER['HTTP_USER_AGENT'] ?></td></tr>		
+</table>

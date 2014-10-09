@@ -8,30 +8,42 @@ $start = microtime(true);
 	<br/>
 	<?php 
 		$tabs = array(
-			'Info'				=>	'info',		
-			'MySQL Info'		=>	'mysql_info',	
-			'MySQL Performance'	=>	'mysql_perf',	
-			'Database'			=>	'db',			
-			'Permissions'		=>	'perm',		
-			'Procs'				=>	'procs',		
-			'Services'			=>	'services',	
-			'Open Ports'		=>	'ports',		
-			'Rewrite Rules'		=>	'rewrite',		
-			'Cron'				=>	'cron',		
-			'DNS'				=>	'dns',			
-			'Whois'				=>	'whois',		
-			'Error Log'			=>	'errors',		
-			'Tools'				=>	'tools',		
-			'Hooks'				=>	'hooks',		
-			'Functions'			=>	'functions',	
-			'WP Options'		=>	'options'		
+			'Info'				=>	array('info','fa fa-tachometer'),				
+			'MySQL Info'		=>	array('mysql_info','fa fa-database'),		
+			'MySQL Performance'	=>	array('mysql_perf','fa fa-database'),		
+			'Database'			=>	array('db','fa fa-database'),		
+			'Permissions'		=>	array('perm','fa fa-lock'),		
+			'Procs'				=>	array('procs','fa fa-cogs'),				
+			'Services'			=>	array('services','fa fa-crosshairs'),			
+			'Open Ports'		=>	array('ports','fa fa-bullseye'),			
+			'Rewrite Rules'		=>	array('rewrite','fa fa-list'),				
+			'Cron'				=>	array('cron','fa fa-clock-o'),				
+			'DNS'				=>	array('dns','fa fa-info'),					
+			'Whois'				=>	array('whois','fa fa-info-circle'),				
+			'Error Log'			=>	array('errors','fa fa-exclamation-triangle'),		
+			'Tools'				=>	array('tools','fa fa-wrench'),		
+			'Hooks'				=>	array('hooks','fa fa-anchor'),		
+			'Functions'			=>	array('functions','fa fa-flag'),		
+			'WP Options'		=>	array('options','fa fa-sliders')		
 		);
+		
+		if( !System_Info_Tools::exec_enabled()){
+			unset($tabs['Open Ports']);
+			unset($tabs['Procs']);
+			unset($tabs['Services']);
+		}
+		//fsockopen if not remove whois
+		
 	?>
 	<div class="nav-tab-wrapper">
 		<?php 
-			foreach($tabs as $name=>$param){
+			foreach($tabs as $name => list($param,$icon)){
+				#list($param,$icon) = $data;
 				$class = ($param==$tab) ? 'nav-tab-active':'';
-				echo "<a class=\"nav-tab {$class}\" href=/wp-admin/admin.php?page=sys_info&tab={$param}>{$name}</a>";
+				echo "<a class=\"nav-tab {$class}\" href=/wp-admin/admin.php?page=sys_info&tab={$param}>
+					<i class='{$icon}'></i>
+					{$name}
+				</a>";
 			}
 		?>			
 	</div>
@@ -52,7 +64,7 @@ $start = microtime(true);
 				case 'shell': 			System_Info_Admin::page_shell(); break;
 				case 'functions': 		System_Info_Admin::page_func(); break;
 				case 'mysql_info':		System_Info_Admin::page_mysql_info(); break;
-				case 'mysql_perf':		include('Tab_Mysql_Perf.phtml'); ;break;
+				#case 'mysql_perf':		include('Tab_Mysql_Perf.phtml'); ;break;
 				case 'services':		System_Info_Admin::page_services(); break;
 				case 'ports':			System_Info_Admin::page_open_ports(); break;
 				case 'options': 		include('Tab_Options.phtml'); break;

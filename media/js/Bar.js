@@ -1,11 +1,25 @@
 var dbg_resizing = false;
 var dbg_start = Date.now();
 jQuery(function($){	
+
+
+	$('#close_dbg').click(function(){
+		$('#dbg_bar').hide();
+	});
+	
+	$('#wp-admin-bar-debug-bar a').click(function(e){
+		if( $('#dbg_bar').length ){
+			$('#dbg_bar').toggle();
+			e.preventDefault();
+		}
+	});
+	
+
 	//Run this in a timer, so that all dom stuff should be done
 	window.setTimeout(dbg_performance,3000);
-	$('#debug_time').html(debug_time);
-
-	
+	if(typeof debug_time != 'undefined'){
+		$('#debug_time').html(debug_time);
+	}
 	$('.dbg_search').change(function(){
 		var search_str = jQuery(this).val();		
 		jQuery('#dbg_globals tr').show();

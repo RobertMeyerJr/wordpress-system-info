@@ -1,5 +1,10 @@
+<?php
+//Need to run ANALYZE TABLE to update statistics after a change
+?>
 <h2>
 	<?php 
+		//add output of wpdb sql errors
+		d( $wpdb->last_error );
 		echo "{$wpdb->num_queries} Queries in {$total_query_time_ms}ms";
 		if(!empty($query_percentage)){
 			echo " {$query_percentage}% of Request Time ";

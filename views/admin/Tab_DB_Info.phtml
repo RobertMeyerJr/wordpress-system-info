@@ -6,9 +6,20 @@ key_buffer_size = 128M
 table_cache = 1024
 */
 
+//if InnoDB, get rowcount Manually via SELECT COUNT(1) FROM $TABLE
+$tables = System_Info_SQL::get_tables();
+
+$total_db_size = 0;
+foreach($tables as $t){
+	$total_db_size += $t->Data_length;
+}
+
 ?>
 
-<h3 class=hndle>Tables in Database: <span style='color:blue;font-weight:bold;'><?php echo DB_NAME?></span></h3>
+<h3 class=hndle>
+	Tables in Database: <span style='color:blue;font-weight:bold;'><?php echo DB_NAME?></span>
+	Total DB Size <span class=cPurple><?php echo System_Info_Tools::formatBytes($total_db_size)?></span>
+</h3>
 <table class='wp-list-table widefat fixed'>
 	<thead>
 		<tr>
@@ -24,11 +35,9 @@ table_cache = 1024
 	</thead>
 </thead>
 <tbody>
-	<?php 				
-	$tables = System_Info_SQL::get_tables();
-	$i = 0;
-	foreach($tables as $t){ ?>
-		<tr class="table-<?php echo $t->Name?> <?php echo ($i++%2)?'alternate':''?>">
+	<?php $TenMB = 10000000; ?>
+	<?php $i = 0; foreach($tables as $t): ?>
+		<tr class="table-<?php echo $t->Name?>">
 			<td class=cGreen><?php echo $t->Name?></td>
 			<td class=cDark><?php echo $t->Engine?></td>
 			<td class=cBlue><?php echo number_format($t->Rows)?></td>
@@ -36,14 +45,15 @@ table_cache = 1024
 			<td class=cPurple><?php echo $t->Collation?></td>
 			<td class=cOrange><?php echo System_Info_Tools::formatBytes($t->Data_length)?></td>
 			<td class=cRed><?php echo $t->fragmentation?>%</td>
-			<td class=cPurple>
+			<td class=cPurple>				
 				<?php if($t->fragmentation == 0) : ?>
-				
-				<?php elseif($t->Data_length < 5000000) : ?>
+					( None )
+				<?php elseif($t->Data_length < $TenMB) : ?>
 					<a href=# class=button-secondary onClick='optimizeTable("<?php echo $t->Name?>");'>Optimize</a>
 				<?php else : ?>
-					(Too Large, Must be optimized Manually)
+					(Table Too Large. Must be optimized Manually)
 				<?php endif; ?>
-	<?php } ?>
+			</td>
+	<?php endforeach; ?>
 </tbody>
 </table>

@@ -27,20 +27,27 @@ class System_Info_Tools{
 	}
 	public static function is_windows(){ return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'); }
 	public static function can_exec(){
-		#if(function_exists('exec')
-		exec('echo test', $output);
-		if(strstr($output,'test')===false)
-			return false;
-		return true;
+		return exec_enabled(); //Replace all calls to can_exec
 	}
+	
+	public static function exec_enabled(){
+		if(!function_exists('exec'))
+			return false;
+		$disabled = explode(',', ini_get('disable_functions'));
+		return !in_array('exec', $disabled);
+	}
+	
+	
+	
 	public static function check_open_basedir(){
 		$base_dir = ini_get('open_basedir');
 	}
 	
 	public static function running_procs(){
 		if( self::is_windows() ){
-			$result = self::run_command("tasklist /v /fo CSV");
-			print_r($result);			
+			$result 	= self::run_command("tasklist /v /fo CSV");
+			$procs = array_map('str_getcsv', $result);
+			return $procs;
 		}
 		else{
 			exec('ps aux', $output);
@@ -63,7 +70,7 @@ class System_Info_Tools{
 	}
 	
 	public static function whois($host){
-		echo "{$host}<br/>";
+		echo "<h1>{$host}</h1>";
 		$tlds = array(
 			'ac'     =>'whois.nic.ac',
 			'ae'     =>'whois.nic.ae',
@@ -217,14 +224,14 @@ class System_Info_Tools{
 		}
 		$domain = substr($host, 0, -(strlen($ext)+1));
 		echo "Using Whois Server: {$nic_server}<br/>";
-		if ($conn = fsockopen ($nic_server, 43)){
-        	fputs($conn, $domain."\r\n");
+		if($conn = fsockopen($nic_server, 43)){
+        	fputs($conn, "={$domain}\r\n");
        	 	while(!feof($conn)) {
             	$output .= fgets($conn, 128);
         	}
         	fclose($conn);
 		}
-		echo "<pre>{$output}</pre>";
+		return $output;
 	}
 	public static function output_to_array($data){
 		$c = count($data);
@@ -310,13 +317,12 @@ class System_Info_Tools{
 			$classes[] = 'object';
 		}
 		$upper = strtoupper($v);
-		if(in_array($upper, $truthy))		$classes[] = 'truthy';
-		if(in_array($upper, $falsy, true)) 	$classes[] = 'falsy';
-		if(is_numeric($v))					$classes[] = 'number';
-		if(is_date($v))						$classes[] = 'date';
-		if(is_string($v))					$classes[] = 'string';
-		$c = implode(' ', $classes);
-		return "<span class='{$c}'>{$v}</span>";	
+		if(in_array($upper, $truthy))			return "<span class=truthy>{$v}</span>";	
+		if(in_array($upper, $falsy, true)) 		return "<span class=falsy>{$v}</span>";	
+		if(is_numeric($v))						return "<span class=number>".number_format($v)."</span>";	
+		elseif(is_date($v))						return "<span class=date>{$v}</span>";	
+		elseif(is_string($v))					return "<span class=string>{$v}</span>";	
+		
 	}
 	public static function out_table($arr, $cols=null, $colorize=false){
 		if($cols == null){ 

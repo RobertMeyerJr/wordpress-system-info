@@ -1,9 +1,5 @@
 <?php
-/*
-
-	
-*/
-global $wpdb,$post,$wp_filter,$timestart,$wp_object_cache,$dbg_filter_calls;
+global $wpdb,$post,$wp_filter,$timestart,$wp_object_cache,$dbg_filter_calls,$SI_Errors;
 
 #calculate debug time, Server Side and JS/DOM side
 $start_debug 	= microtime(true); 
@@ -15,9 +11,9 @@ foreach($wpdb->queries as $q){
 }
 	
 $total_query_time_ms 	= number_format($total_query_time*1000,2);
-$time_taken 				= microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+$time_taken 			= microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 $query_percentage 		= number_format(($total_query_time/$time_taken) * 100,2); //Backwards?
-$query_details 			= (empty($wpdb->queries)) ? '':"{$wpdb->num_queries} in {$total_query_time_ms}ms";
+$query_details 			= (empty($wpdb->queries)) ? $wpdb->num_queries:"{$wpdb->num_queries} in {$total_query_time_ms}ms";
 
 $files 					= get_included_files();
 $included_file_count 	= count($files);
@@ -25,7 +21,7 @@ $included_file_count 	= count($files);
 $total_filter_duration 	= array_sum($GLOBALS['dbg_filter_times']);
 $filter_details 		= number_format($total_filter_duration*1000,2)."ms";
 
-
+$error_count = count($SI_Errors);
 include('bar.php');
 
 ?>	
@@ -33,7 +29,7 @@ include('bar.php');
 	<div id=debug-bar-resize></div>
 	<ul class=tabs>
 		<li class=current><a href=#dbg_info><i class=fa-info></i> Info</a></li>
-		<li><a href=#dbg_errors><i class=fa-warning></i> Errors</a></li>
+		<li><a href=#dbg_errors><i class=fa-warning></i> Errors <small class=bdg><?php echo $error_count?></small></a></li>
 		<li><a href=#dbg_db><i class=fa-database></i> Queries <small class=bdg><?php echo $query_details;?></small></a></li>
 		<li><a href=#dbg_filters><i class=fa-filter></i> Filters <small class=bdg><?php echo $filter_details;?></small></a></li>		
 		<li><a href=#dbg_files><i class=fa-file></i> Included Files <span class=bdg><?php echo $included_file_count?></span></a></li>
@@ -47,7 +43,6 @@ include('bar.php');
 		<?php if(!empty($_REQUEST)) 	: ?><li><a href=#dbg_request><i class=fa-info></i> Request</a></li><?php endif; ?>							
 		
 		<li><a href=#dbg_cache><i class=fa-info></i> Cache</a></li>				
-		<li><a href=#dbg_plugins><i class=fa-plug></i> Plugins</a></li>		
 		<li><a href=#dbg_timeline><i class=fa-clock-o></i> Timeline</a></li>				
 		
 		<li class=right id=close_dbg><i class=fa-times></i></li>
@@ -57,8 +52,6 @@ include('bar.php');
 <div class=dbg_body>
 	<div class='panel active' id=dbg_info><?php include('info.phtml');?></div>
 	<div class=panel id=dbg_cache><?php 	include('cache.phtml'); ?></div>
-	
-	<div class=panel id=dbg_plugins><?php 	include('plugins.phtml');?></div>
 	<div class=panel id=dbg_globals><?php 	include('globals.phtml');?></div>
 	<div class=panel id=dbg_files><?php 	include('included_files.phtml'); ?></div>
 	<div class=panel id=dbg_filters><?php include('filters.phtml');?></div>

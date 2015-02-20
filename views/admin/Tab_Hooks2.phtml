@@ -11,12 +11,16 @@
 		<?php $count = count($p); ?>
 			<?php foreach($p as $name => $props): ?>
 				<tr>
-					<th><a target=_blank href="http://adambrown.info/p/wp_hooks/hook/<?php echo $tag?>"><?php echo $tag?></td>	
-					<td><?php echo $name?></td>
+					<td class=cBlue><a target=_blank href="http://adambrown.info/p/wp_hooks/hook/<?php echo $tag?>"><?php echo $tag?></td>	
+					<td class=cGreen><?php echo $name?></td>
 					<td><?php foreach($props as $val) :?>
 						<div class=actions>
 							<h2><?php var_dump( $val['function']) ?></h2>
-							<pre><?php echo htmlspecialchars(print_r($val,true)); ?></pre>
+							<?php if(class_exists('Kint')) : ?>
+								<?php d($val) ?>
+							<?php else: ?>
+								<pre><?php echo htmlspecialchars(print_r($val,true)); ?></pre>
+							<?php endif; ?>
 						</div>
 						<?php endforeach; ?>
 					</td>

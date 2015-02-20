@@ -19,7 +19,11 @@
 		<?php $i=1; foreach($files as $f): ?>	
 			<?php 
 				if(false !== strpos($f, $plugins_path)){
+					//TODO: Add Plugin Name
 					$part = 'Plugin';						
+				}
+				if(false !== strpos($f, 'wp-admin')){
+					$part = 'WP-Admin';
 				}
 				else if(false !== strpos($f, WP_CONTENT_DIR)){
 					$part = 'Theme';

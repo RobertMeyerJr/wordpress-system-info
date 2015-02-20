@@ -1,3 +1,4 @@
+
 <?php 
 
 class System_Info_Admin{	
@@ -54,10 +55,12 @@ class System_Info_Admin{
 	public static function ajax_optimize_table(){ wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table'])); }
 	
 	public static function admin_scripts($suffix){
+		
+		wp_enqueue_style( 'debug-bar', plugins_url( '../media/css/admin.css',__FILE__));
+		
 		if($suffix != 'toplevel_page_sys_info'){
 			return;		
 		}
-		wp_enqueue_style( 'debug-bar', plugins_url( '../media/css/admin.css',__FILE__));
 		
 		wp_enqueue_script('jquery-ui-dialog');	
 		wp_enqueue_script('jquery-ui-accordion');
@@ -72,6 +75,9 @@ class System_Info_Admin{
 	}
 	public static function admin_menu(){
 		add_menu_page('Info', 'Developer Bar', 'manage_options', 'sys_info', array(__CLASS__,'main'));
+		
+		
+		
 	}
 	
 	public static function get_hooks(){

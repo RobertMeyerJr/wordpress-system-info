@@ -17,3 +17,15 @@
 
 
 .toplevel_page_sys_info table.widefat tbody tr:nth-child(odd){background-color:rgba(0,0,0,0.02);}
+.toplevel_page_sys_info table.widefat{font-size:1.2em;}
+
+.extensions li{display:inline-block;width:15%;}
+
+.dev-bar-admin > h2{margin:0 0 20px 0;}
+.dev-bar-admin > h2 span{text-transform:uppercase;color:#c0392b;}
+
+.dev-bar-admin .nav-tab{font-size:1.2em;padding:10px 15px}
+
+.container.rewrite{font-size:1.3em;background-color:white;padding:15px;}
+
+#toplevel_page_sys_info div.wp-menu-image:before{color:#f39c12;}

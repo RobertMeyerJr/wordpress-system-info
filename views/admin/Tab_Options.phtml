@@ -7,7 +7,7 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 
 ?>
 
-<table>
+<table class=widefat>
 	<?php foreach($options as $o) : ?>
 		<tr>
 			<th><?php echo $o->option_name; ?></th>

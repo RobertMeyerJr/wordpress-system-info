@@ -1,7 +1,6 @@
 <?php 
 $cron = _get_cron_array();
 ?>
-<h3>WP Cron</h3>
 <table class='wp-list-table widefat fixed'>
 	<thead><tr><th>ID</th><th>Name</th><th>args</th><th>Schedule</th></tr>
 <?php 
@@ -9,8 +8,8 @@ $cron = _get_cron_array();
 		foreach($arr as $name=>$c){ 	
 			foreach($c as $job){
 			?><tr>
-				<td><?php echo $name?></td>
-				<td><?php echo $job['schedule']?></td>
+				<td class=cGreen><?php echo $name?></td>
+				<td class=cPurple><?php echo $job['schedule']?></td>
 				<td><?php 
 					if( empty( $job['args'] ) ){
 						echo "Empty";
@@ -43,14 +42,12 @@ $cron = _get_cron_array();
 	}#cron as $ar
 ?>
 </table>
-<script>jQuery('.wpcron_jobs').accordion({collapsible: true,allwayOpen: false});</script>
-
 <?php if( System_Info_Tools::is_windows() ) : ?>
 	<h3>Scheduled Tasks</h3>
 	<?php 
 	$xmlString = System_Info_Tools::run_command(exec('schtasks /query /XML'));
 	$xml = simplexml_load_string($xmlString);
-	print_r( $xmlString );
+	d( $xmlString );
 	?>
 <?php else: ?>
 	<h3>crontab</h3>

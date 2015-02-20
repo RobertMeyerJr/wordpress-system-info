@@ -28,6 +28,7 @@ jQuery(function($){
 	});
 
 	$('#debug-bar-resize').mousedown(function(e){      
+		console.log('resize clicked');
         e.preventDefault();        
 		startY = e.pageY;
 		

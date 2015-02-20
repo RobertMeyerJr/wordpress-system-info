@@ -1,8 +1,8 @@
 <h2>WP Object Cache</h2>
 <table class=widefat>
 	<?php if( !empty($wp_object_cache) ): ?>
-		<tr><th></th><td><?php echo $wp_object_cache->hits ?></td></tr>
-		<tr><th></th><td><?php echo $wp_object_cache->misses?></td></tr>	
+		<tr><th></th><td><?php if(isset($wp_object_cache->hits)) echo $wp_object_cache->hits ?></td></tr>
+		<tr><th></th><td><?php if(isset($wp_object_cache->misses)) echo $wp_object_cache->misses?></td></tr>	
 	<?php endif; ?>
 		<tr><th colspan=2>Other</th></tr>
 	<?php if( extension_loaded( 'wincache' ) ) : ?>

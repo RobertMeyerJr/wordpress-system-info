@@ -9,7 +9,7 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 <?php #global $wp_scripts; var_dump($wp_scripts); ?>
 <?php #global $wp_styles; var_dump($wp_styles); ?>
 
-<h3>Speed</h3>
+<h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
 <table class=widefat>
 	<tr><th>OpCode Cache</th><td>
 		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
@@ -34,10 +34,10 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 	<tr><th>MySQL Cache</th><td></td></tr>
 	
 	<tr><th>Query Cache</th><td><?php echo $have_query_cache ?></td></tr>
-	<tr><th>Cache Size</th><td><?php echo $query_cache_size?></td></tr>
+	<tr><th>Cache Size</th><td><?php echo number_format($query_cache_size)?></td></tr>
 	
 </table>
-
+<h2><i class='cPurple fa fa-info'></i> Server Info</h2>
 <table class='wp-list-table widefat fixed server_info'>
 	<tr><th colspan=2 class=hdr>Software
 	<tr><th>OS<td><?php echo System_Info_Tools::color_format(php_uname())?>
@@ -97,7 +97,8 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 	<?php endif; ?>			
 </table>
 
-<h3>Image Sizes</h3>
+<?php if(!empty($_wp_additional_image_sizes)) : ?>
+<h2>Image Sizes</h2>
 <table class='widefat'>
 	<thead>
 		<tr>
@@ -119,7 +120,7 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 	<?php endforeach; ?>
 	</tbody>
 </table>
-
+<?php endif; ?>
 
 <h2>PHP Settings</h2>
 <table class='widefat'>
@@ -166,10 +167,10 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 		</td></tr>
 		<tr><th>PHP Extensions</th>
 		<td>
-			<ul class=threecol>		
+			<ul class=extensions>		
 			<?php $extensions = get_loaded_extensions(); ?>
 			<?php foreach($extensions as $e): ?>
-				<li><a href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
+				<li><a target=_blank href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
 			<?php endforeach; ?>
 			</ul> 	
 		</td>

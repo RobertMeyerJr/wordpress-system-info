@@ -1,21 +1,34 @@
 wordpress-system-info
 =====================
 
+
+[TO DO]
+Catch Fatal Errors, Display Like Simplified Whoops
+
+for errors, open the file, show 5 before, 5 after hilight error line
+??	show callstack 2 before
+
+Issue with Services on Linux
+
+---------------------------------------------------------------------
+
+
+
+Name Ideas:
+WP Total Info
+
+
 Determine Critial info for info panel
 	Errors + Warnings
 	Load time overview
 	
-If 5.5, Zend Optimizer+
-APC no user space cache
-	Install APCu	(Works with Zend Optimizer+)		(Server Specific)
-	pecl:			memcached better than memcache
----------------------------------------
-First 14KB are critical
----------------------------------------
 
-Debug Bar
-System Information
+Install APCu	(Works with Zend Optimizer+)		(Server Specific)
+pecl:			memcached 
 
+Speed:	First 14KB are critical
+
+---------------------------------------
 Goals
 	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
 	Fast:			Zero Impact when not used
@@ -29,63 +42,25 @@ wp_ajax_si_beacon
 	Disk
 -----------------------------------------------
 Beacon Every 1 Hour
-Beacon Every 10 Minutes
-
-
+	Details
+Beacon Every X Minutes
 Long Review
-	check for admin user
-	user with id = 1
+	check for "admin" user with id = 1
 	check for prefix != "wp_"
 	disable			XML-RPC
 On Comment:	
 	deny comments without a referrer
-
-
 Beacon:
 	Plugin Updates
-	Wordpress Updates
-	
+	Wordpress Updates	
 -----Inspiration
 
 https://github.com/eworksmedia/php-server-status-dashboard
 https://github.com/afaqurk/linux-dash		
 
-apt-get install php5-dev	
-sudo pecl install memcache
-	
-	
-PHP Check For
-	cURL
-	zlib
-	Opcode cache
-	Memcache extension
-	HTML Tidy extension
-	Check for PECL memcache module
-Apache Check For:
-	mod_deflate
-	mod_env
-	mod_expires
-	mod_headers
-	mod_mime
-	mod_rewrite
-	mod_setenvif
-	
-	
+[Security]
 
-php.ini	
-	extension=memcache.so
-	
-	
-/etc/apache2/apache2.conf
-<Directory /var/www/>
-    Options Indexes FollowSymLinks MultiViews
-    AllowOverride All
-    Order allow,deny
-    allow from all
-</Directory>
-	
-	
-	http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=theajcf.org
+http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=theajcf.org
 http://safeweb.norton.com/report/show?url=theajcf.org
 http://www.siteadvisor.com/sites/theajcf.org
 http://www.yandex.com/infected?url=theajcf.org&l10n=en
@@ -94,9 +69,10 @@ http://www.yandex.com/infected?url=theajcf.org&l10n=en
 SELECT * FROM your-table-name WHERE your-table-field-or-column LIKE '%<iframe%'
 
 
-ini check:
+ini check:	
 	allow_url_fopen 
 	allow_url_include 
+	
 	
 grep -lr --include=*.php "eval(base64_decode" /path/to/webroot
 
@@ -107,8 +83,6 @@ eval
 gzinflate
 base64_decode
 base64
-
-
 
 
 https://wordpress.org/plugins/debug-bar-constants/screenshots/

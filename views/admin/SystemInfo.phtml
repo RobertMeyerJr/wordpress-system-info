@@ -20,7 +20,7 @@ $start = microtime(true);
 			'DNS'				=>	array('dns',		'fa fa-info'),					
 			'Whois'				=>	array('whois',		'fa fa-info-circle'),				
 			'Error Log'			=>	array('errors',		'fa fa-exclamation-triangle'),		
-			'Tools'				=>	array('tools',		'fa fa-wrench'),		
+			#'Tools'				=>	array('tools',		'fa fa-wrench'),		
 			'Hooks'				=>	array('hooks',		'fa fa-anchor'),		
 			'Functions'			=>	array('functions',	'fa fa-flag'),		
 			'WP Options'		=>	array('options',	'fa fa-sliders')		
@@ -49,24 +49,25 @@ $start = microtime(true);
 	<div class='container <?php echo $tab?>'>
 		<?php 			
 			switch($tab){
-				case 'info': 			System_Info_Admin::page_info(); break;
-				case 'db':				System_Info_Admin::page_db_info(); break;
-				case 'perm': 			System_Info_Admin::page_permissions(); break;
-				case 'procs': 			System_Info_Admin::page_procs(); break;
-				case 'rewrite': 		System_Info_Admin::page_rewrite_rules(); break;
-				case 'cron': 			System_Info_Admin::page_cron(); break;
-				case 'hooks': 			System_Info_Admin::page_hooks(); break;
-				case 'dns': 			System_Info_Admin::page_dns(); break;
-				case 'whois': 			System_Info_Admin::page_whois(); break;
-				case 'errors': 			System_Info_Admin::page_errors(); break;
-				case 'tools': 			System_Info_Admin::page_tools(); break;
-				case 'shell': 			System_Info_Admin::page_shell(); break;
-				case 'functions': 		System_Info_Admin::page_func(); break;
-				case 'mysql_info':		System_Info_Admin::page_mysql_info(); break;
-				case 'mysql_perf':		include('Tab_Mysql_Perf.phtml'); ;break;
+				case 'info': 			include(__DIR__.'/tabs/Info.phtml'); break;
+				case 'db':				include(__DIR__.'/tabs/DB_Info.phtml'); break;
+				case 'perm': 			include(__DIR__.'/tabs/Permissions.phtml'); break;
+				case 'procs': 			include(__DIR__.'/tabs/Procs.phtml'); break;
+				case 'rewrite': 		include(__DIR__.'/tabs/Rewrites.phtml'); break;
+				case 'cron': 			include(__DIR__.'/tabs/Cron.phtml'); break;
+				case 'hooks': 			include(__DIR__.'/tabs/Hooks.phtml'); break;
+				case 'dns': 			include(__DIR__.'/tabs/DNS.phtml'); break;
+				case 'whois': 			include(__DIR__.'/tabs/Whois.phtml'); break;
+				case 'errors': 			include(__DIR__.'/tabs/Errors.phtml'); break;
+				#case 'tools': 			include(__DIR__.'/tabs/Tools.phtml'); break;
+				case 'shell': 			include(__DIR__.'/tabs/Shell.phtml'); break;
+				case 'functions': 		include(__DIR__.'/tabs/Functions.phtml'); break;
+				case 'mysql_info':		include(__DIR__.'/tabs/DB_Info.phtml'); break;
+				case 'mysql_perf':		include(__DIR__.'/tabs/Tab_Mysql_Perf.phtml'); ;break;
 				case 'services':		System_Info_Admin::page_services(); break;
-				case 'ports':			System_Info_Admin::page_open_ports(); break;
+				case 'ports':			include(__DIR__.'/../views/admin/tabs/Ports.phtml'); break;
 				case 'options': 		include('Tab_Options.phtml'); break;
+				case 'about':			include(__DIR__.'/../views/admin/about.phtml'); break;
 				default: echo "No such Tab '{$tab}'"; break;			
 			}		
 			$total = microtime(true) - $start;

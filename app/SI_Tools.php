@@ -25,10 +25,18 @@ class System_Info_Tools{
 	  }
 	  return false;
 	}
-	public static function is_windows(){ return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'); }
-	public static function can_exec(){
-		return exec_enabled(); //Replace all calls to can_exec
+	public static function is_windows(){ 
+		return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'); 
 	}
+	
+	function is_exec_allowed(){
+		if( !function_exists('exec') ){
+			return false;
+		}
+		else{
+			return exec('echo EXEC') == 'EXEC';
+		}
+	}		
 	
 	public static function exec_enabled(){
 		if(!function_exists('exec'))
@@ -36,8 +44,7 @@ class System_Info_Tools{
 		$disabled = explode(',', ini_get('disable_functions'));
 		return !in_array('exec', $disabled);
 	}
-	
-	
+		
 	
 	public static function check_open_basedir(){
 		$base_dir = ini_get('open_basedir');
@@ -400,7 +407,7 @@ class System_Info_Tools{
 		
 		
 	/*
-	Cheap, ugly
+	Cheap and ugly
 	*/	
 	public static function xml_highlight($s){
 	  $s = preg_replace("|<([^/?])(.*)\s(.*)>|isU", "[1]<[2]\\1\\2[/2] [5]\\3[/5]>[/1]", $s);

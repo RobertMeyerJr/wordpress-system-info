@@ -4,12 +4,21 @@ global $_wp_additional_image_sizes, $wpdb, $wp_version;
 $have_query_cache = System_Info_SQL::option('have_query_cache');
 $query_cache_size = System_Info_SQL::option('query_cache_size');
 
+$web_root 		= realpath($_SERVER['DOCUMENT_ROOT'].'/../');
+$directories 	= glob($web_root.'/*' , GLOB_ONLYDIR);
+
+ob_start();
+	phpinfo();
+	$php_info = ob_get_contents();
+ob_end_clean();		 
+$php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
+
 ?>
 
 <?php #global $wp_scripts; var_dump($wp_scripts); ?>
 <?php #global $wp_styles; var_dump($wp_styles); ?>
 
-<h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
+<BR/><h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
 <table class=widefat>
 	<tr><th>OpCode Cache</th><td>
 		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
@@ -20,24 +29,14 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 		<?php else: ?>None
 		<?php endif; ?>
 	</td></tr>
-	
-	<tr><th>Redis</th><td>
-	</td></tr>
-	<?php if(function_exists('apache_get_modules') ) : $modules = apache_get_modules();  ?>
-		<tr><th>Apache Modules</th><td>
-			<?php echo print_r($modules); ?>
-		</td></tr>	
-	<?php endif; ?>
-	<tr><th>Memory Limit
-	<tr><th>APC Cache Limit
-	
-	<tr><th>MySQL Cache</th><td></td></tr>
-	
+	<tr><th>Memory Limit</th></tr>	
+	<tr><th>APC Cache Limit</th></tr>		
+	<tr><th>MySQL Cache</th></tr>	
 	<tr><th>Query Cache</th><td><?php echo $have_query_cache ?></td></tr>
 	<tr><th>Cache Size</th><td><?php echo number_format($query_cache_size)?></td></tr>
 	
 </table>
-<h2><i class='cPurple fa fa-info'></i> Server Info</h2>
+<BR/><h2><i class='cPurple fa fa-info'></i> Server Info</h2>
 <table class='wp-list-table widefat fixed server_info'>
 	<tr><th colspan=2 class=hdr>Software
 	<tr><th>OS<td><?php echo System_Info_Tools::color_format(php_uname())?>
@@ -51,7 +50,7 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 			<tr><th>Apache Modules</th>
 			<td>
 				<?php foreach($modules as $m) : ?>
-					<span><?php echo $m?></span>
+					<span><?php echo $m?></span><br/>
 				<?php endforeach; ?>
 			</td></tr>
 	<?php endif; ?>		
@@ -98,13 +97,11 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 </table>
 
 <?php if(!empty($_wp_additional_image_sizes)) : ?>
-<h2>Image Sizes</h2>
+<BR/><h2><i class="fa fa-2x fa-photo"></i> Image Sizes</h2>
 <table class='widefat'>
 	<thead>
 		<tr>
 			<th>Name</th>
-			<th>Width</th>
-			<th>Height</th>
 			<th>Hard Crop</th>
 			<th>Size</th>
 	</thead>
@@ -112,17 +109,21 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 	<?php foreach($_wp_additional_image_sizes as $name=>$i) : ?>
 		<tr>
 			<td><?php echo $name?></td>
-			<td><?php echo $i['width'] ?></td>
-			<td><?php echo $i['height']?></td>
 			<td><?php echo ($i['crop'])?'Yes':'No'?></td>
-			<td><div style='background-color:red;width:<?php echo $i['width']?>px;height:<?php echo $i['height']?>px'></div></td>
+			<td style="text-center">
+				<span class="thumb_example" style="width:<?php echo $i['width']?>px;height:<?php echo $i['height']?>px">
+				<?php echo $i['width']?>
+				x
+				<?php echo $i['height']?>
+				</span>
+			</td>
 		</tr>
 	<?php endforeach; ?>
 	</tbody>
 </table>
 <?php endif; ?>
 
-<h2>PHP Settings</h2>
+<BR/><h2><i class="fa fa-2x fa-cogs"></i> PHP Settings</h2>
 <table class='widefat'>
 <tr><th>Loaded Configuration</th><td><?php echo php_ini_loaded_file();?></td></tr>
 	<tr><th>Extensions Directory</th><td><?php echo PHP_EXTENSION_DIR?></td></tr>
@@ -175,5 +176,45 @@ $query_cache_size = System_Info_SQL::option('query_cache_size');
 			</ul> 	
 		</td>
 		</tr>
-</table>				
+</table>		
+
+<h2><i class='fa fa-tachometer cBlue'></i> Other Folders in WebRoot <?php echo $web_root?></h2>
+<div class=postbox>
+	<div class=inside>	
+	<table>
+		<thead>
+			<tr>
+				<th>Name
+				<th>Size			
+			</tr>
+		</thead>
+		<tbody>
+		<?php foreach($directories as $d) : ?>
+			<tr>
+				<td><?php echo str_replace($web_root.'/','',$d)?></td>
+				<td>
+				<?php 
+					//Get Folder Size
+					if( !System_Info_Tools::is_windows() ){
+						$size = [];
+						exec("du -sh {$d}",$size);
+						print_r($size);					
+						$s = explode(' ',$size);
+						print_r($s);
+						echo $size;
+					}
+				?>
+				</td>
+			</tr>
+		<?php endforeach ?>
+		</tbody>
+	</table>		
+	</div>
+</div>
+
+<div class=postbox>
+	<div class=inside>
+		<?php echo $php_info ?>
+	</div>
+</div>		
 		

@@ -45,14 +45,14 @@ $cron = _get_cron_array();
 <?php if( System_Info_Tools::is_windows() ) : ?>
 	<h3>Scheduled Tasks</h3>
 	<?php 
-	$xmlString = System_Info_Tools::run_command(exec('schtasks /query /XML'));
-	$xml = simplexml_load_string($xmlString);
-	d( $xmlString );
+		$xmlString = System_Info_Tools::run_command(exec('schtasks /query /XML'));
+		$xml = simplexml_load_string($xmlString);
+		d( $xmlString );
 	?>
 <?php else: ?>
-	<h3>crontab</h3>
+	<h3>Crontab</h3>
 	<?php
 		$out = System_Info_Tools::run_command("/usr/bin/crontab -l");
-		print_r($cout);
+		echo "<pre>".print_r($out,true)."</pre>";
 	?>
 <?php endif; ?>

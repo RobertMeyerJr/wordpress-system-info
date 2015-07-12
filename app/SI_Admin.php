@@ -1,4 +1,3 @@
-
 <?php 
 
 class System_Info_Admin{	
@@ -16,6 +15,17 @@ class System_Info_Admin{
 		add_action('wp_ajax_sysinfo_search_hooks', 		array(__CLASS__, 	'get_hooks'));			
 		add_action('wp_ajax_sysinfo_search_functions', 	array(__CLASS__, 	'ajax_function_search'));			
 		add_action('wp_ajax_sysinfo_explain_query', 	array(__CLASS__, 	'explain_query'));
+	}
+	
+	public static function admin_menu(){
+		$slug = basename(__CLASS__);
+		
+		add_menu_page('Info', 'Total Details', 'manage_options', 'total_details', array(__CLASS__,'main'));
+		
+		#add_menu_page('Info', 'Developer Bar', 'manage_options', $slug, array(__CLASS__,'main'));
+		#add_submenu_page($slug, 'Options', 'Options', 'manage_options', $slug,  	array(__CLASS__,'options'));
+		#add_submenu_page($slug, 'Donations', 'Donations', 'manage_options', 'ruxly_authnet_donations',  	array(__CLASS__,'donations'));
+		
 	}
 	
 	#-------------AJAX
@@ -66,57 +76,32 @@ class System_Info_Admin{
 		wp_enqueue_script('jquery-ui-accordion');
 		wp_enqueue_script('jquery-ui-tabs');			
 		wp_enqueue_script('jquery-ui-datepicker');				
-		wp_enqueue_script('tablesorter', 'http://cachedcommons.org/cache/jquery-table-sorter/2.0.3/javascripts/jquery-table-sorter-min.js', array('jquery'));	
+		wp_enqueue_script('tablesorter', 'https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.1/js/jquery.tablesorter.js', array('jquery'));	
 		
 		//Enqueue if not already
-		if(!wp_style_is('font-awesome') && !wp_style_is('fontawesome') )
+		if(!wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
-		
-	}
-	public static function admin_menu(){
-		add_menu_page('Info', 'Developer Bar', 'manage_options', 'sys_info', array(__CLASS__,'main'));
-		
-		
+		}
 		
 	}
 	
-	public static function get_hooks(){
-		global $wp_filter,$wp_actions,$merged_filters;		
-		$hook = $wp_filter;
-		ksort($hook);
-		include(__DIR__.'/../views/admin/Tab_Hooks2.phtml');
-		exit;
-	}
+	
 	#-----------------------------Tabs
-	public static function main(){ include(__DIR__.'/../views/admin/SystemInfo.phtml'); }
+	public static function main(){ 
+		include(__DIR__.'/../views/admin/SystemInfo.phtml'); 
+	}
 	public static function page_mysql_info(){
 		global $wpdb;
 		$out = $wpdb->get_results('SHOW VARIABLES');
 		System_Info_Tools::out_table( $out, null, true);		
 	}
 	public static function page_open_ports(){
-		if( System_Info_Tools::is_windows() ){
-			$cmd = 'netstat -ano | find "LISTENING"';
-			$out = System_Info_Tools::run_command( $cmd );
-			$out = preg_replace('!\s+!', ' ', $out);
-			$out = str_replace(' ',',',$out);
-			$out = System_Info_Tools::read_csv_array( $out,",");
-			foreach($out as $k=>$o){
-				unset($out[$k][0]);
-			}
-			System_Info_Tools::out_table($out);
-		}
-		else{
-			$cmd = 'lsof -i -n | egrep "COMMAND|LISTEN"';
-			$out = System_Info_Tools::read_csv_array( System_Info_Tools::run_command( $cmd ),"\t");
-			System_Info_Tools::out_table($out);
-		}
+		
 	}
 	public static function page_services(){
 		if(System_Info_Tools::is_windows()){
 			$cmd = 'sc query';
 			$out = System_Info_Tools::run_command($cmd);
-			d($out);
 			System_Info_Tools::out_table($out);
 		}
 		else{
@@ -125,27 +110,15 @@ class System_Info_Admin{
 			var_dump($out);
 		}
 	}
-	public static function page_db_info(){ include(__DIR__.'/../views/admin/Tab_DB_Info.phtml');}
-	public static function page_errors(){ include(__DIR__.'/../views/admin/Tab_Errors.phtml'); }
-	public static function page_func(){ include(__DIR__.'/../views/Tab_Functions.phtml'); }
-	public static function page_shell(){ include(__DIR__.'/../views/admin/Tab_Shell.phtml');}
-	public static function page_hooks(){  include(__DIR__.'/../views/admin/Tab_Hooks.phtml'); }
-	public static function page_info(){ include(__DIR__.'/../views/admin/Tab_Info.phtml'); }
-	public static function page_whois(){ include(__DIR__.'/../views/admin/Tab_Whois.phtml'); }	
-	public static function page_dns(){	include(__DIR__.'/../views/admin/Tab_DNS.phtml'); }
-	public static function page_cron(){ include(__DIR__.'/../views/admin/Tab_Cron.phtml'); }
-	public static function page_procs(){ include(__DIR__.'/../views/admin/Tab_Procs.phtml');}
-	public static function page_permissions(){ include(__DIR__.'/../views/admin/Tab_Permissions.phtml');}
-	public static function page_tools(){ require(__DIR__.'../views/admin/Tab_Tools.phtml'); }
-	
-	public static function page_rewrite_rules(){
-		$rules = ( System_Info_Tools::is_windows() ) ? file_get_contents(ABSPATH.'/web.config') : file_get_contents(ABSPATH.'/.htaccess');
-		
-		if( System_Info_Tools::is_windows() )
-			echo "<pre>".System_Info_Tools::xml_highlight( $rules )."</pre>";
-		else
-			echo "<pre>".htmlspecialchars($rules)."</pre>";
+	//TODO, Combine these into a single function based on the page variable
+	public static function get_hooks(){
+		global $wp_filter,$wp_actions,$merged_filters;		
+		$hook = $wp_filter;
+		ksort($hook);
+		include(__DIR__.'/../views/admin/Tab_Hooks2.phtml');
+		exit;
 	}
+	
 	#----------------Server Details
 	public static function permissions(){
 		$uploads = wp_upload_dir();

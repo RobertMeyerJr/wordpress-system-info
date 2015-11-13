@@ -18,14 +18,58 @@ class System_Info_Admin{
 	}
 	
 	public static function admin_menu(){
-		$slug = basename(__CLASS__);
+		$slug = 'wp-total-details';
+		$cap = 'edit_pages';
 		
-		add_menu_page('Info', 'Total Details', 'manage_options', 'total_details', array(__CLASS__,'main'));
+		add_menu_page('Info', 'Total Details', 						$cap, $slug, [__CLASS__,'admin_tab']);
 		
-		#add_menu_page('Info', 'Developer Bar', 'manage_options', $slug, array(__CLASS__,'main'));
-		#add_submenu_page($slug, 'Options', 'Options', 'manage_options', $slug,  	array(__CLASS__,'options'));
-		#add_submenu_page($slug, 'Donations', 'Donations', 'manage_options', 'ruxly_authnet_donations',  	array(__CLASS__,'donations'));
+		add_submenu_page($slug, 'Info', 'Info', 					$cap, $slug, [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'MySQL', 'MySQL', 					$cap, 'wptd-MySQL', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Database', 'Database', 			$cap, 'wptd-DB', [__CLASS__,'admin_tab']);
 		
+		if( System_Info_Tools::exec_enabled() ){
+			add_submenu_page($slug, 'Services', 'Services', 			$cap, 'wptd-Services', [__CLASS__,'admin_tab']);
+			add_submenu_page($slug, 'Ports', 'Ports', 					$cap, 'wptd-Ports', [__CLASS__,'admin_tab']);
+			add_submenu_page($slug, 'Procs', 'Running Processes', 					$cap, 'wptd-Procs', [__CLASS__,'admin_tab']);
+		}		
+		
+		add_submenu_page($slug, 'Permissions', 'Permissions',	 	$cap, 'wptd-Permissions', [__CLASS__,'admin_tab']);
+		
+		add_submenu_page($slug, 'Cron', 'Cron', 					$cap, 'wptd-Cron', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'DNS', 'DNS', 						$cap, 'wptd-DNS', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Whois', 'Whois', 					$cap, 'wptd-Whois', [__CLASS__,'admin_tab']);
+		
+		add_submenu_page($slug, 'Rewrites', 'Rewrites', 			$cap, 'wptd-Rewrites', [__CLASS__,'admin_tab']);
+		
+		add_submenu_page($slug, 'Errors', 'Errors', 				$cap, 'wptd-Errors', [__CLASS__,'admin_tab']);
+		
+		add_submenu_page($slug, 'Hooks', 'Hooks', 					$cap, 'wptd-Hooks', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Functions', 'Functions', 			$cap, 'wptd-Functions', [__CLASS__,'admin_tab']);		
+		add_submenu_page($slug, 'Options', 'WP Options', 			$cap, 'wptd-Options', [__CLASS__,'admin_tab']);
+	}
+	#-----------------------------Tabs
+	
+	public static function admin_tab(){
+		$start = microtime(true);
+		$tab = $_GET['page'];
+		$tab = str_replace('wptd-','',$tab);
+		if($tab == 'wp-total-details')
+			$tab = 'Info';
+		?>
+		<div class='wrap dev-bar-admin'>			
+			<div class=container>
+				<h1><i class='fa fa-cogs cGreen'></i> Total Details - <span class=cBlue><?php echo $tab?></span></h1>
+				<?php 
+					$tab_path = __DIR__.'/../views/admin/tabs/'.$tab.'.php';
+					if( !include($tab_path) ){
+						echo "<h2>Error with section {$tab}</h2>";
+					}
+				?>				
+			</div>
+		</div>	
+		<?php		
+		$total = microtime(true) - $start;
+		echo "<h4>Time Taken - ".number_format($total*1000,2)."ms</h4>";		
 	}
 	
 	#-------------AJAX
@@ -60,6 +104,8 @@ class System_Info_Admin{
 		exit;
 	}
 	public static function ajax_replace_content(){		
+		global $wpdb;
+		#$wpdb->content
 		exit;
 	}
 	public static function ajax_optimize_table(){ wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table'])); }
@@ -85,90 +131,29 @@ class System_Info_Admin{
 		
 	}
 	
-	
-	#-----------------------------Tabs
-	public static function main(){ 
-		include(__DIR__.'/../views/admin/SystemInfo.phtml'); 
-	}
-	public static function page_mysql_info(){
-		global $wpdb;
-		$out = $wpdb->get_results('SHOW VARIABLES');
-		System_Info_Tools::out_table( $out, null, true);		
-	}
-	public static function page_open_ports(){
-		
-	}
-	public static function page_services(){
-		if(System_Info_Tools::is_windows()){
-			$cmd = 'sc query';
-			$out = System_Info_Tools::run_command($cmd);
-			System_Info_Tools::out_table($out);
-		}
-		else{
-			$cmd = 'chkconfig --list'; #does this work everywhere?
-			$out = System_Info_Tools::run_command($cmd);
-			var_dump($out);
-		}
-	}
-	//TODO, Combine these into a single function based on the page variable
-	public static function get_hooks(){
-		global $wp_filter,$wp_actions,$merged_filters;		
-		$hook = $wp_filter;
-		ksort($hook);
-		include(__DIR__.'/../views/admin/Tab_Hooks2.phtml');
-		exit;
-	}
-	
-	#----------------Server Details
-	public static function permissions(){
-		$uploads = wp_upload_dir();
-		$dirs = array(
-			ABSPATH,
-			WP_CONTENT_DIR,
-			WP_PLUGIN_DIR,
-			ABSPATH . '.htaccess',
-			ABSPATH . 'wp-config.php',
-			$uploads['basedir']
-		);
-		$perms = array();
-		foreach($dirs as $d){
-			if( file_exists($d) ){
-				$perms[] = array( 'path'=>$d, 'permissions'=> fileperms($d) );		
-			}			
-		}
-		return $perms;
-	}
-	public static function server_load(){
-		if( System_Info_Tools::is_windows() ){
-			
-		}
-		else{
-		
-		}
-	}
-	public static function cpu_load(){
-		if( System_Info_Tools::is_windows() ){
-			exec('wmic cpu get loadpercentage', $output);
-		}
-		else{
-			#???
-		}
-	}
-	public static function uptime(){
-		$cmd = (System_Info_Tools::is_windows()) ? "net statistics workstation | find 'Statistics since' " : 'uptime';
-		exec($cmd, $output);		
-	}
 	/*
 	NOT YET IMPLEMENTED
-	public static function quick_scan(){		
-		$suspicious('eval',
-					'base64_decode',
+	public static function security_scan(){		
+		$suspicious(
+					'eval(',
+					'passthru('
+					'base64_decode(',
+					'system(
+					'shell_exec('
 					'exec('
 					'shell_exec(',
 					'hacked by',
 					'viagra',
-					'iframe'
+					'<iframe'
 		);		
+		$tables = array(
+		)
+		
+		foreach($tables as $s){
+			//check content field for "%{$s}%"
+			WHERE {} LIKE %{}%
+			OR WHERE {} LIKE %{}%
+		}
 		//  filemtime
 		// .htaccess		
 	}

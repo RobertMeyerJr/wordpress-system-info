@@ -1,4 +1,5 @@
 <?php 
+defined('ABSPATH') or die("Nope!");
 //This file gets included by the System_Info_Bootstrap if $_GET['sysinfo_bench']==1
 System_Info_Bench::run();
 System_Info_Bench::benchmarking();
@@ -10,35 +11,29 @@ class System_Info_Bench{
 	public static $_function_count 		= array();
 	public static $_hook_history 		= array();
 	public static $_total_hook_time 	= array();
+	public static $_templates_used 		= array();
+	public static $messages 			= array();
 	public static $_path;
 	public static $_last_time;
 	public static $section;
 	public static $_CORE_MEM_USAGE;
-	public static $_templates_used = array();
-	public static $messages = array();
-	
+		
 	public static function run(){		
 		self::$_path 		= realpath( dirname( __FILE__ ) );
 		self::$_last_time 	= microtime(true);
 		
 		#Add some initial start times
-		self::$load_time['start']  = ( empty($_SERVER['REQUEST_TIME_FLOAT']) ) ? $_SERVER['REQUEST_TIME'] : $_SERVER['REQUEST_TIME_FLOAT'];
-		self::$load_time['Core Load'] = microtime(true) - self::$load_time['start'];
-		
-		define('SAVEQUERIES', true ); // Redefine?
+		self::$load_time['start']  		= ( empty($_SERVER['REQUEST_TIME_FLOAT']) ) ? $_SERVER['REQUEST_TIME'] : $_SERVER['REQUEST_TIME_FLOAT'];
+		self::$load_time['Core Load'] 	= microtime(true) - self::$load_time['start'];
 		
 		add_action('init', array(__CLASS__, 'init'));			
 	}
 	
 	public static function init(){
 		#The locate_template filter may or may not ever appear 
-		#http://core.trac.wordpress.org/ticket/13239
-		
-		wp_enqueue_script('system-info-bench', '/wp-content/plugins/wordpress-system-info/views/benchmark.js', array('jquery'));		
-		
+		#http://core.trac.wordpress.org/ticket/13239		
+		wp_enqueue_script('system-info-bench', '/wp-content/plugins/wordpress-system-info/views/benchmark.js', array('jquery'));			
 	}
-	
-	
 	
 	public static function benchmark(){
 		global $wpdb;
@@ -248,7 +243,7 @@ class System_Info_Bench{
 		arsort(self::$section);
 		arsort( $plugin_times );											
 		
-		include(__DIR__.'/../views/Benchmark.phtml');			
+		include(__DIR__.'/../views/Benchmark.php');			
 	}
 	public static function timer_start($input){
 		$filter = current_filter();

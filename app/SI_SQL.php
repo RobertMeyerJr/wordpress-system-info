@@ -1,6 +1,14 @@
 <?php 
 class System_Info_SQL{
 
+	public static function optimize_table($table){
+		global $wpdb;
+		$sql = "OPTIMIZE TABLE {$table}";
+		$result = $wpdb->get_results($sql);
+		$update_stats = "ANALYZE TABLE {$table}";
+		return $result;
+	}
+	
 
 	public static function option($o){
 		global $wpdb;
@@ -46,13 +54,6 @@ class System_Info_SQL{
 		$wpdb->get_results($sql);
 	}
 	
-	public static function optimize_table($table){
-		global $wpdb;
-		$sql = "OPTIMIZE TABLE {$table}";
-		$result = $wpdb->get_results($sql);
-		$update_stats = "ANALYZE TABLE {$table}";
-		return $result;
-	}
 	public static function get_tables(){
 		global $wpdb;
 		$tables = $wpdb->get_results("SHOW TABLE STATUS");
@@ -77,12 +78,5 @@ class System_Info_SQL{
 			ORDER BY sum(data_length+index_length) DESC";
 		$result = $wpdb->get_results($sql);	
 		System_Info_Tools::out_table($result, null, true);	
-	}
-	public static function explain_query(){
-		global $wpdb;
-		$sql = "EXPLAIN ".stripslashes($_POST['sql']); 
-		$results = $wpdb->get_results($sql);
-		include(__DIR__.'/views/Explain_Query.phtml');
-		exit;
 	}
 }

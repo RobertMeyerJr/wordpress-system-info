@@ -1,3 +1,4 @@
+<?php defined('ABSPATH') or die("Nope!"); ?>
 <table class=query_table>
 	<thead>
 		<tr>

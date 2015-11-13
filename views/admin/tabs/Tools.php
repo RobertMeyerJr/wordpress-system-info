@@ -1,8 +1,8 @@
-<a target=_blank href=http://sitecheck.sucuri.net/results/<?php echo $_SERVER['HTTP_HOST']?>/>Sucuri Sitecheck</a><br/>
-<?php $host = $_SERVER['HTTP_HOST'];
-<a href=http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=<?php echo $host?>>GoogleSafe Browsing</a>
-<a href=http://safeweb.norton.com/report/show?url=<?php echo $host?>>Norton SafeWeb</a>
-<a href=http://www.siteadvisor.com/sites/<?php echo $host?>>Site Advisor</a>
+<?php $host = $_SERVER['HTTP_HOST']; ?>
+<a target=_blank href=http://sitecheck.sucuri.net/results/<?=$host?>/>Sucuri Sitecheck</a><br/>
+<a target=_blank href=http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=<?=$host?>>GoogleSafe Browsing</a>
+<a target=_blank href=http://safeweb.norton.com/report/show?url=<?=$host?>>Norton SafeWeb</a>
+<a target=_blank href=http://www.siteadvisor.com/sites/<?=$host?>>Site Advisor</a>
 
 <a target=_blank href=#>Alexa</a><br/>
 <a target=_blank href=#>Google</a><br/>					

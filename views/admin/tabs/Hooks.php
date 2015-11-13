@@ -1,3 +1,11 @@
+<?php 
+
+global $wp_filter,$wp_actions,$merged_filters;		
+$hook = $wp_filter;
+ksort($hook);
+#d($hook);
+
+?>
 <table class='wp-list-table widefat fixed'>
 	<thead>
 		<tr>
@@ -7,7 +15,8 @@
 		</tr>
 	</thead>
 	<tbody id=hooks>
-		<?php foreach($hook as $tag => $p) : if(stripos($tag,$_POST['search'])===false) continue; ?>
+		<?php foreach($hook as $tag => $p) : ?>
+		<?php if(isset($_POST['search']) && stripos($tag,$_POST['search'])===false) continue; ?>
 		<?php $count = count($p); ?>
 			<?php foreach($p as $name => $props): ?>
 				<tr>
@@ -16,11 +25,7 @@
 					<td><?php foreach($props as $val) :?>
 						<div class=actions>
 							<h2><?php var_dump( $val['function']) ?></h2>
-							<?php if(class_exists('Kint')) : ?>
-								<?php d($val) ?>
-							<?php else: ?>
-								<pre><?php echo htmlspecialchars(print_r($val,true)); ?></pre>
-							<?php endif; ?>
+							<pre><?php echo htmlspecialchars(print_r($val,true)); ?></pre>
 						</div>
 						<?php endforeach; ?>
 					</td>

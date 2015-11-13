@@ -1,8 +1,8 @@
 <ul class=tab-nav>
-	<li>Core</li>
-	<li>Theme</li>
-	<li>Other</li>
-	<li>Plugin</li>
+	<li><i class=fa-cogs></i> Core</li>
+	<li><i class=fa-image></i> Theme</li>
+	<li><i class=fa-question-circle></i> Other</li>
+	<li><i class=fa-plug></i> Plugin</li>
 </ul>
 <table class=dbg_table>
 	<thead>
@@ -15,14 +15,20 @@
 		</tr>
 	</thead>
 	<tbody>	
-		<?php $plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';?>
+		<?php 
+			$plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';
+			$part_counts = [];
+		?>
 		<?php $i=1; foreach($files as $f): ?>	
 			<?php 
+				/*
+				TODO: Keep Count
+				Extract out plugin name
+				*/			
 				if(false !== strpos($f, $plugins_path)){
-					//TODO: Add Plugin Name
 					$part = 'Plugin';						
 				}
-				if(false !== strpos($f, 'wp-admin')){
+				else if(false !== strpos($f, 'wp-admin')){
 					$part = 'WP-Admin';
 				}
 				else if(false !== strpos($f, WP_CONTENT_DIR)){
@@ -37,12 +43,19 @@
 				else{
 					$part = 'Other';
 				}
+				
+				if( empty($part_counts[$part]) )
+					$part_counts[$part] = 1;
+				else
+					$part_counts[$part]++;
 			?>
-			<tr>
+			<tr class="part_<?=$part?>">
 				<td><?php echo $i++?></td>				
-				<td class="file-<?php echo $part?>"><?php echo $f?></td>
 				<td><?php echo $part?></td>
+				<td class="file-<?php echo $part?>"><?php echo $f?></td>				
 			</tr>
 		<?php endforeach; ?>
 	</tbody>
 </table>
+
+<?php d( $part_counts) ; ?>

@@ -3,15 +3,14 @@
 ?>
 <h2>
 	<?php 
-		//add output of wpdb sql errors
-		d( $wpdb->last_error );
-		echo "{$wpdb->num_queries} Queries in {$total_query_time_ms}ms";
-		if(!empty($query_percentage)){
-			echo " {$query_percentage}% of Request Time ";
-			echo "<progress max=100 value={$query_percentage}></progress>";
-		}		
+		echo "{$wpdb->num_queries} Queries in {$total_query_time_ms}ms";		
 	?>
-</h2>	
+	
+<?php if(!empty($query_percentage)) : ?>
+	<?php echo "{$query_percentage}% of Request Time "; ?>&nbsp;
+	<progress max=100 value="<?php echo $query_percentage?>"></progress>
+<?php endif; ?>
+</h2>
 <?php if(!empty($wpdb->queries)) : ?>
 	<table>
 		<thead>
@@ -27,7 +26,8 @@
 				<tr>
 					<th><?php echo number_format($elapsed*1000,2) ?>ms</th>
 					<td class=qry>						
-						<code class=sql><?php echo $sql ?></cod>
+						<code class=sql><?php echo $sql ?></code><br/>
+						<button class='explain'><i class=fa-info-sign></i> Explain Query</button>
 					</td>
 					<td>
 						<ol>
@@ -44,5 +44,8 @@
 		</tbody>
 	</table>
 <?php else: ?>
-	No Queries Record. Ensure SAVEQUERIES is enabled
+	<p>No Queries Record. Ensure SAVEQUERIES is enabled.
+	In wp-config and the line:<br/>
+	define('SAVEQUERIES', true );
+	</p>
 <?php endif; ?>

@@ -1,3 +1,4 @@
+<?php defined('ABSPATH') or die("Nope!"); ?>
 <div id=sysbench_output class=sysbench_output style='display:none;z-index:99999;'>				
 	<div id=sysbench_tabs>
 		<ul class=sysbench_tab_menu>
@@ -50,11 +51,10 @@
 					$usage 			= System_Info_Tools::formatBytes( memory_get_peak_usage() );
 					$core_usage 	= System_Info_Tools::formatBytes( self::$_CORE_MEM_USAGE );
 					$current_usage 	= System_Info_Tools::formatBytes( memory_get_usage() );
-					
-					echo "<tr><th>Current Memory Usage<td>{$current_usage}";
-					echo "<th>Peak<td>{$usage}";	
-					echo "<th>WP Core Memory Usage<td>{$core_usage}";									
-				?>
+				?>	
+					<tr><th>Current Memory Usage<td><?php echo $current_usage?>
+					<th>Peak<td><?php echo $usage?>
+					<th>WP Core Memory Usage<td><?php echo $core_usage?>				
 				</table>
 				<table>
 					<tr>

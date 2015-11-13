@@ -1,5 +1,9 @@
 var dbg_resizing = false;
 var dbg_start = Date.now();
+
+//Run out dbg_performance method after everything else is done
+jQuery(window).load(dbg_performance);
+
 jQuery(function($){	
 
 
@@ -12,11 +16,9 @@ jQuery(function($){
 			$('#dbg_bar').toggle();
 			e.preventDefault();
 		}
-	});
-	
+	});	
 
 	//Run this in a timer, so that all dom stuff should be done
-	window.setTimeout(dbg_performance,3000);
 	if(typeof debug_time != 'undefined'){
 		$('#debug_time').html(debug_time);
 	}
@@ -60,6 +62,8 @@ jQuery(function($){
 	
 	colorize_sql();
 });
+
+
 function dbg_performance(){
 	var t 				= window.performance.timing;		
 	var dns 			= t.domainLookupEnd - t.domainLookupStart;
@@ -72,8 +76,8 @@ function dbg_performance(){
 	var connectTime 	= t.responseEnd - t.requestStart;
 	var domTime 		= t.domContentLoadedEventEnd - t.domContentLoadedEventStart;
 	
-	var basePage = t.responseEnd - t.responseStart;
-	var frontEnd = t.loadEventStart - t.responseEnd;
+	var basePage 		= t.responseEnd - t.responseStart;
+	var frontEnd 		= t.loadEventStart - t.responseEnd;
 	
 	var total = pageloadtime;
 	var percs = {
@@ -84,19 +88,22 @@ function dbg_performance(){
 		basePage:	dbg_percentage(basePage,total),
 		frontEnd:	dbg_percentage(frontEnd,total),	
 	};
-	
-	
-	//var server_processing = connectTime ttfb
+		
+	var serverTotalTime 	= connectTime;
+	var browserTotalTime 	= frontEnd + domTime
+	jQuery('.serverTotalTime').html( (serverTotalTime).toFixed(2) )
+	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2) );
+	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2) );
 	
 	var h = '';
-		h += '<tr><th>DNS</th><td>'+t.domainLookupStart+'</td><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td><td>'+dbg_progress_bar(percs.dns)+'</td></tr>';
-		h += '<tr><th>TCP</th><td>'+t.connectStart+'</td><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.tcp+'%</td><td>'+dbg_progress_bar(percs.tcp)+'</td></tr>';				
-		h += '<tr><th>Time to First Byte</th><td>'+t.responseStart+'</td><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td><td>'+dbg_progress_bar(percs.ttfb)+'</td></tr>';
-		h += '<tr><th>Connect Time</th><td>'+t.requestStart+'</td><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td><td>'+dbg_progress_bar(percs.connect)+'</td></tr>';				
-		h += '<tr><th>Send Response</th><td>'+t.responseStart+'</td><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td><td>'+dbg_progress_bar(percs.basePage)+'</td></tr>';
-		h += '<tr><th>Front End</th><td>'+t.responseEnd+'</td><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td><td>'+dbg_progress_bar(percs.frontEnd)+'</td></tr>';
-		h += '<tr><th>DOM</th><td>'+t.domContentLoadedEventStart+'</td><td>'+domTime.toFixed(2)+'ms</td><td></td></tr>';			
-		h += '<tr><th>Page Load</th><td>'+t.loadEventEnd+'</td><td>'+pageloadtime.toFixed(2)+'ms</td><td></td></tr>';
+		h += '<tr><th>DNS</th><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td><td>'+dbg_progress_bar(percs.dns)+'</td></tr>';
+		h += '<tr><th>TCP</th><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.tcp+'%</td><td>'+dbg_progress_bar(percs.tcp)+'</td></tr>';				
+		h += '<tr><th>Time to First Byte</th><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td><td>'+dbg_progress_bar(percs.ttfb)+'</td></tr>';
+		h += '<tr><th>Connect Time</th><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td><td>'+dbg_progress_bar(percs.connect)+'</td></tr>';				
+		h += '<tr><th>Send Response</th><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td><td>'+dbg_progress_bar(percs.basePage)+'</td></tr>';
+		h += '<tr><th>Front End</th><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td><td>'+dbg_progress_bar(percs.frontEnd)+'</td></tr>';
+		h += '<tr><th>DOM</th><td>'+domTime.toFixed(2)+'ms</td><td></td></tr>';			
+		h += '<tr><th>Page Load</th><td>'+pageloadtime.toFixed(2)+'ms</td><td></td></tr>';
 		
 	jQuery('#dbg_frontend').html(h);	
 }
@@ -105,10 +112,7 @@ function dbg_percentage(v,total){
 	var perc = ((v/total) * 100).toFixed(2); 
 	return perc;
 }
-function dbg_progress_bar(perc){
-	return '<progress max=100 value="'+perc+'"></progress>';
-}
-
+function dbg_progress_bar(perc){ return '<progress max=100 value="'+perc+'"></progress>'; }
 
 /*
 This is a quick and dirty colorizer
@@ -125,6 +129,7 @@ function colorize_sql(){
 			h = h.replace(/FROM /gi,		'<i class=mn>FROM</i> ');
 			h = h.replace(/LIMIT /gi,		'<br/><i class=mn>LIMIT</i> ');
 			h = h.replace(/ORDER BY/gi ,	'<br/><i class=mn>ORDER BY</i> ');
+			h = h.replace(/GROUP BY/gi ,	'<br/><i class=mn>GROUP BY</i> ');
 			h = h.replace(/LEFT JOIN /gi,	'<br/><i class=mn>LEFT JOIN</i> ');
 			h = h.replace(/RIGHT JOIN /gi,	'<br/><i class=mn>RIGHT JOIN</i> ');
 			h = h.replace(/JOIN /gi,		'<br/><i class=mn>JOIN</i> ');

@@ -15,10 +15,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 
 ?>
 
-<?php #global $wp_scripts; var_dump($wp_scripts); ?>
-<?php #global $wp_styles; var_dump($wp_styles); ?>
-
-<BR/><h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
+<br/><h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
 <table class=widefat>
 	<tr><th>OpCode Cache</th><td>
 		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
@@ -106,7 +103,22 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 			<th>Size</th>
 	</thead>
 	<tbody>
-	<?php foreach($_wp_additional_image_sizes as $name=>$i) : ?>
+	<?php 
+	
+	$built_in_sizes = ['thumbnail','medium','large'];
+	$built_in = [];
+	foreach($built_in_sizes as $t){
+		$built_in[$t] = [
+			'width'		=> get_option( $t.'_size_w' ),
+			'height'	=> get_option( $t.'_size_h' ),
+			'crop'		=> false
+		];
+	}
+	
+	$all_sizes = $built_in + $_wp_additional_image_sizes;
+	
+	?>
+	<?php foreach($all_sizes as $name=>$i) : ?>		
 		<tr>
 			<td><?php echo $name?></td>
 			<td><?php echo ($i['crop'])?'Yes':'No'?></td>
@@ -196,12 +208,10 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 				<?php 
 					//Get Folder Size
 					if( !System_Info_Tools::is_windows() ){
-						$size = [];
-						exec("du -sh {$d}",$size);
-						print_r($size);					
-						$s = explode(' ',$size);
-						print_r($s);
-						echo $size;
+						unset($size);
+						System_Info_Tools::run_command("du -sh {$d}",$size);
+						$parts = preg_split('/\s+/', $size[0]);
+						echo $parts[0];
 					}
 				?>
 				</td>
@@ -213,7 +223,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 </div>
 
 <div class=postbox>
-	<div class=inside>
+	<div class='inside phpinfo'>
 		<?php echo $php_info ?>
 	</div>
 </div>		

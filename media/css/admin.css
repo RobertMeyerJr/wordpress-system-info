@@ -1,11 +1,14 @@
+/*
+TODO: Prefix all these, so they dont interfere with other plugins
+*/
+.b{font-weight:bold;}
+
 .cBlue{color:#3498db !important;}
 .cRed{color:#c0392b !important;}
 .cGreen{color:#27ae60 !important;}
 .cPurple{color:#8e44ad !important;}
 .cOrange{color:#f39c12 !important;}
 .cDark{color:#2c3e50 !important;}
-
-.b{font-weight:bold;}
 
 
 .truthy{color:#27ae60 !important;}
@@ -41,3 +44,31 @@
 }
 
 th.hdr{font-size:1.3em;font-weight:bold;}
+
+.phpinfo table{width:100%;}
+.phpinfo table tbody tr:nth-child(odd){background-color:rgba(1,1,1,0.05);}
+
+
+
+
+#wp_system_info meter {
+    /* For Firefox */
+    background: #EEE;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2) inset;
+    border-radius: 3px;
+	width:100%;
+	border-radius: 3px;
+}
+
+
+.total_details_extra > table{width:720px;}
+.total_details_extra > table td{
+	word-break:break-all;
+	word-wrap:break-word;
+}
+
+
+
+code.error_log{
+	white-space:pre;
+}

@@ -30,7 +30,7 @@ $filter_details 		= number_format($total_filter_duration*1000,2)."ms";
 $error_count = count($SI_Errors);
 
 #include('bar.php');
-
+$errorBadgeColor='';
 if($error_count < 1)
 	$errorBadgeColor = 'bgGreen';
 else if($error_count < 5)

@@ -5,7 +5,7 @@ $c 		= count($dns);
 		
 ?>
 <h3>DNS Records for <?php echo $host?></h3>
-<table class='wp-list-table widefat fixed'>
+<table class='wp-list-table widefat fixed striped'>
 	<thead><tr><th>Host<th>Class<th>Type<th><th>TTL</tr></thead>
 <?php foreach($dns as $d) : ?>
 	<tr>

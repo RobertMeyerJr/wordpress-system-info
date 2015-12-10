@@ -300,7 +300,7 @@ class System_Info_Tools{
 		if($cols == null){ 
 			$cols = array_keys((array)$arr[0]); #Treat object as array, then get its keys
 		}
-		echo "<table class='wp-list-table widefat fixed'>";
+		echo "<table class='wp-list-table widefat fixed striped'>";
 		echo "<thead><tr>";
 		foreach($cols as $c){
 			$name = str_replace('_',' ',$c);

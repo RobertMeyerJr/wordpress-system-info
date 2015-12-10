@@ -20,7 +20,7 @@ foreach($tables as $t){
 	Tables in Database: <span style='color:blue;font-weight:bold;'><?php echo DB_NAME?></span>
 	Total DB Size <span class=cPurple><?php echo System_Info_Tools::formatBytes($total_db_size)?></span>
 </h3>
-<table class='wp-list-table widefat fixed'>
+<table class='wp-list-table widefat fixed striped'>
 	<thead>
 		<tr>
 			<th>Name</th>

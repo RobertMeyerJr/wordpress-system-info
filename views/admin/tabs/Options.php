@@ -3,11 +3,10 @@ global $wpdb;
 
 $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 
-#d($options);
 
 ?>
 
-<table class=widefat>
+<table class='widefat striped'>
 	<thead>
 	<tr>
 		<th>Name</th>
@@ -25,9 +24,14 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 					$v = maybe_unserialize($v);
 
 					if( is_array($v) ){
-						echo "<pre>";
-							var_dump($v);
-						echo "</pre>";
+						?>
+							<div class=td-expand>
+								<a href="#">Read More</a>
+								<div>
+									<pre><?=var_dump($v)?></pre>
+								</div>
+							</div>
+						<?php 						
 					}
 					else {	
 						$v = htmlentities($v);
@@ -45,3 +49,4 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 	<?php endforeach; ?>
 	</tbody>
 </table>
+

@@ -45,8 +45,6 @@ class System_Info{
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
 		add_action('init', 				array($this,'init'));			
 		
-		
-		
 		if( isset( $_GET['debug'] ) ){
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
@@ -232,17 +230,20 @@ class System_Info{
 		}				
 		return false; #Just record the error, don't catch or do anything
 	}		
-	public function fatal_error(){
+	public static function fatal_error($error){
+		//Handle fatal error
+		if( ob_get_contents() ){
+			ob_clean();
+		}
+		echo "<p>Fatal Error Caught:</p>";
+		d($error);
+		exit;
 	}
 	public function shutdown_function(){
 		//Nothing in here right now
 		$error = error_get_last();
 		if($error !== NULL && $error['type'] === E_ERROR) {
-			//Handle fatal error
-			echo "<p>Fatal Error Caught:</p>";
-			d($error);
-			#si_error_handler()
-			
+			self::fatal_error($error);			
 		}
 	}
 }

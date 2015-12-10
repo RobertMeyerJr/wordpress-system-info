@@ -8,6 +8,8 @@ Add Comment Disabling
 
 
 [TO DO]
+Filter List/Search
+
 Catch Fatal Errors, Display Like Simplified Whoops
 For errors, open the file, show 5 before, 5 after hilight error line
 ??	show callstack 2 before

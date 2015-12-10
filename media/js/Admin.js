@@ -1,4 +1,5 @@
-jQuery(function(){
+jQuery(function($){
+	console.log('test');
 	jQuery('#search_hooks').click(function(){  
 		var search = jQuery('#action_search').val();
 		var type = jQuery('#search_type').val();
@@ -13,6 +14,12 @@ jQuery(function(){
 		});
 	});
 
+	jQuery('.td-expand a').click(function(){
+		console.log('test');
+		$(this).parent().toggleClass('show');
+		return false;
+	});
+	
 });
 
 

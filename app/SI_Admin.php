@@ -21,7 +21,7 @@ class System_Info_Admin{
 		$slug = 'wp-total-details';
 		$cap = 'edit_pages';
 		
-		add_menu_page('Info', 'Total Details', 						$cap, $slug, [__CLASS__,'admin_tab']);
+		add_menu_page('Info', 'Total Details', 						$cap, $slug, [__CLASS__,'admin_tab'], 'dashicons-welcome-view-site');
 		
 		add_submenu_page($slug, 'Info', 'Info', 					$cap, $slug, [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'MySQL', 'MySQL', 					$cap, 'wptd-MySQL', [__CLASS__,'admin_tab']);
@@ -75,6 +75,8 @@ class System_Info_Admin{
 	#-------------AJAX
 	public static function ajax_function_search(){	
 		$class = $_POST['class_name'];
+		
+		
 		if($class == '(User)'){
 			$funcs = get_defined_functions();
 			$funcs = $funcs['user'];
@@ -88,21 +90,55 @@ class System_Info_Admin{
 		else{
 			echo "<h2>Class {$class} Methods</h2>";
 			$funcs = get_class_methods($class);			
+			
 		}
+		$count = count($funcs);
+		echo "<h3>{$count} Functions found</h3>";
 		
 		$items = array();
+		
 		foreach($funcs as $f){ 
-			if( empty($_POST['search']) )
-				$items[] = $f;
-			elseif(!empty($_POST['search']) && stripos($f, $_POST['search']) !== false )
-				$items[] = $f;				
+			$function_name = $f;
+			
+			if( empty($_POST['search']) ){
+				$item = '<h5>'.$function_name.'</h5>';
+			}
+			elseif(!empty($_POST['search']) && stripos($f, $_POST['search']) !== false ){
+				$item = '<h5>'.$function_name.'</h5>';				
+			}
+			
+			if($count <= 10){
+				$cls = (!in_array($class,['(Internal)','(User)'])) ? $class:false;
+				$item .= self::getFunctionSource($f,$cls);
+			}
+			$items[] = $item;
 		} 
 		
 		sort($items);
-		foreach($items as $f)
+		foreach($items as $f){
 			echo "<li>{$f}</li>";		
+		}
 		exit;
 	}
+	
+	public function getFunctionSource($function, $class=false){
+		if($class == false){
+			$func = new ReflectionFunction('myfunction');
+		}
+		else{
+			$func = new ReflectionMethod($class, $function);
+		}		
+		
+		$filename 	= $func->getFileName();
+		$start_line = $func->getStartLine() - 1; // -1 to get function() block
+		$end_line 	= $func->getEndLine();
+		$length 	= $end_line - $start_line;
+
+		$source = file($filename);
+		$body 	= implode('', array_slice($source, $start_line, $length));
+		return "<code class=php>".print_r($body, true)."</code>";
+	}
+	
 	public static function ajax_replace_content(){		
 		global $wpdb;
 		#$wpdb->content
@@ -111,16 +147,17 @@ class System_Info_Admin{
 	public static function ajax_optimize_table(){ wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table'])); }
 	
 	public static function admin_scripts($suffix){
-		
+		$folder = plugins_url( '../media/');
 		wp_enqueue_style( 'debug-bar', plugins_url( '../media/css/admin.css',__FILE__));
 		
 		if($suffix != 'toplevel_page_sys_info'){
 			return;		
 		}
 		
+		#wp_enqueue_script('td-admin', $folder.'js/Admin.js',['jquery']);				
+		
+		//TODO: Remove these
 		wp_enqueue_script('jquery-ui-dialog');	
-		wp_enqueue_script('jquery-ui-accordion');
-		wp_enqueue_script('jquery-ui-tabs');			
 		wp_enqueue_script('jquery-ui-datepicker');				
 		wp_enqueue_script('tablesorter', 'https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.1/js/jquery.tablesorter.js', array('jquery'));	
 		

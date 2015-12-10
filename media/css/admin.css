@@ -1,6 +1,15 @@
 /*
 TODO: Prefix all these, so they dont interfere with other plugins
 */
+
+.toplevel_page_wp-total-details .striped tbody tr:nth-child(odd){background-color: #f9f9f9;}
+
+#adminmenu .toplevel_page_wp-total-details div.wp-menu-image.dashicons-welcome-view-site::before{
+	color:#2ecc71;
+	
+}
+
+/* Text Styling */
 .b{font-weight:bold;}
 
 .cBlue{color:#3498db !important;}
@@ -10,7 +19,6 @@ TODO: Prefix all these, so they dont interfere with other plugins
 .cOrange{color:#f39c12 !important;}
 .cDark{color:#2c3e50 !important;}
 
-
 .truthy{color:#27ae60 !important;}
 .falsy{color:#c0392b !important;}
 .number{color:#3498db !important;}
@@ -18,6 +26,7 @@ TODO: Prefix all these, so they dont interfere with other plugins
 .string{color:#27ae60 !important;}
 .object{color:#8e44ad !important;}
 
+/*---------------*/
 
 .toplevel_page_sys_info table.widefat tbody tr:nth-child(odd){background-color:rgba(0,0,0,0.02);}
 .toplevel_page_sys_info table.widefat{font-size:1.2em;}
@@ -26,7 +35,6 @@ TODO: Prefix all these, so they dont interfere with other plugins
 
 .dev-bar-admin > h2{margin:0 0 20px 0;}
 .dev-bar-admin > h2 span{text-transform:uppercase;color:#c0392b;}
-
 .dev-bar-admin .nav-tab{font-size:1.2em;padding:10px 15px}
 
 .container.rewrite{font-size:1.3em;background-color:white;padding:15px;}
@@ -48,9 +56,6 @@ th.hdr{font-size:1.3em;font-weight:bold;}
 .phpinfo table{width:100%;}
 .phpinfo table tbody tr:nth-child(odd){background-color:rgba(1,1,1,0.05);}
 
-
-
-
 #wp_system_info meter {
     /* For Firefox */
     background: #EEE;
@@ -62,13 +67,10 @@ th.hdr{font-size:1.3em;font-weight:bold;}
 
 
 .total_details_extra > table{width:720px;}
-.total_details_extra > table td{
-	word-break:break-all;
-	word-wrap:break-word;
-}
+.total_details_extra > table td{word-break:break-all;word-wrap:break-word;}
+
+code.error_log{white-space:pre;}
 
 
-
-code.error_log{
-	white-space:pre;
-}
+.td-expand > div {display:none;}
+.td-expand.show > div{display:block;}

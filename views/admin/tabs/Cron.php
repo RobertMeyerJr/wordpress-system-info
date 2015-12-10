@@ -4,7 +4,7 @@ $schedules 	= wp_get_schedules();
 ?>
 
 <h2>Available Recurrance Schedules</h2>
-<table>
+<table class='wp-list-table widefat fixed striped'>
 	<thead>
 		<tr>
 			<th>Name</th>
@@ -25,7 +25,7 @@ $schedules 	= wp_get_schedules();
 
 <h2>Scheduled Events</h2>
 <h3>Server Time: <?=date('n/j/Y @ g:iA')?> <?=date_default_timezone_get()?></h3>
-<table class='wp-list-table widefat fixed'>
+<table class='wp-list-table widefat fixed striped'>
 	<thead>
 		<tr>
 			<th>Hook</th>

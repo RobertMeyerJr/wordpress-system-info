@@ -1,8 +1,8 @@
 body{margin-bottom:50px;}
 #dbg_bar *{
-	box-sizing:border-box;
+	box-sizing:border-box;	
 }
-#dbg_bar [class*=fa-]{
+#dbg_bar [class*=fa-]{	
 	display: inline-block;
 	font-family: FontAwesome;
 	font-style: normal;
@@ -21,6 +21,7 @@ body{margin-bottom:50px;}
 	margin: 0;	
 	padding: 0;
 	z-index:99999; /*Greater than wp-admin sidebar*/
+	background-color:white;
 }
 #debug-bar-resize{
 	height: 10px;
@@ -36,7 +37,7 @@ body{margin-bottom:50px;}
 #dbg_bar .tabs{	
 	visibility:visible;
 	background: transparent;
-	padding: 10px 10px 0 0;
+	padding: 0px 10px 0 0;
 	margin:0;
 	text-align:left;
 }
@@ -146,7 +147,11 @@ body{margin-bottom:50px;}
 }
 
 /*
-#dbg_bar .tabs .right .bdg{
+#dbg_bar .tabs .right .bdg::before{
+	content: ' ';
+	display:inline-block;
+	position 	:relative;
+	left 		:-19px;
 	border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
     border-left: 10px solid red;
@@ -154,11 +159,8 @@ body{margin-bottom:50px;}
 }
 */
 
-
 #dbg_bar .tabs .bdg.left{border-radius: 0 10px 10px 10px;}
 #dbg_bar .tabs .right .bdg{border-radius: 10px 10px 10px 0px;}
-
-
 
 
 #dbg_bar .bgBlue{background-color:#3498db !important;}
@@ -172,7 +174,7 @@ body{margin-bottom:50px;}
 
 
 #dbg_bar .time{margin-right:10px;}
-#dbg_bar .stats{transition: all .2s ease-in-out;cursor:pointer;}
+#dbg_bar .stats{transition: all .2s ease-in-out;cursor:pointer;margin-top:10px;}
 #dbg_bar .stats:hover{transform: scale(1.5);}
 
 

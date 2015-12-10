@@ -16,7 +16,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 ?>
 
 <br/><h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
-<table class=widefat>
+<table class='widefat striped'>
 	<tr><th>OpCode Cache</th><td>
 		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
 		<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
@@ -34,7 +34,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 	
 </table>
 <BR/><h2><i class='cPurple fa fa-info'></i> Server Info</h2>
-<table class='wp-list-table widefat fixed server_info'>
+<table class='wp-list-table widefat fixed server_info striped'>
 	<tr><th colspan=2 class=hdr>Software
 	<tr><th>OS<td><?php echo System_Info_Tools::color_format(php_uname())?>
 	<tr><th>PHP Version<td><?php echo PHP_VERSION?>
@@ -95,7 +95,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 
 <?php if(!empty($_wp_additional_image_sizes)) : ?>
 <BR/><h2><i class="fa fa-2x fa-photo"></i> Image Sizes</h2>
-<table class='widefat'>
+<table class='widefat striped'>
 	<thead>
 		<tr>
 			<th>Name</th>
@@ -136,7 +136,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 <?php endif; ?>
 
 <BR/><h2><i class="fa fa-2x fa-cogs"></i> PHP Settings</h2>
-<table class='widefat'>
+<table class='widefat striped'>
 <tr><th>Loaded Configuration</th><td><?php echo php_ini_loaded_file();?></td></tr>
 	<tr><th>Extensions Directory</th><td><?php echo PHP_EXTENSION_DIR?></td></tr>
 	<tr><th>max_execution_time</th><td><?php echo ini_get('max_execution_time');?></td></tr>
@@ -193,13 +193,8 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 <h2><i class='fa fa-tachometer cBlue'></i> Other Folders in WebRoot <?php echo $web_root?></h2>
 <div class=postbox>
 	<div class=inside>	
-	<table>
-		<thead>
-			<tr>
-				<th>Name
-				<th>Size			
-			</tr>
-		</thead>
+	<table class='striped'>
+		<thead><tr><th>Name</th><th>Size</th></tr></thead>
 		<tbody>
 		<?php foreach($directories as $d) : ?>
 			<tr>
@@ -212,6 +207,9 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 						System_Info_Tools::run_command("du -sh {$d}",$size);
 						$parts = preg_split('/\s+/', $size[0]);
 						echo $parts[0];
+					}
+					else{
+						echo '-';
 					}
 				?>
 				</td>

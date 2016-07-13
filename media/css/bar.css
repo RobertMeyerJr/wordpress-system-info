@@ -21,7 +21,6 @@ body{margin-bottom:50px;}
 	margin: 0;	
 	padding: 0;
 	z-index:99999; /*Greater than wp-admin sidebar*/
-	background-color:white;
 }
 #debug-bar-resize{
 	height: 10px;
@@ -50,12 +49,17 @@ body{margin-bottom:50px;}
 	line-height: 36px;
 	font-weight: normal;
 	color: #999;
-	background: #fcfcfc;
+	background: #F2F2F2;
 	border: solid #ddd;
 	border-width: 1px 1px 0;
 	border-radius: 5px 5px 0 0;
 	padding-bottom: 0;
 	bottom: auto;	
+}
+#dbg_bar .tabs li.current{background-color:#fcfcfc;}
+
+#dbg_bar .tabs li:not(.right):hover{
+	background:#ebebeb;
 }
 #dbg_bar .tabs li{display:inline-block;color:#555;text-decoration:none;}
 #dbg_bar .tabs li.current{

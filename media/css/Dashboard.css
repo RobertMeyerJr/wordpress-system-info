@@ -10,27 +10,28 @@
 #wp_system_info .hdr{background-color:#222;text-align:center;}
 #wp_system_info .hdr h2{color:white;}
 #wp_system_info tbody tr:nth-child(odd){background-color:rgba(0,0,0,0.05);}
-
 #wp_system_info th{text-align:left;}
-
-
-#wp_system_info progress{width:100%}
-
-
-#wp_system_info .breakword{
-    word-break: break-all;
+#wp_system_info progress{width:90%;margin:0 auto;}
+#wp_system_info meter{
+    background: #EEE;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2) inset;
+    border-radius: 3px;	
+	border-radius: 3px;
+	width:90% !important;
 }
+
+#wp_system_info .breakword{word-break: break-all;}
 
 .wp_system_info .bottom{height:2em;}
 .wp_system_info .bottom a{float:left:}
 .wp_system_info .bottom span{float:right;}
 
-/*
+
 #ruxly_dashboard{
 	background-color:#3b4354;
 	color:rgba(255, 255, 255, 0.8);
 }
-*/
+
 #ruxly_dashboard .hndle{
 	border-bottom:none;
 	color:white;
@@ -39,7 +40,7 @@
 
 #ruxly_dashboard .inside{padding:0;margin-top:0;}
 
-#ruxly_dashboard th{padding-right:5px;}
+#ruxly_dashboard th{padding-right:5px;padding-left:15px}
 
 
 

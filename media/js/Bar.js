@@ -60,8 +60,22 @@ jQuery(function($){
 		
 	});
 	
+	
+	$('#included_file_search').change(included_file_search);
 	colorize_sql();
 });
+
+
+function included_file_search(){
+	var file = $('#included_file_search').val();
+	
+	if(file == ''){
+		$('#included_files tr').show();
+	}
+	else {
+		$('#included_files tr:not(:contains("'+file+'"))').hide();
+	}
+}
 
 
 function dbg_performance(){

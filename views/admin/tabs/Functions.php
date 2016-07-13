@@ -7,6 +7,9 @@ http://phpxref.ftwr.co.uk/buddypress/nav.html?_functions/index.html
 $classes = get_declared_classes();
 sort($classes);				
 ?>
+<style>
+code{white-space:pre;}
+</style>
 <label>Location</label>
 	<select id=sysinfo_class>
 		<optgroup label=Global>

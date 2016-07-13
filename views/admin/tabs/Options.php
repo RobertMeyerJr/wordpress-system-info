@@ -19,10 +19,8 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 			<th><?php echo $o->option_name; ?></th>
 			<td>
 				<?php 
-					$v = $o->option_value;
-					
+					$v = $o->option_value;					
 					$v = maybe_unserialize($v);
-
 					if( is_array($v) ){
 						?>
 							<div class=td-expand>
@@ -33,14 +31,19 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 							</div>
 						<?php 						
 					}
-					else {	
-						$v = htmlentities($v);
-						if( is_numeric($v) )
-							echo "<span class=cBlue>{$v}</span>";
-						elseif( is_string($o->option_value) )
-							echo "<span class=cGreen>{$v}</span>";				
-						else
-							echo "<span class=cOrange>{$v}</span>";
+					else {							
+						if(is_object($v)){
+							print_r($v);
+						}
+						else{
+							$v = htmlentities($v);
+							if( is_numeric($v) )
+								echo "<span class=cBlue>{$v}</span>";
+							elseif( is_string($o->option_value) )
+								echo "<span class=cGreen>{$v}</span>";				
+							else
+								echo "<span class=cOrange>{$v}</span>";
+						}
 					}
 				?>
 			</td>

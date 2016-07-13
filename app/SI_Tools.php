@@ -1,6 +1,5 @@
 <?php 
 
-
 class System_Info_Tools{
 	public static function read_csv_array($arr, $delimiter=','){		
 		foreach($arr as &$a){
@@ -313,13 +312,26 @@ class System_Info_Tools{
 		else
 			foreach($arr as $r){
 				echo "<tr>";
-				foreach($r as $c){
-					if($colorize)
-						$c = self::color_format($c);					
-					else
-						if(is_object($c))
-							$c = print_r($c, true);
-					echo "<td>{$c}</td>";
+				if( !empty($r) ){
+					if( !is_array($r) ){
+						#d($r);
+					}
+					else{
+						foreach($r as $c){
+							if($colorize){
+								$c = self::color_format($c);					
+							}
+							else{
+								if(is_object($c)){
+									$c = print_r($c, true);
+								}
+							}
+							echo "<td>{$c}</td>";
+						}
+					}
+				}
+				else{
+					#d($r);
 				}
 				echo "</tr>";
 			}

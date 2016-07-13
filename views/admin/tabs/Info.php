@@ -94,7 +94,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 </table>
 
 <?php if(!empty($_wp_additional_image_sizes)) : ?>
-<BR/><h2><i class="fa fa-2x fa-photo"></i> Image Sizes</h2>
+<h2><i class="fa fa-2x fa-photo"></i> Image Sizes</h2>
 <table class='widefat striped'>
 	<thead>
 		<tr>
@@ -120,7 +120,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 	?>
 	<?php foreach($all_sizes as $name=>$i) : ?>		
 		<tr>
-			<td><?php echo $name?></td>
+			<td><span style="font-size:2.5em"><?php echo $name?></span></td>
 			<td><?php echo ($i['crop'])?'Yes':'No'?></td>
 			<td style="text-center">
 				<span class="thumb_example" style="width:<?php echo $i['width']?>px;height:<?php echo $i['height']?>px">

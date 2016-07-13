@@ -49,7 +49,7 @@ function get_permissions(){
 	}
 	
 ?>
-<table class='wp-list-table widefat fixed'>
+<table class='wp-list-table widefat fixed striped'>
 	<thead>
 		<tr>
 			<th>Name</th>

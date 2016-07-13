@@ -7,4 +7,4 @@ if( System_Info_Tools::is_windows() )
 else
 	echo "<pre>".htmlspecialchars($rules)."</pre>";
 */
-var_dump($wp_rewrite);
+d($wp_rewrite);

@@ -7,13 +7,12 @@ Version: 1.0a
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 
-
-Dashboard
-Detail 
-Info
-
 */	
 define('SI_START_TIME', microtime(true));
+
+include(__DIR__.'/app/ErrorHandler.php');
+
+SI_ErrorHandler::enable_error_handling();
 
 $total_details = System_Info::getInstance();
 class System_Info{	
@@ -24,8 +23,7 @@ class System_Info{
 		if( version_compare(PHP_VERSION, '5.4') < 0 ){
 			 add_action('admin_notices', array($this,'wont_load'));
 			 return;
-		}
-		
+		}		
 		if(self::$instance == null){
 			self::$instance = new self;
 		}
@@ -33,15 +31,6 @@ class System_Info{
 	}
 	
 	public function __construct(){
-		$this->start();
-	}
-	
-	public function wont_load(){
-		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
-		echo "<div class='error below-h2'><p>{$msg}</p></div>";
-	}	
-	
-	public function start(){		
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
 		add_action('init', 				array($this,'init'));			
 		
@@ -59,17 +48,21 @@ class System_Info{
 				is_user_logged_in yet as we want the 
 				benchmarking to start as early as possible
 			*/
-			$this->enable_error_handling();
-			$this->benchmarking();
+			#$this->enable_error_handling();
+			#$this->benchmarking();
 		}
+	}
+	
+	public function wont_load(){
+		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
+		echo "<div class='error below-h2'><p>{$msg}</p></div>";
 	}	
 	
-	public function init(){	
-		
+	public function init(){			
 		$user = wp_get_current_user();
 		if( in_array( 'administrator', (array) $user->roles ) ){			
-			add_action('admin_bar_menu', 	array($this,'admin_menu'),9000);		
-			add_action('wp_ajax_total_details_query_explain', array($this,'explain'));					
+			add_action('admin_bar_menu', 						array($this,'admin_menu'),9000);		
+			add_action('wp_ajax_total_details_query_explain', 	array($this,'explain'));					
 			add_action('wp_dashboard_setup', function(){			
 				wp_add_dashboard_widget('ruxly_dashboard', '<i class="dashicons dashicons-dashboard"></i> Total Details', array($this,'dashboard_widget'));
 			});			
@@ -79,7 +72,6 @@ class System_Info{
 			}		
 			$this->admin();
 		}
-	
 	}	
 	
 	public function explain(){
@@ -91,7 +83,7 @@ class System_Info{
 	}
 	
 	
-	//Dashboard Widget All Logic is in the phtml file	
+	//Dashboard Widget All Logic is in the php file	
 	public function dashboard_widget(){ include('views/dashboard-widget.php'); }
 	
 	public function admin_menu(){
@@ -128,15 +120,10 @@ class System_Info{
 		wp_enqueue_style( 'debug-bar', plugins_url( '/media/css/bar.css',__FILE__));
 		wp_enqueue_script('debug-bar', plugins_url( '/media/js/Bar.js',__FILE__), array('jquery'), 1, true);
 		register_shutdown_function(function(){
+			//was there an error?
 			restore_error_handler(); 				
 			include(__DIR__.'/views/debug/bar.php');								
 		}); 			
-	}
-	//Custom Error Handling
-	public function enable_error_handling(){
-		error_reporting(E_ALL);
-		set_error_handler([$this,'error_handler'], E_ALL);		
-		register_shutdown_function(array($this,'shutdown_function'));
 	}
 		
 	/*
@@ -155,39 +142,6 @@ class System_Info{
 		}
 	}
 	
-	//--------------------Benchmarking 
-	public function benchmarking(){	
-		//We add our benchmark to all filters, as the first and last action
-		add_action('all', array($this,'benchmark_filter_start'), 0); 
-		add_action('all', array($this,'benchmark_filter_end'), PHP_INT_MAX);
-	}
-	public function benchmark_filter_end($param=false){
-		global $dbg_filter_times,$dbg_filter_calls,$dbg_filter_stop;
-		//This is wrong, it isn't summing the exec time just recording the last time
-		$filter = current_filter();
-		$stop_time = microtime(true);
-		$dbg_filter_stop[$filter] = $stop_time;
-		$dbg_filter_times[$filter] = $stop_time - $dbg_filter_times[$filter];
-		return $param;
-	}
-	public function benchmark_filter_start($param=false){
-		global $dbg_filter_times,$dbg_filter_calls,$dbg_filter_start;
-		
-		$filter = current_filter();
-		$start 	= microtime(true);
-		
-		if( !array_key_exists($filter,$dbg_filter_calls) )
-			$dbg_filter_calls[$filter] = 1;
-		else
-			$dbg_filter_calls[$filter]++;
-		
-		$dbg_filter_start[$filter] = $start;
-		$dbg_filter_times[$filter] = $start;
-		return $param;
-	}	
-	
-
-	
 	
 	//Includes only happen if they are needed
 	public function do_includes(){
@@ -204,62 +158,10 @@ class System_Info{
 	}
 	
 	//---------------------------------
-	public function error_handler($errno,$str="",$file=null,$line=null,$context=null){ 
-		global $SI_Errors;	
-		
-		$trace = debug_backtrace(); 
-		#unset($trace[0]);
-		$SI_Errors[] = array(
-			$errno,
-			$str,
-			$file,
-			$line,
-			$context,
-			$trace
-		);
-		//Fatal Error?
-		if($errno == E_USER_ERROR){
-			echo "<h1>Fatal Error</h1>";
-			//Dump the output and die
-			$out = ob_get_clean();
-			d($errno);
-			d($str);
-			d($file);
-			d($line);
-			exit;
-		}				
-		return false; #Just record the error, don't catch or do anything
-	}		
-	public static function fatal_error($error){
-		//Handle fatal error
-		if( ob_get_contents() ){
-			ob_clean();
-		}
-		echo "<p>Fatal Error Caught:</p>";
-		d($error);
-		exit;
-	}
-	public function shutdown_function(){
-		//Nothing in here right now
-		$error = error_get_last();
-		if($error !== NULL && $error['type'] === E_ERROR) {
-			self::fatal_error($error);			
-		}
-	}
 }
 
 
-
-//TODO: put this in a class
 //Global functions used by debugbar
-function query_type($sql){
-	/*
-	SELECT
-	UPDATE
-	INSERT	
-	return [type,READ or WRITE]
-	*/	
-}
 function print_filters_count($hook){
 	global $wp_filter;
 	return count($wp_filter[$hook]);

@@ -56,14 +56,7 @@ th.hdr{font-size:1.3em;font-weight:bold;}
 .phpinfo table{width:100%;}
 .phpinfo table tbody tr:nth-child(odd){background-color:rgba(1,1,1,0.05);}
 
-#wp_system_info meter {
-    /* For Firefox */
-    background: #EEE;
-    box-shadow: 0 2px 3px rgba(0,0,0,0.2) inset;
-    border-radius: 3px;
-	width:100%;
-	border-radius: 3px;
-}
+
 
 
 .total_details_extra > table{width:720px;}

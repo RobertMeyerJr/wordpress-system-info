@@ -4,6 +4,9 @@
 	<li><i class=fa-question-circle></i> Other</li>
 	<li><i class=fa-plug></i> Plugin</li>
 </ul>
+
+<input type=text id=included_file_search>
+
 <table class=dbg_table>
 	<thead>
 		<tr>
@@ -14,7 +17,7 @@
 			</thead>
 		</tr>
 	</thead>
-	<tbody>	
+	<tbody id=included_files>	
 		<?php 
 			$plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';
 			$part_counts = [];
@@ -52,10 +55,10 @@
 			<tr class="part_<?=$part?>">
 				<td><?php echo $i++?></td>				
 				<td><?php echo $part?></td>
-				<td class="file-<?php echo $part?>"><?php echo $f?></td>				
+				<td class="included_file file-<?php echo $part?>"><?php echo $f?></td>				
 			</tr>
 		<?php endforeach; ?>
 	</tbody>
 </table>
 
-<?php d( $part_counts) ; ?>
+<?php #d( $part_counts) ; ?>

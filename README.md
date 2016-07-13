@@ -1,11 +1,52 @@
-Wordpress Total Details
+VERSION: 1.00001a
+Goals
+	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
+	Fast:			Zero Impact when not used
+	Insight:		Provide transparency into the how Wordpress functions for developers
+
+------------------------------------------------------------------------------	
 
 
-http://www.smashingmagazine.com/2015/07/designing-simple-pie-charts-with-css/
+OverWhelming Pages:	
+	Developer Only	
+		Info (Need Restricted Version)
+		MySQL
+		Merge DNS & Whois
+	
+Settings	
+	Disable Comments
+	Pingback header
+	XML RPC
+	Emoji Scripts				
+	Generator					remove_action('wp_head', 'wp_generator');
+	
+	
+	Speed & Security
+		prefix
+		file permissions
+		admin username exists
+		
+[Comment Management]
 
-Add Comment Disabling
+Comments:
+		Delete all by IP
+		Delete by URL Contents
+		Delete by Comment Contents
+		Delete by Comment Agent	
+	Show Comments by IP	
+	Comment Stats
+		by IP
+		by Agents
+		by
+		by post id		
+		
+	Comments Stats:
+		Top User Agents		
+		Top
 
 
+Show Recently Modified Files
+	
 
 [TO DO]
 Filter List/Search
@@ -15,22 +56,9 @@ For errors, open the file, show 5 before, 5 after hilight error line
 ??	show callstack 2 before
 Issue with Services on Linux
 
----------------------------------------------------------------------
-
-Goals
-	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
-	Fast:			Zero Impact when not used
-	Insight:		Provide transparency into the how Wordpress functions for developers
-wp_ajax_health_beacon
-	Posts
-	Comments	
-	Active Plugins
-	CPU
-	Memory
-	Disk
 -----------------------------------------------
 On Comment:	
-	deny comments without a referrer
+	Deny comments without a referrer
 Beacon:
 	Plugin Updates
 	Wordpress Updates	
@@ -45,8 +73,7 @@ https://wordpress.org/plugins/debug-bar-constants/screenshots/
 https://wordpress.org/plugins/debug-bar-shortcodes/
 
 
-Check for 
-	apc,gd,imagick,memcache
+Check for :		apc,gd,imagick,memcache
 		
 /*
 SHOW VARIABLES LIKE 'have_query_cache';

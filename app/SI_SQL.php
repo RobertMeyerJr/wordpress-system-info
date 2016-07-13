@@ -56,10 +56,15 @@ class System_Info_SQL{
 	
 	public static function get_tables(){
 		global $wpdb;
-		$tables = $wpdb->get_results("SHOW TABLE STATUS");
+		$sql = "SELECT * FROM information_schema.tables 
+				WHERE table_schema = DATABASE() 
+				ORDER BY 
+				data_length desc";
+		$tables = $wpdb->get_results($sql);
+		#$tables = $wpdb->get_results("SHOW TABLE STATUS");
 		foreach($tables as &$t){	 
-			if($t->Data_length > 0){
-				$t->fragmentation =  round( ($t->Data_free * 100 / $t->Data_length), 2);
+			if($t->DATA_LENGTH > 0){
+				$t->fragmentation =  round( ($t->DATA_FREE * 100 / $t->DATA_LENGTH), 2);
 			}
 		}
 		return $tables;

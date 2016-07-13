@@ -45,9 +45,7 @@ else if($error_count > 10)
 	
 	<ul class=tabs>
 		<li class=current><a href=#dbg_info><i class=fa-info></i> Info</a></li>
-		<?php if($error_count > 0 ) :?>
-			<li><a href=#dbg_errors><i class=fa-warning></i> Errors <small class="bdg <?=$errorBadgeColor?>"><?php echo $error_count?></small></a></li>
-		<?php endif; ?>
+		<li><a href=#dbg_errors><i class=fa-warning></i> Errors <small class="bdg <?=$errorBadgeColor?>"><?php echo $error_count?></small></a></li>		
 		<li><a href=#dbg_db><i class=fa-database></i> Queries <small class="bdg bgBlue"><?php echo $query_details;?></small></a></li>
 		<li><a href=#dbg_filters><i class=fa-filter></i> Filters <small class="bdg bgBlue"><?php echo $filter_details;?></small></a></li>		
 		<li><a href=#dbg_files><i class=fa-file></i> Included Files <span class="bdg bgBlue"><?php echo $included_file_count?></span></a></li>		

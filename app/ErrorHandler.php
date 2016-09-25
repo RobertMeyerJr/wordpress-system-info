@@ -40,7 +40,7 @@ class SI_ErrorHandler{
 			ob_clean();
 		}
 		echo "<p>Fatal Error Caught:</p>";
-		d($error);
+		var_dump($error);
 		exit;
 	}
 	public static function shutdown_function(){

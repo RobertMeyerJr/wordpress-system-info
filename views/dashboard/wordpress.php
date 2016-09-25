@@ -1,3 +1,11 @@
+<!--
+TODO:
+	php execution time
+	php memory limit
+	max post size
+	max upload size
+	wordpress timezone
+-->
 <!-- Wordpress -->
 <?php global $wpdb; ?>
 <tr><th class=hdr colspan=2><h2><i class='dashicons dashicons-wordpress'></i> WordPress</h2></th></tr>

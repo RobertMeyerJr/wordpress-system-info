@@ -5,7 +5,7 @@ var dbg_start = Date.now();
 jQuery(window).load(dbg_performance);
 
 jQuery(function($){	
-
+	console.log('Debug Bar Init');
 
 	$('#close_dbg').click(function(){
 		$('#dbg_bar').hide();
@@ -67,13 +67,15 @@ jQuery(function($){
 
 
 function included_file_search(){
-	var file = $('#included_file_search').val();
+	var file = jQuery('#included_file_search').val();
+	
+	console.log('in file search');
 	
 	if(file == ''){
-		$('#included_files tr').show();
+		jQuery('#included_files tr').show();
 	}
 	else {
-		$('#included_files tr:not(:contains("'+file+'"))').hide();
+		jQuery('#included_files tr:not(:contains("'+file+'"))').hide();
 	}
 }
 

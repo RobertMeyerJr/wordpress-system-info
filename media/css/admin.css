@@ -4,10 +4,7 @@ TODO: Prefix all these, so they dont interfere with other plugins
 
 .toplevel_page_wp-total-details .striped tbody tr:nth-child(odd){background-color: #f9f9f9;}
 
-#adminmenu .toplevel_page_wp-total-details div.wp-menu-image.dashicons-welcome-view-site::before{
-	color:#2ecc71;
-	
-}
+
 
 /* Text Styling */
 .b{font-weight:bold;}

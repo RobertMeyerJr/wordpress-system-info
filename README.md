@@ -1,4 +1,16 @@
 VERSION: 1.00001a
+
+
+TODO: Pull in stats from ifconfig
+	rx bytes 
+	tx bytes
+	inet addr
+	inet6 addr
+
+	eth0
+	eth1
+	lo
+
 Goals
 	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
 	Fast:			Zero Impact when not used

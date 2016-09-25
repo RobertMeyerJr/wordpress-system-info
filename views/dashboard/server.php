@@ -3,6 +3,7 @@
 <?php if( !empty($linux_details) ) : ?>
 	<tr><th>OS Details</th><td><?=$linux_details['Description']?> <?=$linux_details['Codename']?></td></tr>	
 <?php endif; ?>
+<tr><th>Time / Timezone<td><?php echo date('h:ia').' - '.date_default_timezone_get(); ?>
 <?php if(!empty( $_SERVER['USERDOMAIN'] )) : ?>
 	<tr><th>Domain</th><td><?=$_SERVER['USERDOMAIN']?></td></tr>
 <?php endif; ?>

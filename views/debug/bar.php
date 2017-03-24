@@ -47,7 +47,6 @@ else if($error_count > 10)
 		<li class=current><a href=#dbg_info><i class=fa-info></i> Info</a></li>
 		<li><a href=#dbg_errors><i class=fa-warning></i> Errors <small class="bdg <?=$errorBadgeColor?>"><?php echo $error_count?></small></a></li>		
 		<li><a href=#dbg_db><i class=fa-database></i> Queries <small class="bdg bgBlue"><?php echo $query_details;?></small></a></li>
-		<li><a href=#dbg_filters><i class=fa-filter></i> Filters <small class="bdg bgBlue"><?php echo $filter_details;?></small></a></li>		
 		<li><a href=#dbg_files><i class=fa-file></i> Included Files <span class="bdg bgBlue"><?php echo $included_file_count?></span></a></li>		
 		<li><a href=#dbg_cache><i class=fa-info></i> Cache</a></li>				
 		<li><a href=#dbg_timeline><i class=fa-clock-o></i> Timeline</a></li>				
@@ -58,13 +57,13 @@ else if($error_count > 10)
 		<li class='right stats'><i class=time></i>Total <span class="bdg bgRed TotalTime"></span></li>				
 		<li class='right stats'><i class=time></i>Browser <span class="bdg bgGreen browserTotalTime"></span></li>				
 		<li class='right stats'><i class=time></i>Server <span class="bdg bgBlue serverTotalTime"></span></li>						
-	</ul>
-<div class=dbg_body>
+	</ul>		
 	<div id=debug-bar-resize></div>
+<div class=dbg_body>
+	
 	<div class='panel active' id=dbg_info><?php include('info.php');?></div>	
 	<div class=panel id=dbg_cache><?php 	include('cache.php'); ?></div>	
 	<div class=panel id=dbg_files><?php 	include('included_files.php'); ?></div>
-	<div class=panel id=dbg_filters><?php include('filters.php');?></div>
 	<div class=panel id=dbg_timeline><?php include('timeline.php'); ?></div>	
 	<div class=panel id=dbg_db><?php include('db.php')?></div>
 	<div class=panel id=dbg_scripts><?php include('scripts_styles.php'); ?></div>

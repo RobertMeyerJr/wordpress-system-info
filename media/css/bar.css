@@ -1,3 +1,4 @@
+/*Debug Bar*/
 body{margin-bottom:50px;}
 #dbg_bar *{
 	box-sizing:border-box;	
@@ -25,20 +26,21 @@ body{margin-bottom:50px;}
 #debug-bar-resize{
 	height: 10px;
 	width: 100%;
-	background: white;
+	background-color: white;
 	cursor: move;	
 }
 
 #debug-bar-resize:active,#debug-bar-resize:hover{
-	background-color:rgba(0,0,255,0.4);
+	background-color:#007fac;
 }
 
 #dbg_bar .tabs{	
 	visibility:visible;
-	background: transparent;
+	background: rgba(255,255,255,0.8);
 	padding: 0px 10px 0 0;
 	margin:0;
 	text-align:left;
+	width:100%;
 }
 #dbg_bar .tabs li:not(.right){
 	border-right:1px solid black;
@@ -55,13 +57,19 @@ body{margin-bottom:50px;}
 	border-radius: 5px 5px 0 0;
 	padding-bottom: 0;
 	bottom: auto;	
+	border-top: 4px solid transparent;
 }
 #dbg_bar .tabs li.current{background-color:#fcfcfc;}
 
 #dbg_bar .tabs li:not(.right):hover{
 	background:#ebebeb;
 }
-#dbg_bar .tabs li{display:inline-block;color:#555;text-decoration:none;}
+#dbg_bar .tabs li{
+	display:inline-block;
+	color:#555;
+	text-decoration:none;
+	margin-bottom:0;
+}
 #dbg_bar .tabs li.current{
 	background-color:white;
 	color:blue;
@@ -73,6 +81,7 @@ body{margin-bottom:50px;}
 }
 
 #dbg_bar .tabs a{
+	font-size:16px;
 	text-decoration:none;
 	display:inline-block;
 	width:100%;

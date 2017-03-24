@@ -27,7 +27,6 @@
 					<th><?php echo number_format($elapsed*1000,2) ?>ms</th>
 					<td class=qry>						
 						<code class=sql><?php echo $sql ?></code><br/>
-						<button class='explain'><i class=fa-info-sign></i> Explain Query</button>
 					</td>
 					<td>
 						<ol>

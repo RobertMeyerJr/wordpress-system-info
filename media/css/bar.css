@@ -23,15 +23,25 @@ body{margin-bottom:50px;}
 	padding: 0;
 	z-index:99999; /*Greater than wp-admin sidebar*/
 }
-#debug-bar-resize{
-	height: 10px;
-	width: 100%;
-	background-color: white;
-	cursor: move;	
+
+
+#dbg_bar .dbg-nav{position:relative;}
+#dbg_bar .resize-bar:hover{
+	background-color:rgba(0,127,172,0.3);
+}
+#dbg_bar .resize-bar{
+	position: absolute;
+	width:100%;
+	height: 100%;
+	cursor: move;		
+    transition:background-color 1s;  
 }
 
+
+
 #debug-bar-resize:active,#debug-bar-resize:hover{
-	background-color:#007fac;
+	background-color:#007FAC;
+	background-color:rgba(0,127,172,0.3);
 }
 
 #dbg_bar .tabs{	
@@ -96,7 +106,8 @@ body{margin-bottom:50px;}
 #dbg_bar .dbg_body .panel{display: none;padding:15px;}
 #dbg_bar .dbg_body .panel.active{display:block;}
 #dbg_bar .panel > table{width:100%;}
-#dbg_bar .panel > table td{padding:5px;text-align:left;}
+#dbg_bar .panel > table tr{width:100%;}
+#dbg_bar .panel > table td,#dbg_bar .panel > table span{word-wrap:break-word}
 #dbg_bar .panel > table{width:100%;border-collapse:collapse;}
 #dbg_bar table thead th{
 	font-weight:bold;

@@ -2,7 +2,6 @@
 
 global $SI_Errors,$SI_Console;
 
-#d($SI_Errors);
 
 ?>
 <table class=widefat>
@@ -27,7 +26,7 @@ global $SI_Errors,$SI_Console;
 				</td>
 				<td>
 					<?php #d($trace); ?>
-					<ul>
+					<ol>
 						<?php foreach($trace as $t) : ?>
 							<li>
 								<?php if(!empty($t['file'])) : ?>
@@ -41,7 +40,7 @@ global $SI_Errors,$SI_Console;
 								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
-					</ul>
+					</ol>
 				</td>
 			</tr>
 		<?php endforeach; ?>

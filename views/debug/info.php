@@ -12,6 +12,10 @@ if(!empty($p->post_type) ){
 <table>
 <?php if( !is_admin() ) : ?>
 	<tr><th class=hdr colspan=2>Page Details
+	<tr><th>URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>
+	<?php if(!empty($_SERVER['HTTP_REFERER'])) : ?>
+		<tr><th>Referrer</th><td><?php $_SERVER['HTTP_REFERER']?></td></tr>
+	<?php endif; ?>		
 	<?php if(!empty($p->ID)) : ?><tr><th>ID<td><?=$p->ID?><?php endif; ?>
 	<?php if(!empty($p->post_title)) : ?><tr><th>Title<td><?=$p->post_title?><?php endif; ?>
 	<?php if(!empty($p->post_date)) : ?><tr><th>Date<td><?=date('m/d/Y h:iA',strtotime($p->post_date))?><?php endif; ?>
@@ -36,20 +40,8 @@ if(!empty($p->post_type) ){
 <?php endif; ?>	
 </table>
 <h3>Server Variables</h3>	
-<table>
-	<thead>
-		<tr><th>Key</th><th>Value</th></tr>
-	</thead>
-	<tbody>
-		<?php if(!empty($_SERVER['HTTP_REFERER'])) : ?>
-			<tr><th>Referrer</th><td><?php $_SERVER['HTTP_REFERER']?></td></tr>
-		<?php endif; ?>
-		<tr><th>User Agent</th><td><?php echo $_SERVER['HTTP_USER_AGENT']?></td></tr>
-		<tr><th>Host</th><td><?php echo $_SERVER['SERVER_NAME'] ?></td></tr>
-		<tr><th>URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>
-		<tr><th colspan=2 class=hdr>Parameters</th></tr>
-	</tbody>
-</table>
+<?php	dbg_table_out($_SERVER); 	?>
+
 <h3>Info</h3>	
 <table>
 	<tr><th>User ID</th><td><?php echo get_current_user_id(); ?></td></tr>
@@ -68,6 +60,7 @@ if(!empty($p->post_type) ){
 	<tr><th>GATEWAY_INTERFACE</th><td><?php echo $_SERVER['GATEWAY_INTERFACE'] ?></td></tr>
 	<tr><th>HTTP_USER_AGENT</th><td><?php echo $_SERVER['HTTP_USER_AGENT'] ?></td></tr>		
 </table>
+
 
 <?php if(!empty($_COOKIE)) 	: ?><h3>Cookie</h3>		<?php	dbg_table_out($_COOKIE); 	?><?php endif; ?>
 <?php if(!empty($_SESSION)) : ?><h3>Session</h3>	<?php	dbg_table_out($_SESSION);	?><?php endif; ?>

@@ -5,8 +5,7 @@ var dbg_start = Date.now();
 jQuery(window).load(dbg_performance);
 
 jQuery(function($){	
-	console.log('Debug Bar Init');
-
+	
 	$('#close_dbg').click(function(){
 		$('#dbg_bar').hide();
 	});
@@ -29,21 +28,22 @@ jQuery(function($){
 		//hide rows not containing		
 	});
 
-	$('#debug-bar-resize').mousedown(function(e){      
-		console.log('resize clicked');
-        e.preventDefault();        
-		startY = e.pageY;
+	
+	$('#dbg_bar .resize-bar').mousedown(function(e){      
+		e.preventDefault();        
 		
 		jQuery(document).mousemove(function(e){
+			var startY = $('#dbg_bar').offset().top;
 			var h =  startY - e.pageY;
 			var height = jQuery('.dbg_body').height();
-			Math.max(height,height+h);
+			Math.max(height, height+h+100);
+
 			jQuery('.dbg_body').height(h);
        });
 	   
+	   
     });
 	$(document).mouseup(function(e){
-		startY = e.pageY;
 		jQuery(document).unbind('mousemove');
 	});
    
@@ -81,6 +81,8 @@ function included_file_search(){
 
 
 function dbg_performance(){
+	var now = new Date().getTime();
+	
 	var t 				= window.performance.timing;		
 	var dns 			= t.domainLookupEnd - t.domainLookupStart;
 	var tcp 			= t.connectEnd - t.connectStart;
@@ -88,28 +90,28 @@ function dbg_performance(){
 	
 	var responseTime 	= t.responseStart - t.responseEnd;
 	
-	var pageloadtime 	= t.loadEventEnd - t.navigationStart;
+	var pageloadtime 	= now - t.navigationStart;
 	var connectTime 	= t.responseEnd - t.requestStart;
 	var domTime 		= t.domContentLoadedEventEnd - t.domContentLoadedEventStart;
 	
 	var basePage 		= t.responseEnd - t.responseStart;
 	var frontEnd 		= t.loadEventStart - t.responseEnd;
 	
-	var total = pageloadtime;
 	var percs = {
-		dns:		dbg_percentage(dns,total),
-		tcp:		dbg_percentage(tcp,total),
-		connect:	dbg_percentage(connectTime,total),
-		ttfb:		dbg_percentage(ttfb,total),
-		basePage:	dbg_percentage(basePage,total),
-		frontEnd:	dbg_percentage(frontEnd,total),	
+		dns:		dbg_percentage(dns, 		pageloadtime),
+		tcp:		dbg_percentage(tcp, 		pageloadtime),
+		connect:	dbg_percentage(connectTime, pageloadtime),
+		ttfb:		dbg_percentage(ttfb, 		pageloadtime),
+		basePage:	dbg_percentage(basePage,	pageloadtime),
+		frontEnd:	dbg_percentage(frontEnd,	pageloadtime),	
+		dom:		dbg_percentage(domTime,		pageloadtime),	
 	};
 		
 	var serverTotalTime 	= connectTime;
 	var browserTotalTime 	= frontEnd + domTime
-	jQuery('.serverTotalTime').html( (serverTotalTime).toFixed(2) )
-	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2) );
-	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2) );
+	jQuery('.serverTotalTime').html( (serverTotalTime).toFixed(2)+'ms' )
+	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2)+'ms' );
+	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2)+'ms' );
 	
 	var h = '';
 		h += '<tr><th>DNS</th><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td><td>'+dbg_progress_bar(percs.dns)+'</td></tr>';
@@ -118,7 +120,7 @@ function dbg_performance(){
 		h += '<tr><th>Connect Time</th><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td><td>'+dbg_progress_bar(percs.connect)+'</td></tr>';				
 		h += '<tr><th>Send Response</th><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td><td>'+dbg_progress_bar(percs.basePage)+'</td></tr>';
 		h += '<tr><th>Front End</th><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td><td>'+dbg_progress_bar(percs.frontEnd)+'</td></tr>';
-		h += '<tr><th>DOM</th><td>'+domTime.toFixed(2)+'ms</td><td></td></tr>';			
+		h += '<tr><th>DOM</th><td>'+domTime.toFixed(2)+'ms</td><td>'+percs.dom+'%</td><td>'+dbg_progress_bar(percs.dom)+'</td></tr>';
 		h += '<tr><th>Page Load</th><td>'+pageloadtime.toFixed(2)+'ms</td><td></td></tr>';
 		
 	jQuery('#dbg_frontend').html(h);	
@@ -154,8 +156,8 @@ function colorize_sql(){
 			h = h.replace(/ ON /gi,			' <i class=mn>ON</i> ');
 			h = h.replace(/ AS /gi,			' <i class=mn>AS</i> ');
 			
-			h = h.replace(/ASC /gi,			'<i class=mn>ASC</i> ');
-			h = h.replace(/DESC /gi,		'<i class=mn>DESC</i> ');
+			h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> ');
+			h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');
 			h = h.replace(/ IN /gi,			' <i class=mn>IN</i> ');
 			h = h.replace(/ AND /gi,		'<br/>&nbsp;&nbsp;<i class=mn> AND </i> ');
 			h = h.replace(/ LIKE /gi,		'<i class=mn> LIKE </i> ');			

@@ -167,16 +167,20 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 					echo "<label></label> {$info[$f]}<br/>";
 			?></pre>
 		<?php endif; ?></td></tr>
-		
-		<?php $disabled = ini_get('disable_functions'); ?>
 		<tr><th>Disabled Functions</th><td>
-		<?php if(!empty($disabled)) :?> 
-		<?php foreach($disabled as $d) : ?>
-			<?php echo $d?> is Disabled 
-		<?php endforeach; ?>
-		<?php else: ?>
-			None
-		<?php endif; ?>
+		<?php 
+			$disabled = ini_get('disable_functions');
+			$disabled = explode(',',$disabled);
+			if( !empty($disabled) ){
+				//test
+				foreach($disabled as $d){
+					echo "{$d} ";
+				}
+			}				
+			else{
+				echo "None";
+			}
+		?>
 		</td></tr>
 		<tr><th>PHP Extensions</th>
 		<td>
@@ -203,10 +207,12 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 				<?php 
 					//Get Folder Size
 					if( !System_Info_Tools::is_windows() ){
-						unset($size);
-						System_Info_Tools::run_command("du -sh {$d}",$size);
-						$parts = preg_split('/\s+/', $size[0]);
-						echo $parts[0];
+						$size = '';
+						System_Info_Tools::run_command("du -sh {$d}", $size);
+						if( !empty($size) ){
+							$parts = preg_split('/\s+/', $size[0]);
+							echo $parts[0];
+						}
 					}
 					else{
 						echo '-';

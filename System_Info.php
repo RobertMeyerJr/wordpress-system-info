@@ -15,8 +15,14 @@ include(__DIR__.'/app/ErrorHandler.php');
 SI_ErrorHandler::enable_error_handling();
 
 $total_details = System_Info::getInstance();
+
 class System_Info{	
 	protected static $instance;
+	protected static $action_times;
+	
+	public static function getActionTimes(){
+		return self::$action_times;
+	}
 	
 	public static function getInstance(){	
 		/*Make sure running PHP 5.4+, otherwise dont even load */
@@ -29,6 +35,11 @@ class System_Info{
 		}
 		return self::$instance;
 	}
+	
+	public function wont_load(){
+		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
+		echo "<div class='error below-h2'><p>{$msg}</p></div>";
+	}	
 	
 	public function __construct(){
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
@@ -48,14 +59,35 @@ class System_Info{
 				is_user_logged_in yet as we want the 
 				benchmarking to start as early as possible
 			*/
-			#$this->enable_error_handling();
-			#$this->benchmarking();
+			$this->benchmarking();
 		}
 	}
 	
-	public function wont_load(){
-		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
-		echo "<div class='error below-h2'><p>{$msg}</p></div>";
+	public function benchmarking(){
+		$actions = array(
+			'plugins_loaded',
+			'setup_theme',
+			'after_setup_theme',
+			'init',
+			'widgets_init',
+			'wp_loaded',
+			'wp',
+			'template_redirect',
+			'get_header',
+			'wp_head',
+			'wp_print_styles',
+			'wp_print_scripts',
+			'wp_footer',
+			'shutdown'
+		);
+		foreach($actions as $a){
+			add_action($a, array($this, 'do_action'), 1);
+		}
+	}
+	
+	public function do_action(){
+		$filter = current_filter();
+		self::$action_times[$filter] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 	}	
 	
 	public function init(){			
@@ -73,15 +105,6 @@ class System_Info{
 			$this->admin();
 		}
 	}	
-	
-	public function explain(){
-		global $wpdb;
-		$sql = "EXPLAIN ".stripslashes($_POST['sql']); 
-		$results = $wpdb->get_results($sql);
-		include(__DIR__.'/views/Explain_Query.php');
-		exit;
-	}
-	
 	
 	//Dashboard Widget All Logic is in the php file	
 	public function dashboard_widget(){ include('views/dashboard-widget.php'); }
@@ -129,7 +152,7 @@ class System_Info{
 	/*
 		Make sure this is the very first plugin that gets loaded
 		This allows us to benchmark the other plugins.
-		TODO: Switch to using mu plugin
+		TODO: Switch to using mu plugin?
 	*/
 	public function make_first_plugin(){
 		$path = str_replace( WP_PLUGIN_DIR . '/', '', __FILE__ );
@@ -146,10 +169,10 @@ class System_Info{
 	//Includes only happen if they are needed
 	public function do_includes(){
 		//If font awesome isn't already enqueued, enqueue it 
-		if(!wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
+		if( !wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
 		}
-				
+		
 		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jQuery'), true);	
 		
 		require_once('app/SI_Admin.php');

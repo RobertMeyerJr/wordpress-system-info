@@ -13,7 +13,7 @@ $tables = System_Info_SQL::get_tables();
 
 $total_db_size = 0;
 foreach($tables as $t){
-	$total_db_size += $t->Data_length;
+	$total_db_size += $t->DATA_LENGTH;
 }
 
 ?>

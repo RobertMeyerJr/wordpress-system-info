@@ -1,10 +1,11 @@
-<ul class=tab-nav>
-	<li><i class=fa-cogs></i> Core</li>
-	<li><i class=fa-image></i> Theme</li>
-	<li><i class=fa-question-circle></i> Other</li>
-	<li><i class=fa-plug></i> Plugin</li>
-</ul>
-
+<div class=tab-nav>	
+	<ul>
+		<li><i class=fa-cogs></i> Core</li>
+		<li><i class=fa-image></i> Theme</li>	
+		<li><i class=fa-plug></i> Plugin</li>
+		<li><i class=fa-question-circle></i> Other</li>
+	</ul>
+</div>
 <input type=text id=included_file_search>
 
 <table class=dbg_table>

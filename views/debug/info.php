@@ -10,8 +10,7 @@ if(!empty($p->post_type) ){
 ?>
 
 <table>
-<?php if( !is_admin() ) : ?>
-	<tr><th class=hdr colspan=2>Page Details
+	<tr><th class=hdr colspan=2>Summary 
 	<tr><th>URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>
 	<?php if(!empty($_SERVER['HTTP_REFERER'])) : ?>
 		<tr><th>Referrer</th><td><?php $_SERVER['HTTP_REFERER']?></td></tr>
@@ -36,14 +35,7 @@ if(!empty($p->post_type) ){
 		?>
 		<?php endforeach; ?>
 	<?php endif; ?>
-<?php else: ?>
-<?php endif; ?>	
-</table>
-<h3>Server Variables</h3>	
-<?php	dbg_table_out($_SERVER); 	?>
 
-<h3>Info</h3>	
-<table>
 	<tr><th>User ID</th><td><?php echo get_current_user_id(); ?></td></tr>
 	<tr><th>ABSPATH</th><td><?php echo ABSPATH; ?></td></tr>
 	<tr><th>DB_NAME</th><td><?php echo DB_NAME; ?></td></tr>
@@ -51,17 +43,21 @@ if(!empty($p->post_type) ){
 	<tr><th>Template Directory</th><td><?php echo $tpl_dir ?></td></tr>		
 	<tr><th>SERVER_SOFTWARE</th><td><?php echo $_SERVER['SERVER_SOFTWARE'] ?></td></tr>
 	<tr><th>REQUEST_URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>		
-	<tr><th>Computer Name</th><td><?php echo $_SERVER['COMPUTERNAME'] ?></td></tr>
-	<tr><th>NUMBER_OF_PROCESSORS</th><td><?php echo $_SERVER['NUMBER_OF_PROCESSORS'] ?></td></tr>
-	<tr><th>OS</th></td><td><?php echo $_SERVER['OS'] ?></tr>
-	<tr><th>Path</th><td><?php echo str_replace(';','<br/>',$_SERVER['Path']); ?></td></tr>
-	<tr><th>PROCESSOR_IDENTIFIER</th><td><?php echo $_SERVER['PROCESSOR_IDENTIFIER'] ?></td></tr>
+	
+	<?Php if(!empty($_SERVER['COMPUTERNAME'])) : ?><tr><th>Computer Name</th><td><?php echo $_SERVER['COMPUTERNAME'] ?></td></tr><?php endif; ?>
+	<?Php if(!empty($_SERVER['NUMBER_OF_PROCESSORS'])) : ?><tr><th>NUMBER_OF_PROCESSORS</th><td><?php echo $_SERVER['NUMBER_OF_PROCESSORS'] ?></td></tr><?php endif; ?>
+	<?Php if(!empty($_SERVER['OS'])) : ?><tr><th>OS</th></td><td><?php echo $_SERVER['OS'] ?></tr><?php endif; ?>
+	<?Php if(!empty($_SERVER['Path'])) : ?><tr><th>Path</th><td><?php echo str_replace(';','<br/>',$_SERVER['Path']); ?></td></tr><?php endif; ?>
+	<?Php if(!empty($_SERVER['PROCESSOR_IDENTIFIER'])) : ?><tr><th>PROCESSOR_IDENTIFIER</th><td><?php echo $_SERVER['PROCESSOR_IDENTIFIER'] ?></td></tr><?php endif; ?>
+	
 	<tr><th>SERVER_NAME</th><td><?php echo $_SERVER['SERVER_NAME'] ?></td></tr>
 	<tr><th>GATEWAY_INTERFACE</th><td><?php echo $_SERVER['GATEWAY_INTERFACE'] ?></td></tr>
 	<tr><th>HTTP_USER_AGENT</th><td><?php echo $_SERVER['HTTP_USER_AGENT'] ?></td></tr>		
 </table>
 
+<h3>Server Variables</h3>	
+<?php	dbg_table_out($_SERVER); 	?>
 
-<?php if(!empty($_COOKIE)) 	: ?><h3>Cookie</h3>		<?php	dbg_table_out($_COOKIE); 	?><?php endif; ?>
+<?php if(!empty($_COOKIE)) 	: ?><h3>Cookies</h3>		<?php	dbg_table_out($_COOKIE); 	?><?php endif; ?>
 <?php if(!empty($_SESSION)) : ?><h3>Session</h3>	<?php	dbg_table_out($_SESSION);	?><?php endif; ?>
 <?php if(!empty($_REQUEST)) : ?><h3>Request</h3>	<?php	dbg_table_out($_REQUEST);	?><?php endif; ?>

@@ -1,15 +1,26 @@
 VERSION: 1.00001a
 
+TODO:
+use SystemInfo\Log as Log;
 
-TODO: Pull in stats from ifconfig
-	rx bytes 
-	tx bytes
-	inet addr
-	inet6 addr
+Log::error()
+Log::info()
+Log::warning()
 
-	eth0
-	eth1
-	lo
+
+https://kinsta.com/knowledgebase/wp-options-autoloaded-data/
+To Add: Auto Load Data Size:
+SELECT SUM(LENGTH(option_value)) as autoload_size FROM wp_options WHERE autoload='yes';
+
+SELECT 'autoloaded data in KiB' as name, ROUND(SUM(LENGTH(option_value))/ 1024) as value FROM wp_options WHERE autoload='yes'
+UNION
+SELECT 'autoloaded data count', count(*) FROM wp_options WHERE autoload='yes'
+UNION
+(SELECT option_name, length(option_value) FROM wp_options WHERE autoload='yes' ORDER BY length(option_value) DESC LIMIT 10)
+
+Admin:
+Add list of ajax hooks
+
 
 Goals
 	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
@@ -17,7 +28,6 @@ Goals
 	Insight:		Provide transparency into the how Wordpress functions for developers
 
 ------------------------------------------------------------------------------	
-
 
 OverWhelming Pages:	
 	Developer Only	

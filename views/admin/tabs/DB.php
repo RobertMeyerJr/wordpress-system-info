@@ -21,11 +21,11 @@ foreach($tables as $t){
 <h3 class=hndle>
 	Tables in Database: <span style='color:blue;font-weight:bold;'><?php echo DB_NAME?></span>
 	Total DB Size <span class=cPurple><?php echo System_Info_Tools::formatBytes($total_db_size)?></span>
+	Prefix <span class=cGreen><?=$wpdb->prefix?></span>
 </h3>
 <table class='wp-list-table widefat fixed striped'>
 	<thead>
 		<tr>
-			<th>Prefix</th>
 			<th>Name</th>
 			<th>Engine</th>
 			<th>Rows</th>
@@ -45,7 +45,6 @@ foreach($tables as $t){
 				#TODO: Check if has prefix
 				#if so set and replace
 			?>
-			<td><?=$wpdb->prefix?></td>
 			<td class=cGreen><?php echo str_replace($wpdb->prefix,'',$t->TABLE_NAME)?></td>
 			<td class=cDark><?php echo $t->ENGINE?></td>
 			<td class=cBlue><?php echo number_format($t->TABLE_ROWS)?></td>

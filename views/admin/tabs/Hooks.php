@@ -21,9 +21,11 @@ function where_defined($function_name){
 
 ?>
 <h2>Common Hooks</h2>
-<a href=>the_content</a>
-<a href=>wp_head</a>
-<a href=>wp_footer</a>
+<a href="/wp-admin/admin.php?page=wptd-Hooks&get_hooks=1&search=init">init</a>
+<a href="/wp-admin/admin.php?page=wptd-Hooks&get_hooks=1&search=the_content">the_content</a>
+<a href="/wp-admin/admin.php?page=wptd-Hooks&get_hooks=1&search=wp_head">wp_head</a>
+<a href="/wp-admin/admin.php?page=wptd-Hooks&get_hooks=1&search=wp_footer">wp_footer</a>
+<a href="/wp-admin/admin.php?page=wptd-Hooks&get_hooks=1&search=shutdown">shutdown</a>
 
 <form>
 	<input type=hidden name=page value="wptd-Hooks">
@@ -54,7 +56,7 @@ function where_defined($function_name){
 					<td class=cBlue><a target=_blank href="http://adambrown.info/p/wp_hooks/hook/<?php echo $tag?>"><?php echo $tag?></td>	
 					<td class=cGreen><?php echo $name?></td>
 					<td>
-						<table>
+						<table style="width:100%;">
 							<thead>
 								<tr>
 									<th>Function
@@ -65,17 +67,21 @@ function where_defined($function_name){
 						<?php foreach($props as $val) :?>
 							<tr>
 							
-							<?php if(is_string($val['function'])) : ?>
-								<td><h2><?=$val['function']?></h2>
+							<?php if( is_string($val['function']) ) : ?>
+								<td><h2 class=cBlue><?=$val['function']?></h2>
 								<td><?php $where_def = where_defined($val['function']) ; ?>
 								<td><?=$where_def['file']?>
 								<td><?=$where_def['line']?>
 								<td><?=$val['accepted_args']?>
 							<?php else: ?>
-								<td>ARRAY</td>
-								<td colspan=4><?php print_r($val);?></td>
-							<?php endif; ?>
-						
+								<td><h2>									
+									<span class=cPurple><?= is_object($val['function'][0]) ? get_class($val['function'][0]) : $val['function'][0] ?></span>
+									::
+									<span class=cBlue><?=$val['function'][1]?></span>
+									</h2>
+								</td>
+								<td colspan=4><?php echo htmlentities( print_r($val,true) );?></td>
+							<?php endif; ?>						
 						<?php endforeach; ?>
 						</table>
 					</td>

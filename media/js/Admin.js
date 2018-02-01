@@ -1,5 +1,4 @@
 jQuery(function($){
-	console.log('test');
 	jQuery('#search_hooks').click(function(){  
 		var search = jQuery('#action_search').val();
 		var type = jQuery('#search_type').val();
@@ -36,7 +35,6 @@ function optimizeTable(table){
 			});
 		}
 	});
-	
 	
 	jQuery('.wpcron_jobs').accordion({collapsible: true,allwayOpen: false});
 	

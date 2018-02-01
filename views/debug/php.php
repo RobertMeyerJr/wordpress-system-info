@@ -9,58 +9,25 @@
 		<tr><th>open_basedir</th><td><?php echo ini_get('open_basedir');?></td></tr>
 		<tr><th>short_open_tag</th><td><?php echo ini_get('short_open_tag');?></td></tr>
 		<tr><th>safe_mode</th><td><?php echo ini_get('safe_mode');?></td></tr>
-		<?php if(function_exists('apc_cache_info')) : $info = apc_cache_info(); ?>
-			<tr><th>APC</th><td>
-			<?php 
-				$fields = array(
-					'num_slots',       
-					'ttl',                 
-					'num_hits',            
-					'num_misses',          
-					'num_inserts',         
-					'expunges',            
-					'start_time',          
-					'mem_size',            
-					'num_entries',         
-					'file_upload_progress',
-					'memory_type',         
-					'locking_type',        
-				);
-			?>
-			</td></tr>
-			<?php
-				foreach($fields as $f)
-					echo "<tr><th></th><td>{$info[$f]}</tr>";
-			?>
-		<?php endif; ?>
-
-		<tr>
-			<th>OpCode Cache</th>
-			<td>
-				<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
-				<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
-				<?php elseif( extension_loaded( 'eaccelerator' ) ) : ?>EAccelerator
-				<?php elseif( extension_loaded( 'Zend Optimizer+' ) ) : ?>Zend Optimizer+
-				<?php elseif( extension_loaded( 'wincache' ) ) : ?>WinCache
-				<?php else: ?>None
-				<?php endif; ?>
-			</td>
-		</tr>
-		<?php 
-		
+		<ul class=extensions>
+		<?php 		
 		$extensions = get_loaded_extensions();
 		foreach($extensions as $e): ?>
 			<li><a href=http://www.php.net/manual/en/book.<?php echo strtolower($e)?>.php><?php echo $e?></a></li>		
 		<?php endforeach; ?>
 		</ul>		
-		<?php $disabled = ini_get('disable_functions'); ?>
-		<tr><th>Disabled Functions</th><td>
-		<?php if(!empty($disabled)) :?> 
-		<?php foreach($disabled as $d) : ?>
-			<?php echo $d?> is Disabled</tr>
-		<?php endforeach; ?>
-		<?php else: ?>
-			None</tr>
-		<?php endif; ?>
+		<?php $disabled_funcs = explode(',', ini_get('disable_functions')); ?>
+		<tr>
+			<th>Disabled Functions</th>
+			<td>
+			<?php if( !empty($disabled_funcs) ) :?> 
+				<?php foreach($disabled_funcs as $func_name) : ?>
+					<?php echo $func_name?>
+				<?php endforeach; ?>
+			<?php else: ?>
+					None
+			<?php endif; ?>
+		</td>
+		</tr>
 		<tr><th>PHP Memory Usage: </th><td><?php echo memory_get_usage() ?>
 	</table>

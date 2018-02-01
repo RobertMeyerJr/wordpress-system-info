@@ -1,17 +1,17 @@
 <?php 
 
-
 class SI_ErrorHandler{
 	//Custom Error Handling
 	public static function enable_error_handling(){
-		set_error_handler(array(__CLASS__,'error_handler'), E_ALL);		
-		register_shutdown_function(array(__CLASS__,'shutdown_function'));	
+		set_error_handler( array(__CLASS__,'error_handler'), E_ALL );		
+		#set_exception_handler( array(__CLASS__,'error_handler'));				
+		register_shutdown_function( array(__CLASS__,'shutdown_function') );	
 	}
 	
 	public static function error_handler($errno,$str="",$file=null,$line=null,$context=null){ 
 		global $SI_Errors;	
 		
-		$trace = debug_backtrace(); 
+		$trace = debug_backtrace(10); 
 		#unset($trace[0]);
 		$SI_Errors[] = array(
 			$errno,
@@ -26,22 +26,22 @@ class SI_ErrorHandler{
 			echo "<h1>Fatal Error</h1>";
 			//Dump the output and die
 			$out = ob_get_clean();
-			d($errno);
-			d($str);
-			d($file);
-			d($line);
 			exit;
 		}				
 		return false; #Just record the error, don't catch or do anything
 	}		
 	public static function fatal_error($error){
+		global $wpdb;
 		//Handle fatal error
 		if( ob_get_contents() ){
 			ob_clean();
 		}
-		echo "<p>Fatal Error Caught:</p>";
+		echo "<h1>WP Total Details: Fatal Error Caught:</h1>";
 		var_dump($error);
-		exit;
+		echo "<h2>Backtrace</h2>";
+		echo "<pre>".print_r(debug_backtrace(),true)."</pre>";
+		echo "<h2>Last Query</h2>";
+		echo "<pre>".print_r($wpdb->last_query,true)."</pre>";
 	}
 	public static function shutdown_function(){
 		//Nothing in here right now

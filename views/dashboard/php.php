@@ -19,7 +19,7 @@
 	<tr><th>Max Post</th><td><?=ini_get('post_max_size')?></td></tr>
 	<tr><th>Upload Max</th><td><?=ini_get('upload_max_filesize')?></td></tr>
 	<tr><th>Memory Limit</th><td><?=ini_get('memory_limit')?></td></tr>			
-	<tr><th>Max Time</th><td><?=ini_get('max_execution_time')?></td></tr>
+	<tr><th>Max Time</th><td><?=ini_get('max_execution_time')?>s</td></tr>
 	<tr><th>User</th><td><?=getenv('USERNAME') ?: getenv('USER');?></td></tr>
 	<tr><th>Disabled Functions</th><td>
 		<?php $disabled= ini_get('disable_functions')?>

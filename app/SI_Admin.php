@@ -14,7 +14,6 @@ class System_Info_Admin{
 		add_action('wp_ajax_sysinfo_replace_content', 	array(__CLASS__, 	'ajax_replace_content'));							
 		add_action('wp_ajax_sysinfo_search_hooks', 		array(__CLASS__, 	'get_hooks'));			
 		add_action('wp_ajax_sysinfo_search_functions', 	array(__CLASS__, 	'ajax_function_search'));			
-		add_action('wp_ajax_sysinfo_explain_query', 	array(__CLASS__, 	'explain_query'));
 	}
 	
 	public static function admin_menu(){
@@ -24,25 +23,16 @@ class System_Info_Admin{
 		add_menu_page('Info', 'Total Details', 						$cap, $slug, [__CLASS__,'admin_tab'], 'dashicons-welcome-view-site');
 		
 		add_submenu_page($slug, 'Info', 'Info', 					$cap, $slug, [__CLASS__,'admin_tab']);
+		if( version_compare(PHP_VERSION,'7.0.0') >= 0 ){
+			add_submenu_page($slug, 'OpCache', 'OpCache', 			$cap, 'wptd-opcache', [__CLASS__,'admin_tab']);
+		}
 		add_submenu_page($slug, 'MySQL', 'MySQL', 					$cap, 'wptd-MySQL', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Database', 'Database', 			$cap, 'wptd-DB', [__CLASS__,'admin_tab']);
-		
-		if( System_Info_Tools::exec_enabled() ){
-			add_submenu_page($slug, 'Services', 'Services', 			$cap, 'wptd-Services', [__CLASS__,'admin_tab']);
-			add_submenu_page($slug, 'Ports', 'Ports', 					$cap, 'wptd-Ports', [__CLASS__,'admin_tab']);
-			add_submenu_page($slug, 'Procs', 'Running Processes', 					$cap, 'wptd-Procs', [__CLASS__,'admin_tab']);
-		}		
-		
 		add_submenu_page($slug, 'Permissions', 'Permissions',	 	$cap, 'wptd-Permissions', [__CLASS__,'admin_tab']);
-		
 		add_submenu_page($slug, 'Cron', 'Cron', 					$cap, 'wptd-Cron', [__CLASS__,'admin_tab']);
-		add_submenu_page($slug, 'DNS', 'DNS', 						$cap, 'wptd-DNS', [__CLASS__,'admin_tab']);
-		add_submenu_page($slug, 'Whois', 'Whois', 					$cap, 'wptd-Whois', [__CLASS__,'admin_tab']);
-		
+		add_submenu_page($slug, 'Net Info', 'Net Info', 			$cap, 'wptd-NetInfo', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Rewrites', 'Rewrites', 			$cap, 'wptd-Rewrites', [__CLASS__,'admin_tab']);
-		
 		add_submenu_page($slug, 'Errors', 'Errors', 				$cap, 'wptd-Errors', [__CLASS__,'admin_tab']);
-		
 		add_submenu_page($slug, 'Hooks', 'Hooks', 					$cap, 'wptd-Hooks', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Functions', 'Functions', 			$cap, 'wptd-Functions', [__CLASS__,'admin_tab']);		
 		add_submenu_page($slug, 'Options', 'WP Options', 			$cap, 'wptd-Options', [__CLASS__,'admin_tab']);
@@ -157,42 +147,16 @@ class System_Info_Admin{
 		#wp_enqueue_script('td-admin', $folder.'js/Admin.js',['jquery']);				
 		
 		//TODO: Remove these
-		wp_enqueue_script('jquery-ui-dialog');	
-		wp_enqueue_script('jquery-ui-datepicker');				
+		#wp_enqueue_script('jquery-ui-dialog');	
+		#wp_enqueue_script('jquery-ui-datepicker');				
 		wp_enqueue_script('tablesorter', 'https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.1/js/jquery.tablesorter.js', array('jquery'));	
 		
 		//Enqueue if not already
 		if(!wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
-			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
+			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 		}
 		
 	}
 	
-	/*
-	NOT YET IMPLEMENTED
-	public static function security_scan(){		
-		$suspicious(
-					'eval(',
-					'passthru('
-					'base64_decode(',
-					'system(
-					'shell_exec('
-					'exec('
-					'shell_exec(',
-					'hacked by',
-					'viagra',
-					'<iframe'
-		);		
-		$tables = array(
-		)
-		
-		foreach($tables as $s){
-			//check content field for "%{$s}%"
-			WHERE {} LIKE %{}%
-			OR WHERE {} LIKE %{}%
-		}
-		//  filemtime
-		// .htaccess		
-	}
-	*/
+	
 }

@@ -80,10 +80,5 @@ function get_permissions(){
 	</tbody>
 </table>
 <?php 
-	$user = (System_Info_Tools::is_windows()) ? get_current_user():SI_Tools::run_command('whoami');
+	$user 	= (System_Info_Tools::is_windows()) ? get_current_user() : System_Info_Tools::run_command('whoami');
 ?>
-chmod -R 755
-chown -R <?php echo $user?>:{$group} <?php echo WP_CONTENT_DIR?>					
-
-find . -type d -exec chmod 755 {} \;
-find . -type f -name '*.php' -exec chmod 644 {} \;

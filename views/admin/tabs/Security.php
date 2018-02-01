@@ -1,10 +1,7 @@
 <div>
 	Check for "admin" user with id = 1
 	Check for prefix != "wp_"
-
-	
-	Disable			XML-RPC
-	
+	Disable			XML-RPC	
 	ini check:	
 	allow_url_include 	
 	

@@ -1,4 +1,3 @@
-var dbg_resizing = false;
 var dbg_start = Date.now();
 
 //Run out dbg_performance method after everything else is done
@@ -30,20 +29,12 @@ jQuery(function($){
 
 	
 	$('#dbg_bar .resize-bar').mousedown(function(e){      
-		e.preventDefault();        
-		
-		jQuery(document).mousemove(function(e){
-			var startY = $('#dbg_bar').offset().top;
-			var h =  startY - e.pageY;
-			var height = jQuery('.dbg_body').height();
-			Math.max(height, height+h+100);
-
-			jQuery('.dbg_body').height(h);
-       });
-	   
-	   
+		e.preventDefault();        		
+		jQuery(document).mousemove(mouse_move);
     });
+	
 	$(document).mouseup(function(e){
+		//jQuery('#dbg_bar .resize-bar').unbind('mousemove');
 		jQuery(document).unbind('mousemove');
 	});
    
@@ -61,10 +52,15 @@ jQuery(function($){
 	});
 	
 	
-	$('#included_file_search').change(included_file_search);
+	$('#included_file_search_do').click(included_file_search);
 	colorize_sql();
 });
 
+function mouse_move(event){
+	var scrollPosition = jQuery(window).scrollTop();
+	var h = window.innerHeight + scrollPosition - event.pageY;
+	jQuery('.dbg_body').height(h);
+}
 
 function included_file_search(){
 	var file = jQuery('#included_file_search').val();
@@ -78,7 +74,6 @@ function included_file_search(){
 		jQuery('#included_files tr:not(:contains("'+file+'"))').hide();
 	}
 }
-
 
 function dbg_performance(){
 	var now = new Date().getTime();

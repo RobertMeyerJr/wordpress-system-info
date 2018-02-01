@@ -9,37 +9,56 @@ Author URI: http://www.RobertMeyerJr.com
 
 */	
 define('SI_START_TIME', microtime(true));
-
-include(__DIR__.'/app/ErrorHandler.php');
-
-SI_ErrorHandler::enable_error_handling();
+require_once('app/Console.php');
 
 $total_details = System_Info::getInstance();
 
 class System_Info{	
 	protected static $instance;
 	protected static $action_times;
+	protected static $action_start_end;
+	protected static $remote_get_urls = [];
 	
-	public static function getActionTimes(){
-		return self::$action_times;
+	
+	public static function testLogging(){
+			$arr1 = ['test'=>'test','test2'=>'test','test3'=>'test'];
+			$obj1 = (object)['test'=>'test','test2'=>'test','test3'=>'test','o'=>['a','b','c']];
+			$a = 123;
+			Console::log($arr1);
+			Console::info($arr1);
+			Console::success($arr1);			
+			Console::warn($arr1);
+			Console::error($arr1);
+			
+			add_action('wp',function(){
+				global $post;
+				Console::info($GLOBALS['wpdb']);
+				Console::info($GLOBALS['wp']);
+				Console::success($_SERVER);
+				Console::info($post);
+			});
 	}
-	
+
 	public static function getInstance(){	
+		
 		/*Make sure running PHP 5.4+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '5.4') < 0 ){
 			 add_action('admin_notices', array($this,'wont_load'));
 			 return;
-		}		
+		}
+		
 		if(self::$instance == null){
+			if( isset( $_GET['debug'] ) ){
+				//TODO: Check if logged in and admin before adding error handler
+				include('app/ErrorHandler.php');			
+				SI_ErrorHandler::enable_error_handling();
+			}
 			self::$instance = new self;
 		}
+		
 		return self::$instance;
+		
 	}
-	
-	public function wont_load(){
-		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
-		echo "<div class='error below-h2'><p>{$msg}</p></div>";
-	}	
 	
 	public function __construct(){
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
@@ -49,6 +68,9 @@ class System_Info{
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
 			}
+			
+			add_action('http_api_curl', array($this,'hook_http_api_curl'), 10, 3);
+			
 			$GLOBALS['SI_Errors'] 			= array();
 			$GLOBALS['dbg_filter_calls']	= array();
 			$GLOBALS['dbg_filter_times'] 	= array();			
@@ -63,6 +85,13 @@ class System_Info{
 		}
 	}
 	
+	public function wont_load(){
+		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
+		echo "<div class='error below-h2'><p>{$msg}</p></div>";
+	}	
+	
+	
+
 	public function benchmarking(){
 		$actions = array(
 			'plugins_loaded',
@@ -71,32 +100,45 @@ class System_Info{
 			'init',
 			'widgets_init',
 			'wp_loaded',
+			'parse_request',
+			'pre_get_posts',
 			'wp',
 			'template_redirect',
 			'get_header',
 			'wp_head',
+			'wp_enqueue_scripts',
 			'wp_print_styles',
 			'wp_print_scripts',
+			'loop_start',
+			'the_post',
+			'loop_end',
 			'wp_footer',
+			'wp_before_admin_bar_render',
+			'wp_after_admin_bar_render',
 			'shutdown'
 		);
 		foreach($actions as $a){
-			add_action($a, array($this, 'do_action'), 1);
+			add_action($a, array($this, 'early_action'), 1);
+			add_action($a, array($this, 'late_action'), PHP_INT_MAX);			
 		}
 	}
 	
-	public function do_action(){
+	public function early_action(){
 		$filter = current_filter();
-		self::$action_times[$filter] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+		self::$action_start_end[$filter]['start'] = microtime(true);
+	}
+	public function late_action(){
+		$filter = current_filter();
+		self::$action_start_end[$filter]['end']  = microtime(true);
 	}	
 	
 	public function init(){			
-		$user = wp_get_current_user();
-		if( in_array( 'administrator', (array) $user->roles ) ){			
+		#$user = wp_get_current_user();
+		if( current_user_can('manage_options') ){			
 			add_action('admin_bar_menu', 						array($this,'admin_menu'),9000);		
 			add_action('wp_ajax_total_details_query_explain', 	array($this,'explain'));					
 			add_action('wp_dashboard_setup', function(){			
-				wp_add_dashboard_widget('ruxly_dashboard', '<i class="dashicons dashicons-dashboard"></i> Total Details', array($this,'dashboard_widget'));
+				wp_add_dashboard_widget('debugbar_dashboard', '<i class="dashicons dashicons-dashboard"></i> Total Details', array($this,'dashboard_widget'));
 			});			
 			
 			if( isset($_GET['debug']) ){
@@ -112,16 +154,15 @@ class System_Info{
 	public function admin_menu(){
 		global $wp_admin_bar;
 		if( current_user_can('manage_options') ){
-			$url = add_query_arg('dev-debug', 1);
+			$url = add_query_arg('debug', 1);
 			$args = array(
 				'id' 		=> 'total-debug', 	
 				'parent' 	=> false, 			
 				'title' 	=> 'Total Debug', 
 				'href' 		=> $url, 
 				'meta'   => array(
-					'target'   => '_self',
-					'title'    => 'Total Debug',
-					#'html'     => '<!-- Custom HTML that goes below the item -->',
+					'target'   	=> '_self',
+					'title'    	=> 'Total Debug',
 				),
 			);
 			$wp_admin_bar->add_menu( $args);
@@ -129,9 +170,9 @@ class System_Info{
 	}
 	
 	public function admin(){
-		try{										
+		try{
 			$this->do_includes();
-			System_Info_Admin::init();			
+			System_Info_Admin::init();
 		}catch(Exception $e){
 			add_action( 'admin_notices', function(){ 
 				echo "<div class=error><p>System_Info - Error<br/><pre>".print_r($e,true)."</pre></p></div>";
@@ -140,14 +181,22 @@ class System_Info{
 	}
 	
 	public function debug_start(){
-		wp_enqueue_style( 'debug-bar', plugins_url( '/media/css/bar.css',__FILE__));
-		wp_enqueue_script('debug-bar', plugins_url( '/media/js/Bar.js',__FILE__), array('jquery'), 1, true);
+		$bar_style  = plugins_url( '/media/css/bar.css',__FILE__);
+		$bar_js 	= plugins_url( '/media/js/Bar.js',__FILE__);
+		wp_enqueue_style( 'debug-bar', $bar_style);
+		wp_enqueue_script('debug-bar', $bar_js, array('jquery'), 1, true);
 		register_shutdown_function(function(){
-			//was there an error?
-			restore_error_handler(); 				
-			include(__DIR__.'/views/debug/bar.php');								
-		}); 			
+			//Check if there was a fatal error, iff so output debugbar script/style manually
+			restore_error_handler(); 
+			include(__DIR__.'/views/debug/bar.php');
+		}); 
+		
 	}
+	
+	public static function hook_http_api_curl($handle, $r, $url){
+		self::$remote_get_urls[] = $url;
+	}
+	
 		
 	/*
 		Make sure this is the very first plugin that gets loaded
@@ -164,23 +213,26 @@ class System_Info{
 			}
 		}
 	}
-	
-	
+		
 	//Includes only happen if they are needed
 	public function do_includes(){
+		if( !is_user_logged_in() ){
+			return;
+		}
 		//If font awesome isn't already enqueued, enqueue it 
 		if( !wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
-			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
+			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 		}
-		
-		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jQuery'), true);	
+		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jQuery'), true);		
 		
 		require_once('app/SI_Admin.php');
 		require_once('app/SI_SQL.php');
-		require_once('app/SI_Tools.php');
+		require_once('app/SI_Tools.php');		
 	}
+
 	
-	//---------------------------------
+	public static function getActionTimes(){ return self::$action_times; }	
+	public static function getActionStartEnd(){ return self::$action_start_end; }	
 }
 
 

@@ -29,9 +29,6 @@
 	</td></tr>
 	<tr><th>Server API</th><td><?php echo PHP_SAPI?></td></tr>
 	<tr><th>Document Root</th><td><?php echo $_SERVER['DOCUMENT_ROOT'];?></th></tr>				
-	
-	
-	
 	<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
 	<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>
 </table>

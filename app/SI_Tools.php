@@ -15,6 +15,7 @@ class System_Info_Tools{
 		}
 		return $output;
 	}
+	
 	public static function get_domain($url){
 	  $pieces = parse_url($url);
 	  $domain = isset($pieces['host']) ? $pieces['host'] : '';
@@ -23,6 +24,7 @@ class System_Info_Tools{
 	  }
 	  return false;
 	}
+
 	public static function is_windows(){ 
 		return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'); 
 	}
@@ -33,8 +35,7 @@ class System_Info_Tools{
 			return false;
 		$disabled = explode(',', ini_get('disable_functions'));
 		return !in_array('ex'.'ec', $disabled);
-	}
-		
+	}	
 	
 	public static function check_open_basedir(){
 		$base_dir = ini_get('open_basedir');
@@ -204,6 +205,7 @@ class System_Info_Tools{
 		}
 		return $output;
 	}
+	
 	public static function output_to_array($data){
 		$c = count($data);
 		$o = array();
@@ -240,6 +242,7 @@ class System_Info_Tools{
 		self::$cpu_info = $cpu_info;		
 		return $cpu_info;		
 	}
+	
 	public static function mem_info(){
 		if( self::is_windows() ){
 			exec('wmic MEMORYCHIP get banklabel, devicelocator, caption, capacity /format:csv', $info);
@@ -256,6 +259,7 @@ class System_Info_Tools{
 		}
 		return $meminfo;
 	}
+	
 	public static function wmic_to_array($info){
 		#unset($info[0]);
 		$names = explode(',',$info[1]);
@@ -271,6 +275,7 @@ class System_Info_Tools{
 		}
 		return $out;
 	}
+	
 	public static function formatBytes($bytes, $precision = 2){ 
 		$units = array('B', 'KB', 'MB', 'GB', 'TB'); 
 		$bytes = max($bytes, 0); 
@@ -279,6 +284,7 @@ class System_Info_Tools{
 		$bytes /= pow(1024, $pow);		
 		return round($bytes, $precision) . ' ' . $units[$pow]; 
 	}
+	
 	public static function color_format($v){
 		$classes 	= array();
 		$truthy 	= array('ON',1,'ENABLED','YES','TRUE');
@@ -295,6 +301,7 @@ class System_Info_Tools{
 		elseif(is_string($v))					return "<span class=string>{$v}</span>";	
 		
 	}
+	
 	public static function out_table($arr, $cols=null, $colorize=false){
 		if($cols == null){ 
 			$cols = array_keys((array)$arr[0]); #Treat object as array, then get its keys
@@ -337,12 +344,7 @@ class System_Info_Tools{
 			}
 		echo "</tbody></table>";
 	}
-	public static function clear_error_log(){
-		$log = ini_get('error_log');
-		if(!empty($log))
-		unlink( $log );
-		exit;
-	}
+	
 	public static function tail($file, $lines, $asArray=false) {
 		try{
 			$handle = fopen($file, "r");

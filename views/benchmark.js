@@ -1,10 +1,3 @@
-/*
-if(console.profile)
-	console.profile('System Info Load');
-http://www.webpagetest.org/runtest.php?url={$url}
-*/
-console.log('in benchmark.js');
-
 jQuery(window).load(function(){
 	console.log('do_benchmarking');
 	setTimeout(SI_BenchMark.do_benchmarking, 1000);	
@@ -298,36 +291,7 @@ SI_BenchMark = {
 	}
 };
 
-/*
-Idea with this was to loop through each element and check for background-image
-this is too slow and not worth it.
-*/
-function bimages(){
-	elems = document.getElementsByTagName('*');
-	var nElems = elems.length;
-	for ( var i = 0; i < nElems; i++ ) {
-	}
-}
-function sysinfo_explain(element){
-	var $td = jQuery(element).parent().parent().find('td.query');
-	var sql = $td.text();
-	sql_html = $td.html();
-	jQuery.ajax({
-		url: 	'/wp-admin/admin-ajax.php',
-		type:	'POST',
-		data: 	{action:'sysinfo_explain_query',sql:sql},
-		success:function(h){
-			var d = '<div class=sysbench_output>'+sql_html+'<p>'+h+'<p></div>';
-			jQuery(d).dialog({
-				buttons: { "Ok": function () { jQuery(this).dialog("close"); } },
-				close: function (event, ui) { jQuery(this).remove(); },
-				modal: true,
-				title: 'Query Explained',
-				zIndex: 999999999,
-				width: '960px'
-			});
-		}					
-	});
-}
+
+
 
 			

@@ -9,8 +9,7 @@ if(file_exists($error_log) && !empty($error_log)){
 		else{
 			$error_string = file_get_contents($error_log);	
 		}
-		$results = parse_error_log($error_string);
-		//d($results);
+		$results = $error_string;
 }
 
 function parse_error_log($lines) {
@@ -24,22 +23,10 @@ function parse_error_log($lines) {
 }
 ?>
 <div>
-	<h2>Error Log Location <?php echo $error_log?>
-	<a href=# onClick="sysinfo_clear_log();" class=button-secondary>Clear Log</a></h2>
+	<h2>Error Log Location <?php echo $error_log?></h2>
 	<?php if(!empty($error_string)) : ?>
-		<code style='white-space:pre;'class=error_log><?php echo $error_string?></code>
+		<code style='white-space:pre;'class=error_log><?php echo htmlentities($error_string)?></code>
 		<label>Log Size</label> 
 		<?php echo System_Info_Tools::formatBytes(filesize($error_log),2);	?>
 	<?php endif; ?>
-</div>				
-<script>
-function sysinfo_clear_log(){
-	jQuery.ajax({
-		url:ajaxurl,
-		data:{action:'sysinfo_clear_error_log'},
-		success:function(){
-			alert('Cleared');
-		}
-	});
-}
-</script>
+</div>	

@@ -33,7 +33,7 @@
 	<tr>
 		<th>BogoMIPS</th>
 		<td>
-			<?php echo $cpu_details['BogoMIPS']?><br/>
+			<?php echo $cpu_details['BogoMIPS']?>
 			<a target=_blank href=https://www.cpubenchmark.net/common_cpus.html>How do I Compare?</a>
 		</td>
 	</tr>

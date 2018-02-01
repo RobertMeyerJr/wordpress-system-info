@@ -23,19 +23,13 @@ function explode_array_sep($arr, $seperator=":"){
 
 try{		
 	
-	if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'){
-		//Windows
-		#exec("net statistics workstation | find 'Statistics since'", $uptime);
-		#d($uptime);
-	}
-	else{		
-		//Assume Linux, check if can exec
+	if(strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN'){ //Don't do this on windows
 		if( System_Info_Tools::exec_enabled() ){
-			System_Info_Tools::run_command('uptime', 				$uptime);			
-			System_Info_Tools::run_command('lsb_release -a', 		$linux_details); #TODO: Check
-			System_Info_Tools::run_command('cat /proc/meminfo',		$mem_info);
-			System_Info_Tools::run_command('cat /proc/cpuinfo',		$cpu_info); 
-			System_Info_Tools::run_command('lscpu',					$cpu_details); 
+			$uptime 		= System_Info_Tools::run_command('uptime');			
+			$linux_details 	= System_Info_Tools::run_command('lsb_release -a'); 
+			$mem_info 		= System_Info_Tools::run_command('cat /proc/meminfo');
+			$cpu_info 		= System_Info_Tools::run_command('cat /proc/cpuinfo'); 
+			$cpu_details 	= System_Info_Tools::run_command('lscpu'); 
 			
 			$mem_info 			= explode_array_sep($mem_info);
 			$cpu_info 			= explode_array_sep($cpu_info);
@@ -57,7 +51,6 @@ try{
 	$theme = wp_get_theme();
 }catch(Exception $e){
 	echo "<h2>Error Getting System Information</h2>";
-	//$e->getMessage();
 }
 
 ?>		

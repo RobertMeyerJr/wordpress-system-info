@@ -14,7 +14,11 @@ global $wp_scripts,$wp_styles;
 			<?php $s = $wp_scripts->registered[$q]; ?>
 			<tr>
 				<th><?php echo $q?></th>
-				<td><?php echo (empty($s->src)) ? '':$s->src?></td>
+				<td>
+					<?php if(!empty($s->src)) : ?>
+						<a href="<?=$s->src?>"><?=$s->src?></a>
+					<?php endif; ?>
+				</td>
 			</tr>
 		<?php endforeach; ?>
 	</tbody>
@@ -31,7 +35,11 @@ global $wp_scripts,$wp_styles;
 		<?php $s = $wp_styles->registered[$q]; ?>
 		<tr>
 			<th><?php echo $q?></th>
-			<td><?php echo (empty($s->src)) ? '':$s->src?></td>
+			<td>
+				<?php if(!empty($s->src)) : ?>
+					<a href="<?=$s->src?>"><?=$s->src?></a>
+				<?php endif; ?>
+			</td>
 		</tr>
 	<?php endforeach; ?>
 	</tbody>

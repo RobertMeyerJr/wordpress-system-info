@@ -15,44 +15,6 @@ class System_Info_SQL{
 		$sql = $wpdb->prepare("SHOW VARIABLES Like %s","%{$o}%");
 		return $wpdb->get_var($sql,1);
 	}
-
-	public static function slow_queries(){
-		global $wpdb;
-		return $wpdb->get_results('SELECT db,user_host,
-											avg(query_time) query_time,
-											avg(rows_sent) rows_sent,
-											avg(rows_examined) rows_examined,
-											count(1) as times_called,
-											sql_text
-									FROM mysql.slow_log 
-									WHERE db = :db
-									GROUP BY sql_text
-									ORDER BY query_time DESC,times_called DESC
-									LIMIT 200;', array('db'=>$db->database_name));
-	}
-	public static function check_query_log(){
-		global $wpdb;
-		$sql = "SELECT @@log_output as log_output,
-				@@slow_query_log as slow_query_log,
-				@@LOG_QUERIES_NOT_USING_INDEXES as log_not_using_indexes";
-		return $wpdb->get_row($sql);
-	}
-	public static function enable_slow_query_log_table(){
-		global $wpdb;
-		$sql = "SET GLOBAL log_output = 'TABLE';
-				SET GLOBAL slow_query_log = 'ON'; 
-				SET GLOBAL LOG_QUERIES_NOT_USING_INDEXES = 'ON';
-				";
-		$wpdb->get_results($sql);
-	}
-	public static function disable_slow_query_log_table(){	
-		global $wpdb;
-		$sql = "SET GLOBAL log_output = 'FILE';
-				SET GLOBAL slow_query_log = 'OFF'; 
-				SET GLOBAL LOG_QUERIES_NOT_USING_INDEXES = 'OFF';
-				";	
-		$wpdb->get_results($sql);
-	}
 	
 	public static function get_tables(){
 		global $wpdb;

@@ -15,24 +15,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 
 ?>
 
-<br/><h2><i class='fa fa-tachometer cBlue'></i> Speed</h2>
-<table class='widefat striped'>
-	<tr><th>OpCode Cache</th><td>
-		<?php if( extension_loaded( 'xcache' ) ) : ?>XCache
-		<?php elseif( extension_loaded( 'apc' ) ) : ?>APC
-		<?php elseif( extension_loaded( 'eaccelerator' ) ) : ?>EAccelerator
-		<?php elseif( extension_loaded( 'Zend Optimizer+' ) ) : ?>Zend Optimizer+
-		<?php elseif( extension_loaded( 'wincache' ) ) : ?>WinCache
-		<?php else: ?>None
-		<?php endif; ?>
-	</td></tr>
-	<tr><th>Memory Limit</th></tr>	
-	<tr><th>APC Cache Limit</th></tr>		
-	<tr><th>MySQL Cache</th></tr>	
-	<tr><th>Query Cache</th><td><?php echo $have_query_cache ?></td></tr>
-	<tr><th>Cache Size</th><td><?php echo number_format($query_cache_size)?></td></tr>
-	
-</table>
+
 <BR/><h2><i class='cPurple fa fa-info'></i> Server Info</h2>
 <table class='wp-list-table widefat fixed server_info striped'>
 	<tr><th colspan=2 class=hdr>Software
@@ -69,10 +52,14 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 		else 
 			echo System_Info_Tools::formatBytes($query_cache->Value);
 	?></td></tr>
+	<?php 
+	/*
 	<?php $slow_queries = System_Info_SQL::check_query_log(); ?>
 	<tr><th>Slow Query Output</th><td><?php echo $slow_queries->log_output?></td></tr>
 	<tr><th>Slow Query Location</th><td><?php echo $slow_queries->slow_query_log?></td></tr>
 	<tr><th>Slow Query Not Using Indexes</th><td><?php echo $slow_queries->log_not_using_indexes?></td></tr>
+	*/
+	?>
 	<tr><th>Database<td><?php echo DB_NAME?>
 	<tr><th>User<td><?php echo DB_USER?>
 	<tr><th>Host<td><?php echo DB_HOST?>				
@@ -93,7 +80,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 	<?php endif; ?>			
 </table>
 
-<?php if(!empty($_wp_additional_image_sizes)) : ?>
+
 <h2><i class="fa fa-2x fa-photo"></i> Image Sizes</h2>
 <table class='widefat striped'>
 	<thead>
@@ -103,37 +90,37 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 			<th>Size</th>
 	</thead>
 	<tbody>
-	<?php 
-	
-	$built_in_sizes = ['thumbnail','medium','large'];
-	$built_in = [];
-	foreach($built_in_sizes as $t){
-		$built_in[$t] = [
-			'width'		=> get_option( $t.'_size_w' ),
-			'height'	=> get_option( $t.'_size_h' ),
-			'crop'		=> false
-		];
-	}
-	
-	$all_sizes = $built_in + $_wp_additional_image_sizes;
-	
-	?>
-	<?php foreach($all_sizes as $name=>$i) : ?>		
-		<tr>
-			<td><span style="font-size:2.5em"><?php echo $name?></span></td>
-			<td><?php echo ($i['crop'])?'Yes':'No'?></td>
-			<td style="text-center">
-				<span class="thumb_example" style="width:<?php echo $i['width']?>px;height:<?php echo $i['height']?>px">
-				<?php echo $i['width']?>
-				x
-				<?php echo $i['height']?>
-				</span>
-			</td>
-		</tr>
-	<?php endforeach; ?>
+		
+			<?php 
+			$built_in = [];
+			$built_in_sizes = ['thumbnail','medium','large'];
+			foreach($built_in_sizes as $t){
+				$built_in[$t] = [
+					'width'		=> get_option( $t.'_size_w' ),
+					'height'	=> get_option( $t.'_size_h' ),
+					'crop'		=> false
+				];
+			}
+			
+			$all_sizes = array_merge($built_in,$_wp_additional_image_sizes);
+			
+			?>
+			<?php foreach($all_sizes as $name=>$i) : ?>		
+				<tr>
+					<td><span style="font-size:2.5em"><?php echo $name?></span></td>
+					<td><?php echo ($i['crop'])?'Yes':'No'?></td>
+					<td style="text-center">
+						<span class="thumb_example" style="width:<?php echo $i['width']?>px;height:<?php echo $i['height']?>px">
+						<?php echo $i['width']?>
+						x
+						<?php echo $i['height']?>
+						</span>
+					</td>
+				</tr>
+			<?php endforeach; ?>
 	</tbody>
 </table>
-<?php endif; ?>
+
 
 <BR/><h2><i class="fa fa-2x fa-cogs"></i> PHP Settings</h2>
 <table class='widefat striped'>
@@ -194,38 +181,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 		</tr>
 </table>		
 
-<h2><i class='fa fa-tachometer cBlue'></i> Other Folders in WebRoot <?php echo $web_root?></h2>
-<div class=postbox>
-	<div class=inside>	
-	<table class='striped'>
-		<thead><tr><th>Name</th><th>Size</th></tr></thead>
-		<tbody>
-		<?php foreach($directories as $d) : ?>
-			<tr>
-				<td><?php echo str_replace($web_root.'/','',$d)?></td>
-				<td>
-				<?php 
-					//Get Folder Size
-					if( !System_Info_Tools::is_windows() ){
-						$size = '';
-						System_Info_Tools::run_command("du -sh {$d}", $size);
-						if( !empty($size) ){
-							$parts = preg_split('/\s+/', $size[0]);
-							echo $parts[0];
-						}
-					}
-					else{
-						echo '-';
-					}
-				?>
-				</td>
-			</tr>
-		<?php endforeach ?>
-		</tbody>
-	</table>		
-	</div>
-</div>
-
+<BR/><h2><i class="fa fa-2x fa-cogs"></i> PHP Info</h2>
 <div class=postbox>
 	<div class='inside phpinfo'>
 		<?php echo $php_info ?>

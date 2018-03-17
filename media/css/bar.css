@@ -1,5 +1,7 @@
-/*Debug Bar*/
-body{margin-bottom:50px;}
+/*Margin for Debug Bar*/
+body{
+	margin-bottom:50px;
+}
 
 #dbg_bar .cBlue{color:#3498db !important;}
 #dbg_bar .cRed{color:#c0392b !important;}
@@ -35,9 +37,7 @@ body{margin-bottom:50px;}
 }
 
 
-
-
-.pre{whitespace:pre;}
+#dbg_bar .pre{whitespace:pre;}
 
 #dbg_bar [class*=fa-]{	
 	display: inline-block;
@@ -138,7 +138,12 @@ body{margin-bottom:50px;}
 }
 
 #dbg_bar .dbg_body{background:white;height:	200px;width:100%;overflow-y:scroll;}
-#dbg_bar .dbg_body .panel{display: none;padding:0;width:100%;min-height:100%;}
+#dbg_bar .dbg_body .panel{
+	display: none;
+	padding:0 10px;
+	width:100%;
+	min-height:100%;	
+}
 #dbg_bar .dbg_body .panel.active{display:block;}
 #dbg_bar .panel > table{width:100%;}
 #dbg_bar .panel > table tr{width:100%;}
@@ -220,22 +225,6 @@ body{margin-bottom:50px;}
 	position:relative;	
 }
 
-#dbg_bar .tabs li.right .bdg::before{
-	/*
-	border:10px 10px 10px 0;
-	width:8px;
-	height:8px;
-	background-color:transparent;
-	content:'';
-	display:inline-block;
-	position:absolute;
-	left:-3px;
-	top:0;
-	border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-right: 10px solid #3498db;
-	*/
-}
 
 
 #dbg_bar .bgBlue{background-color:#3498db !important;}
@@ -265,7 +254,6 @@ body{margin-bottom:50px;}
 	position:absolute;
 	top:0;
 	right:0;
-	width:100px;
 	font-size: 12px;
     padding: 2px 4px;
     color: #888;

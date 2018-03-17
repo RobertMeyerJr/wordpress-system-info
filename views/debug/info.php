@@ -56,8 +56,7 @@ if(!empty($p->post_type) ){
 </table>
 
 <h3>Server Variables</h3>	
-<?php	dbg_table_out($_SERVER); 	?>
-
-<?php if(!empty($_COOKIE)) 	: ?><h3>Cookies</h3>		<?php	dbg_table_out($_COOKIE); 	?><?php endif; ?>
-<?php if(!empty($_SESSION)) : ?><h3>Session</h3>	<?php	dbg_table_out($_SESSION);	?><?php endif; ?>
-<?php if(!empty($_REQUEST)) : ?><h3>Request</h3>	<?php	dbg_table_out($_REQUEST);	?><?php endif; ?>
+<?php	System_Info_Tools::dbg_table_out($_SERVER); 	?>
+<?php if(!empty($_COOKIE)) 	: ?><h3>Cookies</h3>		<?php	System_Info_Tools::dbg_table_out($_COOKIE); 	?><?php endif; ?>
+<?php if(!empty($_SESSION)) : ?><h3>Session</h3>	<?php	System_Info_Tools::dbg_table_out($_SESSION);	?><?php endif; ?>
+<?php if(!empty($_REQUEST)) : ?><h3>Request</h3>	<?php	System_Info_Tools::dbg_table_out($_REQUEST);	?><?php endif; ?>

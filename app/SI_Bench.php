@@ -4,6 +4,8 @@ defined('ABSPATH') or die("Nope!");
 System_Info_Bench::run();
 System_Info_Bench::benchmarking();
 
+
+
 class System_Info_Bench{
 	public static $cpu_info;
 	public static $load_time 			= array();
@@ -101,7 +103,7 @@ class System_Info_Bench{
 	public static function record_core_mem_usage(){ self::$_CORE_MEM_USAGE = memory_get_peak_usage(); }
 	
 	//--------------------Benchmarking 
-	public function benchmarking(){	
+	public function filter_benchmarking(){	
 		//We add our benchmark to all filters, as the first and last action
 		add_action('all', array($this,'benchmark_filter_start'), 0); 
 		add_action('all', array($this,'benchmark_filter_end'), PHP_INT_MAX);

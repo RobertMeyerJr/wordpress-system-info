@@ -5,7 +5,14 @@ class Console{
 	protected static $timers = [];
 
 	public static function stopwatch($name){
-
+		if( !empty(self::$timers[$name]) ){
+			$total_time = microtime(true) - self::$timers[$name];
+			self::timerLog("{$name} took ".number_format($total_time,4).'s');
+			unset( self::$timers[$name] );
+		}
+		else{
+			self::$timers[$name] = microtime(true);
+		}
 	}
 
 	public static function findArgName($trace){
@@ -18,7 +25,7 @@ class Console{
 			$lines = file($file);//file in to an array
 			$line = $lines[ $t['line']-1 ];
 			preg_match($regex, $line, $matches);
-			if($matches[1][0] == "'"){
+			if(empty($matches[1]) || $matches[1][0] == "'"){
 				return '';
 			}
 			else{
@@ -32,10 +39,10 @@ class Console{
 		$bt = debug_backtrace();
 		
 		if( empty($where) ){
-			$where = $bt[1] ?? [];
+			$where = empty($bt[1]) ? [] : $bt[1];
 		}
 		else{			
-			$where = $bt[2] ?? [];
+			$where = empty($bt[2]) ? [] : $bt[2];
 		}
 
 		self::$log[] = [
@@ -46,7 +53,7 @@ class Console{
 			'msg'	=> $msg
 		];
 	}
-	
+	protected static function timerLog($msg){ self::log($msg, 'time'); }
 	public static function debug($msg){ self::log($msg,'debug'); }
 	public static function info($msg){ self::log($msg,'info'); }
 	public static function error($msg){ self::log($msg,'error'); }
@@ -54,6 +61,10 @@ class Console{
 	public static function warning($msg){ self::log($msg,'warning'); }
 	public static function success($msg){ self::log($msg,'success'); }
 	
+	public static function countLog(){
+		return count(self::$log);
+	}
+
 	public static function getLog(){
 		return self::$log;
 	}

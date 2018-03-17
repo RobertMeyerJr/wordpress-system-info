@@ -10,17 +10,23 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 	<thead>
 	<tr>
 		<th>Name</th>
-		<th>Value</th>
 		<th>Autoload</th>
+		<th>Size</th>
+		<th>Value</th>		
 	</thead>
 	<tbody>
 	<?php foreach($options as $o) : ?>
 		<tr>
+			<?php 
+				$v = $o->option_value;
+				$size = size_format( strlen($o->option_value) );					
+				$v = maybe_unserialize($v);			
+			?>
 			<th><?php echo $o->option_name; ?></th>
+			<td><?php echo $o->autoload?></td>
+			<td><?php echo $size?></td>
 			<td>
 				<?php 
-					$v = $o->option_value;					
-					$v = maybe_unserialize($v);
 					if( is_array($v) ){
 						?>
 							<div class=td-expand>
@@ -47,7 +53,7 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 					}
 				?>
 			</td>
-			<td><?php echo $o->autoload?></td>
+			
 		</tr>
 	<?php endforeach; ?>
 	</tbody>

@@ -4,10 +4,8 @@
 		<ul class=sysbench_tab_menu>
 			<li><a href=#sysbench_graphs>Graphs</a></li>
 			<li><a href=#frontend>Frontend</a></li>
-			<li><a href=#sysbench_queries>Queries</a></li>
 			<li><a href=#sysbench_files>Files</a></li>
 			<li><a href=#sysbench_hooks>Hooks</a></li>
-			<li><a href=#cache>Cache</a></li>			
 		</ul>						
 			<div id=sysbench_graphs>
 				<div id=load_bar_area></div>
@@ -28,7 +26,7 @@
 					<tr>
 						<th>Load Time<td><?php echo round($total_time,2)?> seconds
 						<th>Query Time<td><?php echo number_format($wpdb_query_time,4)?> seconds
-						<th>CPU<td><?php echo (!System_Info_Tools::is_windows()) ? self::getCpuUsage():'(Unable to retrieve in windows)'; ?>
+						<th>CPU<td>
 				<tr>
 				<?php 
 					$qo = get_queried_object();
@@ -79,32 +77,7 @@
 					<div id=si_images><table style='width:90%'></table></div>
 				</div>
 			</div>
-			<div id=sysbench_queries>
-				<h2><?php echo get_num_queries()?> SQL Queries took <?php echo number_format($wpdb_query_time,4)?> seconds</h2>
-				<table class='datatable query_display'>
-					<thead><tr><th>Time<th>Query<th>Backtrace<th>&nbsp;</thead>
-					<tbody>
-					<?php foreach($wpdb->queries as $q) : ?>								
-					<?php list($query, $elapsed, $debug) = $q; ?>
-						<tr>
-							<td style='width:10%'><?php echo number_format($elapsed, 4)?></td>
-							<td style='width:50%' class=query><?php echo $query?></td>
-							<td style='width:30%' class=backtrace><?php 
-								$qi = explode(',',$debug);
-								echo implode('<br/>',$qi);
-							?>
-							<td style='width:10%'><button class=button-secondary onClick="sysinfo_explain(this);">Explain</button></td>
-						</tr>
-					<?php endforeach; ?>
-					</tbody>
-					<tfoot>
-						<tr>
-							<th style="text-align:right" colspan=3>Total:</th>
-							<th></th>
-						</tr>
-					</tfoot>
-				</table>
-			</div>
+			
 			<div id=sysbench_files>
 				<?php 
 					$wp_content_dir = str_replace('\\','/',WP_CONTENT_DIR.'/'); 
@@ -160,33 +133,7 @@
 			<?php endforeach; ?>
 			</table>
 		</div>
-		<div id=cache>
-			<?php 
-				if( !empty($wp_object_cache) && method_exists($wp_object_cache,'stats') )
-					$wp_object_cache->stats();
-			?>
-			<?php if( extension_loaded( 'wincache' ) ) : ?>
-				Wincache
-				<?php 
-					s( wincache_ucache_meminfo() );
-					s( wincache_ucache_info() );
-					s( wincache_scache_info() );
-					s( wincache_ocache_fileinfo() );
-					s( wincache_ocache_meminfo() );
-					s( wincache_fcache_fileinfo() );
-					s( wincache_fcache_meminfo() );
-				?>
-			<?php elseif( extension_loaded( 'apc' ) ) : ?>
-				APC
-				<?php 
-					s( apc_cache_info('user') );
-					s( apc_cache_info('filehits') );
-					s( apc_cache_info() );
-				?>
-			<?php else: ?>
-				No Cache found (Currently only Wincache and APC are supported)
-			<?php endif; ?>
-		</div>
+		
 	</div>
 <div class=clear></div>
 <script>

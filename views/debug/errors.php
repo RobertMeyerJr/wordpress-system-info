@@ -1,5 +1,8 @@
 <?php 
 global $SI_Errors;
+/*
+TODO: Group Repeated Errors
+*/
 ?>
 <table class=widefat>
 	<thead>
@@ -11,7 +14,7 @@ global $SI_Errors;
 		</tr>
 	</thead>
 	<tbody>
-		<?php foreach($SI_Errors as $e) : list($errno,$errstr,$file,$line,$context,$trace) = $e; ?>
+		<?php foreach($SI_Errors as $e) : list($errno,$errstr,$file,$errLine,$context,$trace) = $e; ?>
 			<tr>
 				<td>
 					<?php
@@ -30,13 +33,15 @@ global $SI_Errors;
 				<td class=code>
 					<?php 
 						$lines 	= file($file);	
-						$start 	= ($line-3 > 0) ? $line-3 : 0;
-						$end 	= $line+3;
-						echo "<ul class=\"pre code\" start={$line}>";
-						for($i=$start;$i<=$line+1;$i++){
+						$start 	= ($errLine-4 > 0) ? $errLine-4 : 0;
+						$end 	= $errLine+4;
+						echo "<ul class=\"pre code\" start={$errLine}>";
+						for($i=$start; $i<=$end; $i++){
+							$currentLineNum = $i+1;
 							if($start>0 && isset($lines[$i]) ){
-								$lineClass = ($i == $line) ? 'error':'';
-								echo "<li class='{$lineClass}'><span class='lineNum'>{$i}: </span>{$lines[$i]}</li>";
+								$lineClass = ($currentLineNum == $errLine) ? 'error':'';
+								$line = htmlentities($lines[$i]);
+								echo "<li class='{$lineClass}'><span class='lineNum'>{$currentLineNum}: </span>{$line}</li>";
 							}
 						}
 						echo "<ul>";

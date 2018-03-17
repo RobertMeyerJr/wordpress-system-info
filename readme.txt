@@ -10,11 +10,13 @@ Features:
 * Debug Bar
 * System Details
 * Database Details
-* Running Processes
-* Running Services
 
 **Requires** Wordpress 4.0+ and PHP 5.4+
 
 == Frequently Asked Questions ==
 
 == Screenshots ==
+
+== TODO ==
+CPU Radial: 1,10,15
+https://codepen.io/Slicepotato/pen/ddbOaO

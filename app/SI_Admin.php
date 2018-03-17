@@ -138,7 +138,7 @@ class System_Info_Admin{
 	
 	public static function admin_scripts($suffix){
 		$folder = plugins_url( '../media/');
-		wp_enqueue_style( 'debug-bar', plugins_url( '../media/css/admin.css',__FILE__));
+		wp_enqueue_style( 'debug-bar-admin', plugins_url( '../media/css/admin.css',__FILE__));
 		
 		if($suffix != 'toplevel_page_sys_info'){
 			return;		

@@ -17,6 +17,9 @@ TODO:
 <tr><th>Table Prefix</th><td><?php echo $wpdb->prefix?></td></tr>
 <tr><th>WP Cache<td><?=(defined('WP_CACHE') && WP_CACHE == 1) ? '<span class="dashicons dashicons-yes cGreen"></span>':'<span class="dashicons dashicons-no cRed"></span>' ?></td></tr>	
 <tr><th>DB Size</th><td><?php echo "{$db_used}, {$db_free} Free" ?></td></tr>
+<tr><th>Autoload Size</th><td>
+<?=size_format($wpdb->get_var("SELECT SUM(LENGTH(option_value)) as autoload_size FROM {$wpdb->prefix}options WHERE autoload='yes'")) ?>
+</td></tr>
 <tr><th>Theme</th><td><?php echo $theme->Name?><br/><?php echo $theme->theme_root?></td></tr>
 <tr><th>Admin Email</th><td><?=get_option('admin_email','')?></td></tr>
 <tr><th>Blog Name</th><td><?=get_option('blogname')?></td></tr>

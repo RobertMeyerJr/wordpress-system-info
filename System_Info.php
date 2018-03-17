@@ -2,23 +2,35 @@
 /*
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
-Description: Provides insights into wordpress and the server environment it is running on.
+Description: Provides debugging features and insights into wordpress and the server environment it is running on.
 Version: 1.0a
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 
 */	
 define('SI_START_TIME', microtime(true));
+
 require_once('app/Console.php');
 
+if( isset($_GET['bench']) ){
+	#require_once('app/SI_Bench.php');
+}
+
 $total_details = System_Info::getInstance();
+
+/*
+Console::stopwatch('Load to Shutdown');
+add_action('shutdown',function(){
+	Console::stopwatch('Load to Shutdown');
+});
+self::testLogging();
+*/	
 
 class System_Info{	
 	protected static $instance;
 	protected static $action_times;
 	protected static $action_start_end;
 	protected static $remote_get_urls = [];
-	
 	
 	public static function testLogging(){
 			$arr1 = ['test'=>'test','test2'=>'test','test3'=>'test'];
@@ -40,7 +52,6 @@ class System_Info{
 	}
 
 	public static function getInstance(){	
-		
 		/*Make sure running PHP 5.4+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '5.4') < 0 ){
 			 add_action('admin_notices', array($this,'wont_load'));
@@ -48,11 +59,6 @@ class System_Info{
 		}
 		
 		if(self::$instance == null){
-			if( isset( $_GET['debug'] ) ){
-				//TODO: Check if logged in and admin before adding error handler
-				include('app/ErrorHandler.php');			
-				SI_ErrorHandler::enable_error_handling();
-			}
 			self::$instance = new self;
 		}
 		
@@ -61,10 +67,15 @@ class System_Info{
 	}
 	
 	public function __construct(){
-		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
-		add_action('init', 				array($this,'init'));			
-		
+
 		if( isset( $_GET['debug'] ) ){
+			/*
+				Should add another check here, but we can't check	
+				is_user_logged_in yet as we want the 
+				benchmarking and error handler to start as early as possible
+			*/
+			include('app/ErrorHandler.php');			
+			SI_ErrorHandler::enable_error_handling();
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
 			}
@@ -76,20 +87,18 @@ class System_Info{
 			$GLOBALS['dbg_filter_times'] 	= array();			
 			$GLOBALS['dbg_filter_start']	= array();
 			$GLOBALS['dbg_filter_stop']		= array();			
-			/*
-				Should add another check here, but we can't check	
-				is_user_logged_in yet as we want the 
-				benchmarking to start as early as possible
-			*/
+			
 			$this->benchmarking();
 		}
+
+		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
+		add_action('init', 				array($this,'init'));			
 	}
 	
 	public function wont_load(){
 		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
 		echo "<div class='error below-h2'><p>{$msg}</p></div>";
 	}	
-	
 	
 
 	public function benchmarking(){
@@ -104,6 +113,8 @@ class System_Info{
 			'pre_get_posts',
 			'wp',
 			'template_redirect',
+			'wp_register_sidebar_widget',
+			'wp_loaded',
 			'get_header',
 			'wp_head',
 			'wp_enqueue_scripts',
@@ -113,19 +124,33 @@ class System_Info{
 			'the_post',
 			'loop_end',
 			'wp_footer',
+			'admin_footer',
+			'admin_notices',
+			'restrict_manage_posts',
+			'admin_head',
+			'adminmenu',
+			'all_admin_notices',
+			'admin_bar_menu',
 			'wp_before_admin_bar_render',
 			'wp_after_admin_bar_render',
 			'shutdown'
 		);
+		/*
 		foreach($actions as $a){
-			add_action($a, array($this, 'early_action'), 1);
-			add_action($a, array($this, 'late_action'), PHP_INT_MAX);			
+			#add_action($a, array($this, 'early_action'), 1);
+			#add_action($a, array($this, 'late_action'), PHP_INT_MAX);			
 		}
+		*/
+		add_action('all', array($this, 'early_action'), -100);
+		add_action('all', array($this, 'late_action'), PHP_INT_MAX);			
 	}
 	
 	public function early_action(){
 		$filter = current_filter();
-		self::$action_start_end[$filter]['start'] = microtime(true);
+		#Only set the start if it isnt set
+		if( empty( self::$action_start_end[$filter]['start'] ) ){
+			self::$action_start_end[$filter]['start'] = microtime(true);
+		}
 	}
 	public function late_action(){
 		$filter = current_filter();
@@ -133,10 +158,8 @@ class System_Info{
 	}	
 	
 	public function init(){			
-		#$user = wp_get_current_user();
 		if( current_user_can('manage_options') ){			
 			add_action('admin_bar_menu', 						array($this,'admin_menu'),9000);		
-			add_action('wp_ajax_total_details_query_explain', 	array($this,'explain'));					
 			add_action('wp_dashboard_setup', function(){			
 				wp_add_dashboard_widget('debugbar_dashboard', '<i class="dashicons dashicons-dashboard"></i> Total Details', array($this,'dashboard_widget'));
 			});			
@@ -145,7 +168,7 @@ class System_Info{
 				$this->debug_start();
 			}		
 			$this->admin();
-		}
+		}				
 	}	
 	
 	//Dashboard Widget All Logic is in the php file	
@@ -188,10 +211,14 @@ class System_Info{
 		register_shutdown_function(function(){
 			//Check if there was a fatal error, iff so output debugbar script/style manually
 			restore_error_handler(); 
-			include(__DIR__.'/views/debug/bar.php');
-		}); 
-		
+			$this->renderDebugBar();
+		}); 		
 	}
+
+	public function renderDebugBar(){
+		include(__DIR__.'/views/debug/bar.php');
+	}
+
 	
 	public static function hook_http_api_curl($handle, $r, $url){
 		self::$remote_get_urls[] = $url;
@@ -227,7 +254,7 @@ class System_Info{
 		
 		require_once('app/SI_Admin.php');
 		require_once('app/SI_SQL.php');
-		require_once('app/SI_Tools.php');		
+		require_once('app/SI_Tools.php');
 	}
 
 	
@@ -237,10 +264,12 @@ class System_Info{
 
 
 //Global functions used by debugbar
+/*
 function print_filters_count($hook){
 	global $wp_filter;
 	return count($wp_filter[$hook]);
 }
+
 function print_filters_for( $hook = null ) {
     global $wp_filter;
     if( !empty($hook) && !isset( $wp_filter[$hook] ) )
@@ -252,47 +281,6 @@ function print_filters_for( $hook = null ) {
 			print_r( $wp_filter[$hook] );
     print '</pre>';
 }
-function hilight_trace_part($str){
-	//require_once
-	//require
-	//->
-	//::
-	//()
-	return $str;
-}
-function dbg_style_out($v){
-	if(is_array($v) || is_object($v)){	
-		$str = var_export($v, true);
-		$str = htmlentities($str);
-		return "<pre>{$str}</pre>";		
-	}
-	elseif( is_numeric($v) ){		
-		return "<span class=int>{$v}</span>";
-	}
-	else{
-		htmlentities( $v ); 
-		return "<span class=str>{$v}</span>";
-	}
-}
-function dbg_table_out($arr){
-	try{
-		if( empty($arr) ){
-			return;
-		}
-		echo "<table class=dbg_out>";
-			echo "<thead><tr><th>Key</th><th>Value</th></tr></thead>";
-			echo "<tbody>";
-			$skip = array('_COOKIE','_FILES','_ENV','GLOBALS','_SERVER','_REQUEST','_GET','_POST','wp_filter');
-			foreach($arr as $k=>$v){
-				if( in_array($k,$skip) )
-					continue;
-				$value = $v;
-				echo "<tr><th>{$k}</th><td>".dbg_style_out($value)."</td></tr>";
-			}
-			echo "</tbody>";
-		echo "</table>";
-	}catch(Any $e){
-		echo "dbg_table_out Error";
-	}
-}
+*/
+
 

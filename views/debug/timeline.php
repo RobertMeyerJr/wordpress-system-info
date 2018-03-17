@@ -10,7 +10,10 @@ $query_time = number_format($total_query_time,4);
 $action_times = System_Info::getActionTimes();
 
 $times = System_Info::getActionStartEnd();
-
+#Sort by Start
+uasort($times,function($a, $b){
+	return $b['start'] < $a['start'];
+});
 ?>
 
 <h2>Browser Measurements</h2>

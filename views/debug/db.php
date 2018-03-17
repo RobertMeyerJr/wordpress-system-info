@@ -29,7 +29,7 @@
 						<?php 
 							$trace_parts = explode(',',$trace);
 							foreach($trace_parts as $p){
-								echo "<li>".hilight_trace_part($p)."</li>";
+								echo "<li>".System_Info_Tools::hilight_trace_part($p)."</li>";
 							}
 						?>
 						</ol>

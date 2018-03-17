@@ -5,6 +5,10 @@ jQuery(window).load(dbg_performance);
 
 jQuery(function($){	
 	
+	jQuery(function($){
+		$('.value-info').click(function(){ $(this).toggleClass('expanded') });
+	});
+
 	$('#close_dbg').click(function(){
 		$('#dbg_bar').hide();
 	});

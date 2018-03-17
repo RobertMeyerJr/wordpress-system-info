@@ -1,5 +1,16 @@
 <?php 
 
+if( !empty($_POST['reset_op_cache']) ){
+	if( function_exists('opcache_reset') ){
+		if( wp_verify_nonce( $_POST['_wpnonce'], 'reset_op_cache') ){
+			opcache_reset();
+		}
+		else{
+			echo "<h1>Error: Invalid Nonce</h1>";
+		}
+	}
+}
+
 $config = opcache_get_configuration();
 
 $status = opcache_get_status();
@@ -56,6 +67,7 @@ $string_stats = $status['interned_strings_usage'];
 .card{	
 	position;relative;
 	color:white;
+	min-width:unset;
 }
 .card .topleft{
 	transform:rotate(-45deg);
@@ -171,8 +183,8 @@ div.donut.purple{
    display: flex;
    -webkit-flex-direction: row;
    flex-direction: row;
-   -webkit-flex-wrap: wrap; /* Safari 6.1+ */
-   flex-wrap: wrap;
+   -webkit-flex-wrap: nowrap; /* Safari 6.1+ */
+   flex-wrap: nowrap;   
 }
 .flex-row > *{
 	margin-top:10px;
@@ -187,9 +199,40 @@ div.donut.purple{
 
 tr.files{display:none;}
 
+.wp-core-ui .button-danger{	
+	border-color:#ff0000;
+	box-shadow:none;
+	background:#ff0000;
+	text-shadow:none;
+}
+.wp-core-ui .button-danger:hover{
+	background:#d00000;
+}
 </style>
-
+<form method=POST>
+	<input type=hidden name=reset_op_cache value=1>
+	<?php wp_nonce_field( 'reset_op_cache' ); ?>
+	<button class="button-danger button-primary" type=submit>Clear OpCache</button>
+</form>
 <div class=flex-row>
+<div class=cache-stats>
+			<div class="donut green" style="animation-delay: -<?=$mem_usage_percentage?>s">
+				<span>
+					<?=number_format($mem_usage_percentage)?>%
+					<br/>
+					<span class=cGreen>Mem Usage</span>
+				</span>		
+			</div>
+		</div>
+	<div class=cache-stats>
+		<div class=donut style="animation-delay: -<?=$hit_rate_perc?>s">
+			<span>
+				<?=number_format($hit_rate,2)?>%
+				<br/>
+				<span class=cBlue>Hit Rate</span>
+			</span>
+		</div>
+	</div>
 	<div class="card bgBlue">
 		<h2>Memory Stats</h2>
 		<span class=topleft><i class="fa fa-microchip"></i></span>
@@ -223,24 +266,7 @@ tr.files{display:none;}
 			<li><label>file_cache 				</label><span><?=$cfg['opcache.file_cache']?></span></li>
 		</ul>
 	</div>
-	<div class=cache-stats>
-			<div class="donut green" style="animation-delay: -<?=$mem_usage_percentage?>s">
-				<span>
-					<?=number_format($mem_usage_percentage)?>%
-					<br/>
-					<span class=cGreen>Mem Usage</span>
-				</span>		
-			</div>
-		</div>
-	<div class=stats>
-		<div class=donut style="animation-delay: -<?=$hit_rate_perc?>s">
-			<span>
-				<?=number_format($hit_rate,2)?>%
-				<br/>
-				<span class=cBlue>Hit Rate</span>
-			</span>
-		</div>
-	</div>
+	
 </div>
 <?php $folder_id = 0; ?>
 <h2>

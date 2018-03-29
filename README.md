@@ -1,7 +1,6 @@
 VERSION: 1.00001a
 
 TODO:
-use SystemInfo\Log as Log;
 
 Log::error()
 Log::info()
@@ -20,7 +19,7 @@ UNION
 
 Admin:
 Add list of ajax hooks
-
+Add list json routes
 
 Goals
 	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
@@ -28,6 +27,7 @@ Goals
 	Insight:		Provide transparency into the how Wordpress functions for developers
 
 ------------------------------------------------------------------------------	
+https://wordpress.org/plugins/disabler/
 
 OverWhelming Pages:	
 	Developer Only	
@@ -49,8 +49,6 @@ Settings
 		admin username exists
 		
 [Comment Management]
-
-Comments:
 		Delete all by IP
 		Delete by URL Contents
 		Delete by Comment Contents
@@ -67,33 +65,19 @@ Comments:
 		Top
 
 
-Show Recently Modified Files
-	
-
 [TO DO]
-Filter List/Search
 
 Catch Fatal Errors, Display Like Simplified Whoops
-For errors, open the file, show 5 before, 5 after hilight error line
-??	show callstack 2 before
-Issue with Services on Linux
 
 -----------------------------------------------
 On Comment:	
 	Deny comments without a referrer
-Beacon:
-	Plugin Updates
-	Wordpress Updates	
 	
 -----Inspiration
 https://github.com/eworksmedia/php-server-status-dashboard
 https://github.com/afaqurk/linux-dash		
 
 [Security]
-
-https://wordpress.org/plugins/debug-bar-constants/screenshots/
-https://wordpress.org/plugins/debug-bar-shortcodes/
-
 
 Check for :		apc,gd,imagick,memcache
 		

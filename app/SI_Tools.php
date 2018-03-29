@@ -14,7 +14,7 @@ class System_Info_Tools{
 		if(is_array($v) || is_object($v)){	
 			$str = var_export($v, true);
 			$str = htmlentities($str);
-			return "<pre>{$str}</pre>";		
+			return "<span class=value-info>{$str}</span>";		
 		}
 		elseif( is_numeric($v) ){		
 			return "<span class=int>{$v}</span>";

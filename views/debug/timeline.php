@@ -7,14 +7,21 @@ $total_time = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4)
 
 $query_time = number_format($total_query_time,4);
 
-$action_times = System_Info::getActionTimes();
 
-$times = System_Info::getActionStartEnd();
-#Sort by Start
-uasort($times,function($a, $b){
-	return $b['start'] < $a['start'];
-});
+
 ?>
+
+<?php if(!empty(System_Info::$remote_get_urls)) : ?>	
+	<h3>Remote URL Requests</h3>
+	<table>
+		<?php foreach(System_Info::$remote_get_urls as $request) : ?>
+			<?php list($start, $end, $url) = $request; ?>
+			<tr>
+				<td><?=$url?>	
+				<td><?=number_format($end-$start,4)?> seconds
+		<?php endforeach; ?>
+	</table>
+<?php endif; ?>
 
 <h2>Browser Measurements</h2>
 <table>
@@ -46,21 +53,18 @@ uasort($times,function($a, $b){
 			<th>Duration
 	</thead>
 	<tbody>
-<?php foreach($times as $action=>$t) : ?>
-		<tr>
-			<th><?php echo $action?>
-			<td><?php echo number_format(	$t['start'] - $_SERVER['REQUEST_TIME_FLOAT'], 4); ?>
-			<td><?php echo number_format(	$t['end'] - $_SERVER['REQUEST_TIME_FLOAT'], 4);?>
-			<td><?php echo number_format( ($t['end'] - $t['start']), 4); ?>
-	<?php endforeach; ?>
+		<?php foreach(System_Info::$action_start as $a) : ?>
+			<?php 
+				list($filter, $start) = $a;
+				$end = array_shift( System_Info::$action_end[$filter] );
+			?>
+			<tr>
+				<th><?=$filter?></th>
+				<td><?php echo number_format( $start - $_SERVER['REQUEST_TIME_FLOAT'], 4); ?>
+				<td><?php echo number_format( $end - $_SERVER['REQUEST_TIME_FLOAT'], 4);?>
+				<td><?php echo number_format( ($end - $start), 4); ?>
+			</tr>
+		<?php endforeach; ?>
 </table>
 
-<?Php if(!empty(System_Info::$remote_get_urls)) : ?>
-	<h3>Remote URL Requests</h3>
-	<table>
-		<?php foreach(System_Info::$remote_get_urls as $url) : ?>
-			<tr><td><?=$url?>
-		<?php endforeach; ?>
-	</table>
-<?php endif; ?>
 

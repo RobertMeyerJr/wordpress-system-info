@@ -10,46 +10,26 @@ Author URI: http://www.RobertMeyerJr.com
 */	
 define('SI_START_TIME', microtime(true));
 
-require_once('app/Console.php');
+include('app/Console.php');
+include('app/ErrorHandler.php');
 
 if( isset($_GET['bench']) ){
-	#require_once('app/SI_Bench.php');
+	require_once('app/SI_Bench.php');
 }
 
 $total_details = System_Info::getInstance();
-
-/*
-Console::stopwatch('Load to Shutdown');
-add_action('shutdown',function(){
-	Console::stopwatch('Load to Shutdown');
-});
-self::testLogging();
-*/	
 
 class System_Info{	
 	protected static $instance;
 	protected static $action_times;
 	protected static $action_start_end;
-	protected static $remote_get_urls = [];
 	
-	public static function testLogging(){
-			$arr1 = ['test'=>'test','test2'=>'test','test3'=>'test'];
-			$obj1 = (object)['test'=>'test','test2'=>'test','test3'=>'test','o'=>['a','b','c']];
-			$a = 123;
-			Console::log($arr1);
-			Console::info($arr1);
-			Console::success($arr1);			
-			Console::warn($arr1);
-			Console::error($arr1);
-			
-			add_action('wp',function(){
-				global $post;
-				Console::info($GLOBALS['wpdb']);
-				Console::info($GLOBALS['wp']);
-				Console::success($_SERVER);
-				Console::info($post);
-			});
-	}
+	public static $actions;
+	
+	public static $action_start;
+	public static $action_end;
+	
+	protected static $remote_get_urls = [];
 
 	public static function getInstance(){	
 		/*Make sure running PHP 5.4+, otherwise dont even load */
@@ -62,7 +42,10 @@ class System_Info{
 			self::$instance = new self;
 		}
 		
+		//Console::testLogging();
+		
 		return self::$instance;
+
 		
 	}
 	
@@ -74,13 +57,16 @@ class System_Info{
 				is_user_logged_in yet as we want the 
 				benchmarking and error handler to start as early as possible
 			*/
-			include('app/ErrorHandler.php');			
+						
 			SI_ErrorHandler::enable_error_handling();
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
 			}
 			
-			add_action('http_api_curl', array($this,'hook_http_api_curl'), 10, 3);
+			//http_request_args?
+
+			add_action('requests-curl.before_request', 	array($this, 'before_remote_request'), 10, 1);
+			add_action('http_api_debug', 	array($this, 'after_remote_request'),10 , 5);
 			
 			$GLOBALS['SI_Errors'] 			= array();
 			$GLOBALS['dbg_filter_calls']	= array();
@@ -88,73 +74,64 @@ class System_Info{
 			$GLOBALS['dbg_filter_start']	= array();
 			$GLOBALS['dbg_filter_stop']		= array();			
 			
-			$this->benchmarking();
+			$this->all_actions();
 		}
 
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );				
 		add_action('init', 				array($this,'init'));			
 	}
 	
+	public static function before_remote_request($res){	
+		self::$remote_get_urls[] = [ microtime(true)];
+	}
+	public static function after_remote_request($res, $ctx, $class, $r, $url){
+		$arr = &self::$remote_get_urls;		
+		$last_key = key( end($arr) );
+		
+		/*
+		Console::log( curl_getinfo($res) );
+		Console::log($res);
+		Console::log($ctx);
+		Console::log($class);
+		Console::log($r);
+		*/
+		/*
+		$start		= microtime(true);
+		$end 		= microtime(true);
+		*/
+		#self::$remote_get_urls = [$url, $start, $end]
+		
+		$arr[$last_key][] = microtime(true);
+		$arr[$last_key][] = $url;
+	}
+
 	public function wont_load(){
 		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
 		echo "<div class='error below-h2'><p>{$msg}</p></div>";
 	}	
 	
-
-	public function benchmarking(){
-		$actions = array(
-			'plugins_loaded',
-			'setup_theme',
-			'after_setup_theme',
-			'init',
-			'widgets_init',
-			'wp_loaded',
-			'parse_request',
-			'pre_get_posts',
-			'wp',
-			'template_redirect',
-			'wp_register_sidebar_widget',
-			'wp_loaded',
-			'get_header',
-			'wp_head',
-			'wp_enqueue_scripts',
-			'wp_print_styles',
-			'wp_print_scripts',
-			'loop_start',
-			'the_post',
-			'loop_end',
-			'wp_footer',
-			'admin_footer',
-			'admin_notices',
-			'restrict_manage_posts',
-			'admin_head',
-			'adminmenu',
-			'all_admin_notices',
-			'admin_bar_menu',
-			'wp_before_admin_bar_render',
-			'wp_after_admin_bar_render',
-			'shutdown'
-		);
-		/*
-		foreach($actions as $a){
-			#add_action($a, array($this, 'early_action'), 1);
-			#add_action($a, array($this, 'late_action'), PHP_INT_MAX);			
-		}
-		*/
+	public function all_actions(){		
 		add_action('all', array($this, 'early_action'), -100);
 		add_action('all', array($this, 'late_action'), PHP_INT_MAX);			
 	}
 	
-	public function early_action(){
-		$filter = current_filter();
-		#Only set the start if it isnt set
-		if( empty( self::$action_start_end[$filter]['start'] ) ){
-			self::$action_start_end[$filter]['start'] = microtime(true);
-		}
+	public function early_action($in=null){
+		$arg_count 	= func_num_args(); 
+		$filter 	= current_filter();
+		
+		$NOW = microtime(true);
+		self::$action_start[] = [$filter, $NOW];
+		
+		return $in;
 	}
-	public function late_action(){
+	public function late_action($in=null){
+		$arg_count = func_num_args();
 		$filter = current_filter();
-		self::$action_start_end[$filter]['end']  = microtime(true);
+		$NOW = microtime(true);
+		
+		self::$action_end[$filter][] = $NOW;
+		
+		return $in;
 	}	
 	
 	public function init(){			
@@ -218,12 +195,6 @@ class System_Info{
 	public function renderDebugBar(){
 		include(__DIR__.'/views/debug/bar.php');
 	}
-
-	
-	public static function hook_http_api_curl($handle, $r, $url){
-		self::$remote_get_urls[] = $url;
-	}
-	
 		
 	/*
 		Make sure this is the very first plugin that gets loaded

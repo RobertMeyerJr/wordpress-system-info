@@ -5,7 +5,6 @@
 			<li><a href=#sysbench_graphs>Graphs</a></li>
 			<li><a href=#frontend>Frontend</a></li>
 			<li><a href=#sysbench_files>Files</a></li>
-			<li><a href=#sysbench_hooks>Hooks</a></li>
 		</ul>						
 			<div id=sysbench_graphs>
 				<div id=load_bar_area></div>
@@ -67,12 +66,10 @@
 				<div id=bench_resources>
 					<ul>
 						<li><a href=#si_scripts>Scripts</a></li>
-						<li><a href=#si_inline_scripts>Inline Scripts</a></li>
 						<li><a href=#si_styles>CSS</a></li>
 						<li><a href=#si_images>Images</a></li>
 					</ul>
 					<div id=si_scripts><table style='width:90%'></table></div>
-					<div id=si_inline_scripts><table style='width:90%'></table></div>
 					<div id=si_styles><table style='width:90%'></table></div>
 					<div id=si_images><table style='width:90%'></table></div>
 				</div>
@@ -118,20 +115,6 @@
 						</tr>
 					</tfoot>
 				</table>
-		</div>
-		<div id=sysbench_hooks>							
-			<?php d(self::$_profile); ?>					
-			<table>
-				<thead>
-					<tr><th>Hook<th>Type<th>Time
-				<tbody>
-			<?php foreach(self::$_hook_history as $h) :?>
-				<tr>
-					<td><?php echo $h['tag']?>
-					<td><?php echo $h['type']?>
-					<td><?php echo $h['time']?>
-			<?php endforeach; ?>
-			</table>
 		</div>
 		
 	</div>

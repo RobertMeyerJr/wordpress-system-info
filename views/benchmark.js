@@ -221,7 +221,8 @@ SI_BenchMark = {
 			width:		'80%',
 			minWidth: 	'600px'
 		});
-		jQuery('script').each(function(){ 
+		jQuery('script').each(function(){
+			/*
 			var source = jQuery(this).attr('src');
 				if( !source ){
 					var code = jQuery(this).html();
@@ -233,6 +234,7 @@ SI_BenchMark = {
 					link = link.replace('/^'+http_host+'/', link);
 					jQuery('#si_scripts table').append('<tr><th>Script</th><td>'+link);
 				}
+				*/
 		});
 		jQuery('link[type="text/css"]').each(function(){ 
 			var css = jQuery(this).attr('href');

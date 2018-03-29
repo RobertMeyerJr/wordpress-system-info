@@ -124,7 +124,7 @@ body{
 #dbg_bar .tabs li.right{
 	float:right;
 	padding: 0 5px;
-	font-size:14px;
+	font-size:16px;
 }
 
 #dbg_bar .tabs a{
@@ -143,6 +143,7 @@ body{
 	padding:0 10px;
 	width:100%;
 	min-height:100%;	
+	margin:0 !important;
 }
 #dbg_bar .dbg_body .panel.active{display:block;}
 #dbg_bar .panel > table{width:100%;}
@@ -249,6 +250,10 @@ body{
 	list-style:none;
 	position:relative;
 }
+
+#dbg_bar #log .var,#dbg_bar #log .var{font-size:1.4em;}
+
+
 #dbg_bar #log li:hover{background: #fafafa;}
 #dbg_bar #log li .label,.dbg_body .log li .date{
 	position:absolute;
@@ -294,3 +299,6 @@ body{
 #dbg_bar .trace span{padding-right:15px;}
 
 #dbg_bar .extensions li{display:inline-block;padding-right:5px;}
+
+/* Remove styling from themes that may alter appearence */
+#dbg_bar li::before{content:unset;}

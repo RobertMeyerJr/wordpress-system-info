@@ -18,5 +18,3 @@ Features:
 == Screenshots ==
 
 == TODO ==
-CPU Radial: 1,10,15
-https://codepen.io/Slicepotato/pen/ddbOaO

@@ -1,3 +1,4 @@
+<!-- --------------------------------------------------------[DEBUG BAR]--------------------------------------------- -->
 <?php
 global $wpdb,$post,$wp_filter,$timestart,$wp_object_cache,
 	$dbg_filter_calls,$SI_Errors,$dbg_filter_stop,$dbg_filter_start;
@@ -64,9 +65,9 @@ else{
 			<li><a href=#dbg_system><i class=fa-globe></i> System</a></li>
 			<li class=right id=close_dbg><i class=fa-times></i></li>
 			<li class='right stats'><i class=fa-></i> <?php echo number_format(memory_get_peak_usage()/1024,0) ?>KB</li>		
-			<li class='right stats'><i class="fa fa-clock-o"></i> Total <span class="bdg bgRed TotalTime"></span></li>				
-			<li class='right stats'><i class="fa fa-window-maximize"></i> Browser <span class="bdg bgGreen browserTotalTime"></span></li>				
-			<li class='right stats'><i class="fa fa-server"></i> Server <span class="bdg bgBlue serverTotalTime"></span></li>						
+			<li class='right stats' title=Total><i class="fa fa-clock-o"></i> <span class="bdg bgRed TotalTime"></span></li>				
+			<li class='right stats' title=Browser><i class="fa fa-window-maximize"></i> <span class="bdg bgGreen browserTotalTime"></span></li>				
+			<li class='right stats' title=Server><i class="fa fa-server"></i> <span class="bdg bgBlue serverTotalTime"></span></li>						
 		</ul>	
 	</div>
 	

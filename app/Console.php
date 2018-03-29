@@ -1,8 +1,28 @@
 <?php 
+#Console::testLogging();
 
 class Console{
 	protected static $log = [];
 	protected static $timers = [];
+
+	public static function testLogging(){
+			$arr1 = ['test'=>'test','test2'=>'test','test3'=>'test'];
+			$obj1 = (object)['test'=>'test','test2'=>'test','test3'=>'test','o'=>['a','b','c']];
+			$a = 123;
+			Console::log($arr1);
+			Console::info($obj1);
+			Console::success($arr1);			
+			Console::warn($obj1);
+			Console::error($arr1);
+			
+			add_action('wp',function(){
+				global $post;
+				Console::info($GLOBALS['wpdb']);
+				Console::info($GLOBALS['wp']);
+				Console::success($_SERVER);
+				Console::info($post);
+			});
+	}
 
 	public static function stopwatch($name){
 		if( !empty(self::$timers[$name]) ){
@@ -38,13 +58,21 @@ class Console{
 	public static function log($msg, $type='info', $where=false){
 		$bt = debug_backtrace();
 		
+		$where = [];
+		$trace_length = count($bt);
+		for($i=0; $i<$trace_length; $i++){
+			$t = $bt[$i];
+			if(!empty($t['class']) && $t['class'] == 'Console'){
+				$where = $t;
+				break;
+			}
+		}
+		
 		if( empty($where) ){
-			$where = empty($bt[1]) ? [] : $bt[1];
-		}
-		else{			
-			$where = empty($bt[2]) ? [] : $bt[2];
-		}
-
+			#d($bt);
+			#$where = empty($bt[1]) ? [] : $bt[1];
+		}		
+		
 		self::$log[] = [
 			'date'	=> microtime(true),
 			'name'	=> self::findArgName($bt),

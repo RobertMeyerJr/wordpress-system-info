@@ -44,3 +44,12 @@ global $wp_scripts,$wp_styles;
 	<?php endforeach; ?>
 	</tbody>
 </table>
+
+<script>
+jQuery(function(){
+	var source = jQuery(this).attr('src');
+	var code = jQuery(this).html();
+	//source = '<div class=hidden_code> <span>( inline )</span> <pre>'+code+'<pre></div>';
+	//jQuery('#si_inline_scripts table').append('<tr><th>Script</th><td>'+source);
+});
+</script>

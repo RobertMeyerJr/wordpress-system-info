@@ -43,7 +43,6 @@ jQuery(function($){
 	});
    
 	$('#dbg_bar .tabs a').click(function(e){
-		e.preventDefault();
 		var tab = $(this).attr('href');
 		$('.dbg_body .panel').hide().removeClass('active');
 		$('#dbg_bar .tabs a').removeClass('active');		
@@ -53,6 +52,9 @@ jQuery(function($){
 		$('#dbg_bar .tabs li').removeClass('current');
 		$(this).parent().addClass('current');
 		
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
 	});
 	
 	
@@ -63,6 +65,7 @@ jQuery(function($){
 function mouse_move(event){
 	var scrollPosition = jQuery(window).scrollTop();
 	var h = window.innerHeight + scrollPosition - event.pageY;
+	jQuery('body').css('padding-bottom', h);
 	jQuery('.dbg_body').height(h);
 }
 
@@ -168,3 +171,9 @@ function colorize_sql(){
 		jQuery(this).html(h);	
 	});
 }
+function colorize_php(){
+
+}
+
+
+

@@ -1,9 +1,6 @@
 <?php 
 global $_wp_additional_image_sizes, $wpdb, $wp_version; 
 
-$have_query_cache = System_Info_SQL::option('have_query_cache');
-$query_cache_size = System_Info_SQL::option('query_cache_size');
-
 $web_root 		= realpath($_SERVER['DOCUMENT_ROOT'].'/../');
 $directories 	= glob($web_root.'/*' , GLOB_ONLYDIR);
 
@@ -44,14 +41,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 	<tr><th>FS_METHOD</th><td><?php if (defined('FS_METHOD')) echo System_Info_Tools::color_format(FS_METHOD)?></tr>			
 	<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
 	<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>
-	<tr><th colspan=2 class=hdr>MySQL Info</th></tr>
-	<tr><th>MySQL Query Cache Size</th><td><?php 
-		$query_cache = $wpdb->get_row("SHOW VARIABLES LIKE 'query_cache_size'");
-		if(!$query_cache)
-			echo "<span class=red>Query Cache Not Enabled!</span>";
-		else 
-			echo System_Info_Tools::formatBytes($query_cache->Value);
-	?></td></tr>
+	<tr><th colspan=2 class=hdr>MySQL Info</th></tr>	
 	<?php 
 	/*
 	<?php $slow_queries = System_Info_SQL::check_query_log(); ?>

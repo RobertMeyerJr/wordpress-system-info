@@ -8,14 +8,7 @@ class System_Info_SQL{
 		$update_stats = "ANALYZE TABLE {$table}";
 		return $result;
 	}
-	
 
-	public static function option($o){
-		global $wpdb;
-		$sql = $wpdb->prepare("SHOW VARIABLES Like %s","%{$o}%");
-		return $wpdb->get_var($sql,1);
-	}
-	
 	public static function get_tables(){
 		global $wpdb;
 		$sql = "SELECT * FROM information_schema.tables 
@@ -23,7 +16,6 @@ class System_Info_SQL{
 				ORDER BY 
 				data_length desc";
 		$tables = $wpdb->get_results($sql);
-		#$tables = $wpdb->get_results("SHOW TABLE STATUS");
 		foreach($tables as &$t){	 
 			if($t->DATA_LENGTH > 0){
 				$t->fragmentation =  round( ($t->DATA_FREE * 100 / $t->DATA_LENGTH), 2);

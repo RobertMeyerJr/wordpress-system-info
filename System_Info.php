@@ -21,10 +21,6 @@ $total_details = System_Info::getInstance();
 
 class System_Info{	
 	protected static $instance;
-	protected static $action_times;
-	protected static $action_start_end;
-	
-	public static $actions;
 	
 	public static $action_start;
 	public static $action_end;
@@ -120,10 +116,17 @@ class System_Info{
 		$filter 	= current_filter();
 		
 		$NOW = microtime(true);
+
+		#$args 			= func_get_args();
+		#$tag 			= array_shift( $args );
+		#$bt 			= debug_backtrace();
+		#$hook_type 		= $bt[3]['function'];
+
 		self::$action_start[] = [$filter, $NOW];
 		
 		return $in;
 	}
+	
 	public function late_action($in=null){
 		$arg_count = func_num_args();
 		$filter = current_filter();
@@ -228,30 +231,7 @@ class System_Info{
 		require_once('app/SI_Tools.php');
 	}
 
-	
-	public static function getActionTimes(){ return self::$action_times; }	
-	public static function getActionStartEnd(){ return self::$action_start_end; }	
 }
 
-
-//Global functions used by debugbar
-/*
-function print_filters_count($hook){
-	global $wp_filter;
-	return count($wp_filter[$hook]);
-}
-
-function print_filters_for( $hook = null ) {
-    global $wp_filter;
-    if( !empty($hook) && !isset( $wp_filter[$hook] ) )
-        return false;
-    print '<pre>';
-		if(empty($hook))
-			print_r( $wp_filter );
-		else
-			print_r( $wp_filter[$hook] );
-    print '</pre>';
-}
-*/
 
 

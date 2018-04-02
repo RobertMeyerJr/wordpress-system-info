@@ -137,7 +137,7 @@ body{
 	color:black;
 }
 
-#dbg_bar .dbg_body{background:white;height:	200px;width:100%;overflow-y:scroll;}
+#dbg_bar .dbg_body{background:#F2F2F2;height:	200px;width:100%;overflow-y:scroll;}
 #dbg_bar .dbg_body .panel{
 	display: none;
 	padding:0 10px;

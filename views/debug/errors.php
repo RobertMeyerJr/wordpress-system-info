@@ -31,7 +31,9 @@ TODO: Group Repeated Errors
 					?>
 				</td>
 				<td class=code>
-					<div class=filename title="<?=esc_attr($trace[0]['file'])?>"><?=basename($trace[0]['file'])?></div>
+					<div class=filename title="<?=esc_attr($trace[0]['file'])?>">
+						<strong><?=$trace[0]['file']?></strong>
+					</div>
 					<?php 
 						$lines 	= file($file);	
 						$start 	= ($errLine-4 > 0) ? $errLine-4 : 0;

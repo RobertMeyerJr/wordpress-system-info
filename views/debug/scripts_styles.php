@@ -1,5 +1,6 @@
 <?php
 global $wp_scripts,$wp_styles;
+#d($wp_scripts);
 ?>
 <h2>Scripts</h2>
 <table>
@@ -7,6 +8,8 @@ global $wp_scripts,$wp_styles;
 		<tr>
 			<th>Name</th>
 			<th>Src</th>
+			<th>Deps</th>
+			<th>Ver</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -19,6 +22,16 @@ global $wp_scripts,$wp_styles;
 						<a href="<?=$s->src?>"><?=$s->src?></a>
 					<?php endif; ?>
 				</td>
+				<td>
+					<?php if(!empty($s->deps)) : ?>
+						<?=implode(', ',$s->deps)?>
+					<?php endif; ?>
+				</td>
+				<td>
+					<?php if(!empty($s->ver)) : ?>
+						<?=$s->ver?>
+					<?php endif; ?>
+				</td>
 			</tr>
 		<?php endforeach; ?>
 	</tbody>
@@ -29,6 +42,8 @@ global $wp_scripts,$wp_styles;
 		<tr>
 			<th>Name</th>
 			<th>Src</th>
+			<th>Deps</th>
+			<th>Ver</th>
 		</tr>
 	</thead>
 	<?php foreach($wp_styles->queue AS $q) : ?>
@@ -38,6 +53,16 @@ global $wp_scripts,$wp_styles;
 			<td>
 				<?php if(!empty($s->src)) : ?>
 					<a href="<?=$s->src?>"><?=$s->src?></a>
+				<?php endif; ?>
+			</td>
+			<td>
+				<?php if(!empty($s->deps)) : ?>
+					<?=implode(', ',$s->deps)?>
+				<?php endif; ?>
+			</td>
+			<td>
+				<?php if(!empty($s->ver)) : ?>
+					<?=$s->ver?>
 				<?php endif; ?>
 			</td>
 		</tr>

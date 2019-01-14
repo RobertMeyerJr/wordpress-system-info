@@ -4,8 +4,6 @@ defined('ABSPATH') or die("Nope!");
 System_Info_Bench::run();
 System_Info_Bench::benchmarking();
 
-
-
 class System_Info_Bench{
 	public static $cpu_info;
 	public static $load_time 			= array();
@@ -101,38 +99,6 @@ class System_Info_Bench{
 	}
 	
 	public static function record_core_mem_usage(){ self::$_CORE_MEM_USAGE = memory_get_peak_usage(); }
-	
-	//--------------------Benchmarking 
-	public function filter_benchmarking(){	
-		//We add our benchmark to all filters, as the first and last action
-		add_action('all', array($this,'benchmark_filter_start'), 0); 
-		add_action('all', array($this,'benchmark_filter_end'), PHP_INT_MAX);
-	}
-	public function benchmark_filter_end($param=false){
-		global $dbg_filter_times,$dbg_filter_calls,$dbg_filter_stop;
-		//This is wrong, it isn't summing the exec time just recording the last time
-		$filter = current_filter();
-		$stop_time = microtime(true);
-		$dbg_filter_stop[$filter] = $stop_time;
-		$dbg_filter_times[$filter] = $stop_time - $dbg_filter_times[$filter];
-		return $param;
-	}
-	public function benchmark_filter_start($param=false){
-		global $dbg_filter_times,$dbg_filter_calls,$dbg_filter_start;
-		
-		$filter = current_filter();
-		$start 	= microtime(true);
-		
-		if( !array_key_exists($filter,$dbg_filter_calls) )
-			$dbg_filter_calls[$filter] = 1;
-		else
-			$dbg_filter_calls[$filter]++;
-		
-		$dbg_filter_start[$filter] = $start;
-		$dbg_filter_times[$filter] = $start;
-		return $param;
-	}	
-	
 	
 	public static function tick(){
 		static $last_time = 0;
@@ -285,10 +251,4 @@ class System_Info_Bench{
 		self::$load_time[$filter] = microtime(true);
 		return $input;
 	}
-	public static function timer_stop($input){
-		$filter = current_filter();
-		$time = microtime(true) - self::$load_time[$filter];
-		self::$load_time[$filter] = $time;	
-		return $input;
-	}	
 }

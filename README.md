@@ -1,10 +1,9 @@
 VERSION: 1.00001a
 
 TODO:
+TODO: CSS and JS that isn't in enqueue
 
-Log::error()
-Log::info()
-Log::warning()
+
 
 
 https://kinsta.com/knowledgebase/wp-options-autoloaded-data/

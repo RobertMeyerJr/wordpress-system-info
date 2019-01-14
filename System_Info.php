@@ -30,7 +30,7 @@ class System_Info{
 	public static function getInstance(){	
 		/*Make sure running PHP 5.4+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '5.4') < 0 ){
-			 add_action('admin_notices', array($this,'wont_load'));
+			 add_action('admin_notices', array(SELF,'wont_load'));
 			 return;
 		}
 		
@@ -47,7 +47,7 @@ class System_Info{
 	
 	public function __construct(){
 
-		if( isset( $_GET['debug'] ) ){
+		if( isset( $_GET['debug'] )  || isset($_POST['debug']) ){
 			/*
 				Should add another check here, but we can't check	
 				is_user_logged_in yet as we want the 
@@ -61,8 +61,8 @@ class System_Info{
 			
 			//http_request_args?
 
-			add_action('requests-curl.before_request', 	array($this, 'before_remote_request'), 10, 1);
-			add_action('http_api_debug', 	array($this, 'after_remote_request'),10 , 5);
+			add_filter('pre_http_request', 				array($this, 'before_remote_request'), 10, 3);
+			add_action('http_api_debug', 				array($this, 'after_remote_request'),10 , 5);
 			
 			$GLOBALS['SI_Errors'] 			= array();
 			$GLOBALS['dbg_filter_calls']	= array();
@@ -77,28 +77,25 @@ class System_Info{
 		add_action('init', 				array($this,'init'));			
 	}
 	
-	public static function before_remote_request($res){	
-		self::$remote_get_urls[] = [ microtime(true)];
+	public static function before_remote_request($pre, $args, $url){
+		//TODO: Also log Request
+		#Console::info('Before Request');
+		#Console::log($res);
+		self::$remote_get_urls[] = [ 'start'=>microtime(true), 'url'=> $url];
+		return $pre;
 	}
 	public static function after_remote_request($res, $ctx, $class, $r, $url){
-		$arr = &self::$remote_get_urls;		
-		$last_key = key( end($arr) );
+		end( self::$remote_get_urls );
+		$last_key = key( self::$remote_get_urls );
 		
-		/*
-		Console::log( curl_getinfo($res) );
-		Console::log($res);
-		Console::log($ctx);
-		Console::log($class);
-		Console::log($r);
-		*/
-		/*
-		$start		= microtime(true);
-		$end 		= microtime(true);
-		*/
-		#self::$remote_get_urls = [$url, $start, $end]
+		#Console::info('After Request');
+		#Console::log($res);
+		#Console::log($ctx);
+		#Console::log($class);
+		#Console::log($r);
 		
-		$arr[$last_key][] = microtime(true);
-		$arr[$last_key][] = $url;
+		self::$remote_get_urls[$last_key]['end'] = microtime(true);
+		self::$remote_get_urls[$last_key]['res'] = $res;
 	}
 
 	public function wont_load(){
@@ -224,7 +221,7 @@ class System_Info{
 		if( !wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 		}
-		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jQuery'), true);		
+		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jquery'), true);		
 		
 		require_once('app/SI_Admin.php');
 		require_once('app/SI_SQL.php');
@@ -232,6 +229,4 @@ class System_Info{
 	}
 
 }
-
-
 

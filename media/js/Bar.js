@@ -115,14 +115,16 @@ function dbg_performance(){
 	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2)+'ms' );
 	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2)+'ms' );
 	
+	//Todo, refactor
+	
 	var h = '';
-		h += '<tr><th>DNS</th><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td><td>'+dbg_progress_bar(percs.dns)+'</td></tr>';
-		h += '<tr><th>TCP</th><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.tcp+'%</td><td>'+dbg_progress_bar(percs.tcp)+'</td></tr>';				
-		h += '<tr><th>Time to First Byte</th><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td><td>'+dbg_progress_bar(percs.ttfb)+'</td></tr>';
-		h += '<tr><th>Connect Time</th><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td><td>'+dbg_progress_bar(percs.connect)+'</td></tr>';				
-		h += '<tr><th>Send Response</th><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td><td>'+dbg_progress_bar(percs.basePage)+'</td></tr>';
-		h += '<tr><th>Front End</th><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td><td>'+dbg_progress_bar(percs.frontEnd)+'</td></tr>';
-		h += '<tr><th>DOM</th><td>'+domTime.toFixed(2)+'ms</td><td>'+percs.dom+'%</td><td>'+dbg_progress_bar(percs.dom)+'</td></tr>';
+		h += '<tr><th>DNS</th><td>'+dbg_progress_bar(percs.dns)+'</td><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td></tr>';
+		h += '<tr><th>TCP</th><td>'+dbg_progress_bar(percs.tcp)+'</td><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.tcp+'%</td></tr>';				
+		h += '<tr><th>Time to First Byte</th><td>'+dbg_progress_bar(percs.ttfb)+'</td><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td></tr>';
+		h += '<tr><th>Connect Time</th>	<td>'+dbg_progress_bar(percs.connect)+'</td><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td></tr>';				
+		h += '<tr><th>Send Response</th><td>'+dbg_progress_bar(percs.basePage)+'</td><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td></tr>';
+		h += '<tr><th>Front End</th><td>'+dbg_progress_bar(percs.frontEnd)+'</td><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td></tr>';
+		h += '<tr><th>DOM</th><td>'+dbg_progress_bar(percs.dom)+'</td><td>'+domTime.toFixed(2)+'ms</td><td>'+percs.dom+'%</td></tr>';
 		h += '<tr><th>Page Load</th><td>'+pageloadtime.toFixed(2)+'ms</td><td></td></tr>';
 		
 	jQuery('#dbg_frontend').html(h);	

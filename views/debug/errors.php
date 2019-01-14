@@ -19,14 +19,19 @@ TODO: Group Repeated Errors
 				<td>
 					<?php
 					switch($errno){
-						case E_ERROR:			echo "E_ERROR"; break;
-						case E_WARNING:			echo "E_USER_ERROR"; break;
-						case E_NOTICE:			echo "E_NOTICE";break;
-						case E_USER_ERROR: 		echo "E_USER_ERROR"; break;
-						case E_USER_NOTICE:		echo "E_USER_NOTICE"; break;
-						case E_USER_WARNING: 	echo "E_USER_WARNING"; break;
-						case E_USER_NOTICE:		echo "E_USER_NOTICE";break;						
-						default: echo $errno;
+						case E_ERROR:				echo "E_ERROR"; break;
+						case E_WARNING:				echo "E_USER_ERROR"; break;
+						case E_NOTICE:				echo "E_NOTICE";break;
+						case E_USER_ERROR: 			echo "E_USER_ERROR"; break;
+						case E_USER_NOTICE:			echo "E_USER_NOTICE"; break;
+						case E_USER_WARNING: 		echo "E_USER_WARNING"; break;
+						case E_USER_NOTICE:			echo "E_USER_NOTICE";break;
+						case E_DEPRECATED:			echo "E_DEPRECATED";break;
+						case E_USER_DEPRECATED:		echo "E_USER_DEPRECATED"; break;
+						case E_RECOVERABLE_ERROR:	echo "E_RECOVERABLE_ERROR"; break;
+						case E_ALL :				echo "E_ALL"; break;
+						case E_STRICT :				echo "E_STRICT"; break;
+						default: echo $errno;	
 					}
 					?>
 				</td>
@@ -51,11 +56,15 @@ TODO: Group Repeated Errors
 					?>
 					
 				</td>
-				<td><?php echo $errstr?></td>				
-				<td>
+				<td valign=top><?php echo $errstr?></td>				
+				<td valign=top>
 					<ol>
-						<?php foreach($trace as $t) : ?>
-							<li>
+						<?php $trace_line=0; foreach($trace as $t) :  ?>
+							<?php 
+							$trace_line++;
+							$traceClass = $trace_line > 5 ? 'detailed-trace':'';
+							?>
+							<li class="<?=$traceClass?>">
 								<?php if(!empty($t['file'])) : ?>
 									<?=$t['file']?> 
 								<?php endif; ?>

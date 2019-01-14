@@ -7,6 +7,10 @@ if(!empty($p->post_type) ){
 	$page_meta = get_post_meta($p->ID);
 }
 
+global $wp_query;
+
+
+#System_Info_Tools::dbg_table_out($wp_query->query_vars);
 ?>
 
 <table>

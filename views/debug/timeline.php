@@ -7,18 +7,17 @@ $total_time = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4)
 
 $query_time = number_format($total_query_time,4);
 
-
-
 ?>
 
 <?php if(!empty(System_Info::$remote_get_urls)) : ?>	
 	<h3>Remote URL Requests</h3>
 	<table>
-		<?php foreach(System_Info::$remote_get_urls as $request) : ?>
-			<?php list($start, $end, $url) = $request; ?>
+		<?php foreach(System_Info::$remote_get_urls as $r) : ?>
 			<tr>
-				<td><?=$url?>	
-				<td><?=number_format($end-$start,4)?> seconds
+				<td><?=$r['url']?>	
+				<td><?=number_format($r['end']-$r['start'],4)?> seconds
+				<td><?=$r['res']['response']['code']?></td>
+			</tr>
 		<?php endforeach; ?>
 	</table>
 <?php endif; ?>
@@ -28,8 +27,8 @@ $query_time = number_format($total_query_time,4);
 	<thead>
 		<tr>
 			<th>Part</th>
-			<th>Time</th>
 			<th>Percentage</th>
+			<th>Time</th>
 			<th>
 		</tr>
 	</thead>
@@ -44,7 +43,7 @@ $query_time = number_format($total_query_time,4);
 	<tr><th>Request Time</th><td><?php echo $total_time?></td>	
 </table>
 <h3>Action Timeline</h3>	
-<table>
+<table class=action-durations>
 	<thead>
 		<tr>
 			<th>Action
@@ -57,12 +56,13 @@ $query_time = number_format($total_query_time,4);
 			<?php 
 				list($filter, $start) = $a;
 				$end = array_shift( System_Info::$action_end[$filter] );
+				$duration =  $duration;
 			?>
-			<tr>
+			<tr class="<?=($duration > 0) ? 'non-empty':'duration-empty'?>">
 				<th><?=$filter?></th>
 				<td><?php echo number_format( $start - $_SERVER['REQUEST_TIME_FLOAT'], 4); ?>
 				<td><?php echo number_format( $end - $_SERVER['REQUEST_TIME_FLOAT'], 4);?>
-				<td><?php echo number_format( ($end - $start), 4); ?>
+				<td><?php echo number_format($duration,4); ?>
 			</tr>
 		<?php endforeach; ?>
 </table>

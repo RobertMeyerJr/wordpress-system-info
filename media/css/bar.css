@@ -3,6 +3,11 @@ body{
 	margin-bottom:50px;
 }
 
+#dbg_bar{
+	font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
+	font-size:16px;
+}
+
 #dbg_bar .cBlue{color:#3498db !important;}
 #dbg_bar .cRed{color:#c0392b !important;}
 #dbg_bar .cGreen{color:#27ae60 !important;}
@@ -128,7 +133,7 @@ body{
 }
 
 #dbg_bar .tabs a{
-	font-size:14px;
+	font-size:16px;
 	text-decoration:none;
 	display:inline-block;
 	width:100%;
@@ -140,7 +145,7 @@ body{
 #dbg_bar .dbg_body{background:#F2F2F2;height:	200px;width:100%;overflow-y:scroll;}
 #dbg_bar .dbg_body .panel{
 	display: none;
-	padding:0 10px;
+	padding:0;
 	width:100%;
 	min-height:100%;	
 	margin:0 !important;
@@ -302,3 +307,12 @@ body{
 
 /* Remove styling from themes that may alter appearence */
 #dbg_bar li::before{content:unset;}
+#dbg_bar progress{border-radius:5px;background-color:#2980b9;}
+
+
+#dbg_bar .duration-empty{display:none;}
+
+#dbg_bar .action-durations.show-empty .duration-empty{display:table-row;}
+
+
+#dbg_bar li.detailed-trace{display:none;}

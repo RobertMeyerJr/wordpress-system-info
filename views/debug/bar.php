@@ -61,8 +61,8 @@ else{
 			<li><a href=#dbg_cache><i class=fa-info></i> Cache</a></li>						
 			<li><a href=#dbg_scripts><i class=fa-photo></i> Scripts &amp; Styles</a></li>				
 			<li><a href=#dbg_globals><i class=fa-globe></i> Constants</a></li>
-			<li><a href=#dbg_php><i class=fa-code></i> PHP</a></li>
-			<li><a href=#dbg_system><i class=fa-globe></i> System</a></li>
+			<!-- <li><a href=#dbg_php><i class=fa-code></i> PHP</a></li> -->
+			<!-- <li><a href=#dbg_system><i class=fa-globe></i> System</a></li> -->
 			<li class=right id=close_dbg><i class=fa-times></i></li>
 			<li class='right stats'><i class=fa-></i> <?php echo number_format(memory_get_peak_usage()/1024,0) ?>KB</li>		
 			<li class='right stats' title=Total><i class="fa fa-clock-o"></i> <span class="bdg bgRed TotalTime"></span></li>				
@@ -74,7 +74,7 @@ else{
 	<div class=dbg_body>	
 		<div class=panel id=dbg_about><?php include('about.php');?></div>		
 		<div class="panel <?=($current=='console')?'active':''?>" id=dbg_console><?php include('console.php');?></div>		
-		<div class="panel <?=($current=='info')?'active':''?>" id=dbg_info><?php include('info.php');?></div>		
+		<div class="panel <?=($current=='info')?'active':''?>" id=dbg_info><?php include('info.php');?><?php include('system.php'); ?></div>		
 		<div class="panel <?=($current=='errors')?'active':''?>" id=dbg_errors><?php include('errors.php');?></div>
 		<div class=panel id=dbg_db><?php include('db.php')?></div>
 		<div class=panel id=dbg_scripts><?php include('scripts_styles.php'); ?></div>	
@@ -83,8 +83,8 @@ else{
 		<div class=panel id=dbg_timeline><?php include('timeline.php'); ?></div>	
 		<div class=panel id=dbg_cache><?php include('cache.php'); ?></div>					
 		<div class=panel id=dbg_files><?php include('included_files.php'); ?></div>	
-		<div class=panel id=dbg_system><?php include('system.php'); ?></div>	
-		<div class=panel id=dbg_php><?php include('php.php'); ?></div>	
+		<div class=panel id=dbg_system></div>	
+		<!-- <div class=panel id=dbg_php><?php #include('php.php'); ?></div> -->
 	</div>
 </div>
 <script>

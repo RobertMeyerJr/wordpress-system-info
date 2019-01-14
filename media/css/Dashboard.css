@@ -1,3 +1,14 @@
+#debugbar_dashboard {
+    background-color: #3b4354;
+    color: rgba(255, 255, 255, 0.8);
+}
+#debugbar_dashboard .hndle {
+    border-bottom: none;
+    color: white;
+    background-color: #2574ab;
+}
+
+
 #wp_system_info {
 	font-size:1.2em;
 	line-height:1.5em;
@@ -31,7 +42,7 @@
 #wp_system_info .breakword{word-break: break-word;}
 
 .wp_system_info .bottom{height:2em;}
-.wp_system_info .bottom a{float:left:}
+.wp_system_info .bottom a{float:left;}
 .wp_system_info .bottom span{float:right;}
 
 

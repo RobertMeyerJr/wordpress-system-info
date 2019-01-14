@@ -12,7 +12,6 @@ class SI_ErrorHandler{
 		global $SI_Errors;	
 		
 		$trace = debug_backtrace(10); 
-		#unset($trace[0]);
 		$SI_Errors[] = array(
 			$errno,
 			$str,
@@ -26,6 +25,7 @@ class SI_ErrorHandler{
 			echo "<h1>Fatal Error</h1>";
 			//Dump the output and die
 			$out = ob_get_clean();
+			echo $out;
 			exit;
 		}				
 		return false; #Just record the error, don't catch or do anything

@@ -146,9 +146,6 @@ class System_Info_Admin{
 		
 		#wp_enqueue_script('td-admin', $folder.'js/Admin.js',['jquery']);				
 		
-		//TODO: Remove these
-		#wp_enqueue_script('jquery-ui-dialog');	
-		#wp_enqueue_script('jquery-ui-datepicker');				
 		wp_enqueue_script('tablesorter', 'https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.1/js/jquery.tablesorter.js', array('jquery'));	
 		
 		//Enqueue if not already

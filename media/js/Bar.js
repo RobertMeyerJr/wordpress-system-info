@@ -1,10 +1,14 @@
 var dbg_start = Date.now();
 
-//Run out dbg_performance method after everything else is done
-jQuery(window).load(dbg_performance);
+jQuery(window).load(function(){
+	//setTimeout(dbg_performance,1000);
+	dbg_performance();
+});
 
 jQuery(function($){	
 	
+	
+
 	jQuery(function($){
 		$('.value-info').click(function(){ $(this).toggleClass('expanded') });
 	});
@@ -72,7 +76,7 @@ function mouse_move(event){
 function included_file_search(){
 	var file = jQuery('#included_file_search').val();
 	
-	console.log('in file search');
+	//console.log('in file search');
 	
 	if(file == ''){
 		jQuery('#included_files tr').show();
@@ -94,8 +98,7 @@ function dbg_performance(){
 	
 	var pageloadtime 	= now - t.navigationStart;
 	var connectTime 	= t.responseEnd - t.requestStart;
-	var domTime 		= t.domContentLoadedEventEnd - t.domContentLoadedEventStart;
-	
+	var domTime 		= window.performance.timing.domContentLoadedEventEnd - window.performance.timing.domContentLoadedEventStart;
 	var basePage 		= t.responseEnd - t.responseStart;
 	var frontEnd 		= t.loadEventStart - t.responseEnd;
 	
@@ -108,9 +111,10 @@ function dbg_performance(){
 		frontEnd:	dbg_percentage(frontEnd,	pageloadtime),	
 		dom:		dbg_percentage(domTime,		pageloadtime),	
 	};
-		
+	//console.table(percs);	
 	var serverTotalTime 	= connectTime;
-	var browserTotalTime 	= frontEnd + domTime
+	var browserTotalTime 	= frontEnd + domTime;
+
 	jQuery('.serverTotalTime').html( (serverTotalTime).toFixed(2)+'ms' )
 	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2)+'ms' );
 	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2)+'ms' );

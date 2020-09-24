@@ -2,6 +2,7 @@
 ob_start();
 ?>
 <style>
+.file-categories{width:100%;}
 .file-categories li{
 	padding:5px;
 	cursor:pointer;
@@ -12,6 +13,7 @@ ob_start();
 .file-categories li.active{
 	background-color:#dadbdc;
 }
+#included_file_search{display:inline-block;width:150px;}
 </style>
 <table class=dbg_table>
 	<thead>
@@ -79,7 +81,10 @@ ob_start();
 		<li data-area=Theme><i class=fa-image></i> Theme <?=$part_counts['Theme']?></li>	
 		<li data-area=Plugin><i class=fa-plug></i> Plugin <?=$part_counts['Plugin']?></li>
 		<li data-area=Other><i class=fa-question-circle></i> Other <?=$part_counts['Other']?></li>
-		<li><input type=text id=included_file_search><button class="" id=included_file_search_do>Search</button><li>
+		<li>
+			<input type=text id=included_file_search />
+			<button class="" id=included_file_search_do>Search</button>
+		<li>
 	</ul>
 </div>
 <?php echo $html; ?>

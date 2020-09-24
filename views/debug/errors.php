@@ -31,13 +31,13 @@ TODO: Group Repeated Errors
 						case E_RECOVERABLE_ERROR:	echo "E_RECOVERABLE_ERROR"; break;
 						case E_ALL :				echo "E_ALL"; break;
 						case E_STRICT :				echo "E_STRICT"; break;
-						default: echo $errno;	
+						default: echo $errno;
 					}
 					?>
 				</td>
 				<td class=code>
-					<div class=filename title="<?=esc_attr($trace[0]['file'])?>">
-						<strong><?=$trace[0]['file']?></strong>
+					<div class=filename title="<?=esc_attr($file)?>">
+						<strong><?=$file?></strong>
 					</div>
 					<?php 
 						$lines 	= file($file);	
@@ -56,15 +56,11 @@ TODO: Group Repeated Errors
 					?>
 					
 				</td>
-				<td valign=top><?php echo $errstr?></td>				
-				<td valign=top>
+				<td><?php echo $errstr?></td>				
+				<td>
 					<ol>
-						<?php $trace_line=0; foreach($trace as $t) :  ?>
-							<?php 
-							$trace_line++;
-							$traceClass = $trace_line > 5 ? 'detailed-trace':'';
-							?>
-							<li class="<?=$traceClass?>">
+						<?php foreach($trace as $t) : ?>
+							<li>
 								<?php if(!empty($t['file'])) : ?>
 									<?=$t['file']?> 
 								<?php endif; ?>

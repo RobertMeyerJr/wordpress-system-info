@@ -30,7 +30,7 @@ class System_Info{
 	public static function getInstance(){	
 		/*Make sure running PHP 5.4+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '5.4') < 0 ){
-			 add_action('admin_notices', array(SELF,'wont_load'));
+			 add_action('admin_notices', array($this,'wont_load'));
 			 return;
 		}
 		
@@ -61,8 +61,9 @@ class System_Info{
 			
 			//http_request_args?
 
-			add_filter('pre_http_request', 				array($this, 'before_remote_request'), 10, 3);
-			add_action('http_api_debug', 				array($this, 'after_remote_request'),10 , 5);
+			add_action('requests-curl.before_request', 	array($this, 'before_remote_request'), 10, 1);
+			#add_filter('pre_http_request', 				array($this, 'before_remote_request'), 10, 3);
+			add_action('http_api_debug', 	array($this, 'after_remote_request'),10 , 5);
 			
 			$GLOBALS['SI_Errors'] 			= array();
 			$GLOBALS['dbg_filter_calls']	= array();
@@ -77,25 +78,28 @@ class System_Info{
 		add_action('init', 				array($this,'init'));			
 	}
 	
-	public static function before_remote_request($pre, $args, $url){
-		//TODO: Also log Request
-		#Console::info('Before Request');
-		#Console::log($res);
-		self::$remote_get_urls[] = [ 'start'=>microtime(true), 'url'=> $url];
-		return $pre;
+	public static function before_remote_request($res){	
+		self::$remote_get_urls[] = [ microtime(true)];
 	}
 	public static function after_remote_request($res, $ctx, $class, $r, $url){
-		end( self::$remote_get_urls );
-		$last_key = key( self::$remote_get_urls );
+		$arr = &self::$remote_get_urls;		
+		$last_key = key( end($arr) );
 		
-		#Console::info('After Request');
-		#Console::log($res);
-		#Console::log($ctx);
-		#Console::log($class);
-		#Console::log($r);
+		/*
+		Console::log( curl_getinfo($res) );
+		Console::log($res);
+		Console::log($ctx);
+		Console::log($class);
+		Console::log($r);
+		*/
+		/*
+		$start		= microtime(true);
+		$end 		= microtime(true);
+		*/
+		#self::$remote_get_urls = [$url, $start, $end]
 		
-		self::$remote_get_urls[$last_key]['end'] = microtime(true);
-		self::$remote_get_urls[$last_key]['res'] = $res;
+		$arr[$last_key][] = microtime(true);
+		$arr[$last_key][] = $url;
 	}
 
 	public function wont_load(){
@@ -184,7 +188,7 @@ class System_Info{
 		$bar_style  = plugins_url( '/media/css/bar.css',__FILE__);
 		$bar_js 	= plugins_url( '/media/js/Bar.js',__FILE__);
 		wp_enqueue_style( 'debug-bar', $bar_style);
-		wp_enqueue_script('debug-bar', $bar_js, array('jquery'), 1, true);
+		wp_enqueue_script('debug-bar', $bar_js, array('jquery'), '2.0', true);
 		register_shutdown_function(function(){
 			//Check if there was a fatal error, iff so output debugbar script/style manually
 			restore_error_handler(); 
@@ -221,7 +225,7 @@ class System_Info{
 		if( !wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 		}
-		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jquery'), true);		
+		wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jQuery'), true);		
 		
 		require_once('app/SI_Admin.php');
 		require_once('app/SI_SQL.php');

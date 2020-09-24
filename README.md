@@ -2,7 +2,10 @@ VERSION: 1.00001a
 
 TODO:
 TODO: CSS and JS that isn't in enqueue
+TODO:
 
+HTML pretty dump
+Details::dump($obj, $limit=3)
 
 
 

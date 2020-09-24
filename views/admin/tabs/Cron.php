@@ -50,7 +50,7 @@ $schedules 	= wp_get_schedules();
 </tbody>
 </table>
 
-<h2>Available Recurrence Schedules</h2>
+<h2>Available Recurrance Schedules</h2>
 <table class='wp-list-table widefat fixed striped'>
 	<thead>
 		<tr>

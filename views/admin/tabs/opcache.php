@@ -89,8 +89,8 @@ div.donut{
 	display: flex;
 	align-items: center;
 	justify-content: center;  
-	width: 10vw;
-	height: 10vw;
+	width: 7vw;
+	height: 7vw;
 	top: 0;
 	right: 0;
 	bottom: 0;
@@ -101,6 +101,7 @@ div.donut{
 	background: #DDDDDD linear-gradient(to right, #DDDDDD 50%, #0af 50%);
 	color: #0af;
 	border-radius: 50%;
+	padding:5px;
 }
 @-webkit-keyframes spin {
   to {
@@ -250,7 +251,7 @@ tr.files{display:none;}
 		<ul>
 			<li><label>Buffer Size</label>			<span><?=size_format($string_stats['buffer_size']);?></span></li>
 			<li><label>Used Memory</label>			<span><?=size_format($string_stats['used_memory']);?></span></li>
-			<li><label>Free Memoery</label>			<span><?=size_format($string_stats['free_memory']);?></span></li>		
+			<li><label>Free Memory</label>			<span><?=size_format($string_stats['free_memory']);?></span></li>		
 			<li><label>Number of Strings</label>	<span><?=number_format($string_stats['number_of_strings']);?></span></li>	
 		</ul>
 	</div>
@@ -261,9 +262,9 @@ tr.files{display:none;}
 			<li><label>Start Time</label><span><?=date('n/j/Y h:ia',$stats['start_time'])?></span></li>
 			<li><label><!-- Reset Count --></label><span></span></li>		
 			<li><label>validate_timestamps</label><span><?=number_format($cfg['opcache.validate_timestamps'])?></span></li>
+			<li><label>revalidate_freq</label><span><?=number_format($cfg['opcache.revalidate_freq'])?></span></li>
 			<li><label>interned_strings_buffer</label><span><?=number_format($cfg['opcache.interned_strings_buffer'])?></span></li>
 			<li><label>max_accelerated_files 	</label><span><?=number_format($cfg['opcache.max_accelerated_files'])?></span></li>
-			<li><label>file_cache 				</label><span><?=$cfg['opcache.file_cache']?></span></li>
 		</ul>
 	</div>
 	

@@ -33,11 +33,7 @@
                 <div class=content>                
                     <i class="<?=$icon?>"></i> 
                     <?=$l['name'];?>
-                    <?php if( !is_array($l['msg']) && !is_object($l['msg']) ) : ?>
-                        <?=htmlspecialchars($l['msg'])?>
-                    <?php else : ?>
-                        <span class=value-info><?=htmlentities(print_r($l['msg'],true))?></span>
-                    <?php endif; ?>         
+                    <span class=value-info><?=htmlspecialchars($l['msg'])?></span>       
                 </div>
                 <span class="label"><?=$l['type']?></span>
                 <!-- TODO: Show as time into request -->

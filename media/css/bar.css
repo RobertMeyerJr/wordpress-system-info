@@ -137,7 +137,7 @@ body{
 	color:#edf2f7;
 }
 
-#dbg_bar .dbg_body{background:#F2F2F2;height:	200px;width:100%;overflow-y:scroll;}
+#dbg_bar .dbg_body{background:#101e2c;height:	200px;width:100%;overflow-y:scroll;}
 #dbg_bar .dbg_body .panel{
 	padding:15px;
 	color:white;
@@ -260,7 +260,7 @@ body{
 #dbg_bar #log .var,#dbg_bar #log .var{font-size:1.4em;}
 
 
-#dbg_bar #log li:hover{background: #fafafa;}
+#dbg_bar #log li:hover{background: rgba(255,255,255,0.05);}
 #dbg_bar #log li .label,.dbg_body .log li .date{
 	position:absolute;
 	top:0;
@@ -278,7 +278,7 @@ body{
 #dbg_bar #log li.success span.var{color:#2ecc71}
 #dbg_bar #log li.info span.var{color:#3498db}
 
-#dbg_bar td,#dbg_bar th{padding:5px;}
+#dbg_bar td,#dbg_bar th{padding:5px;border:none !Important;}
 
 #dbg_bar .pre.code{
 	color:white;

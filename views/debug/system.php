@@ -1,3 +1,4 @@
+<?php defined('ABSPATH') or die("Denied"); ?>
 <h3>System</h3>
 <table class='wp-list-table widefat fixed server_info'>
 	<tr><th colspan=2 class=hdr>Software</th></tr>

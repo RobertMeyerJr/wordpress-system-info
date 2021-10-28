@@ -1,5 +1,9 @@
 <?php 
+
+global $WP_TIMING;
+#print_r($WP_TIMING);
 ob_start();
+$plugins = get_option('active_plugins');
 ?>
 <style>
 .file-categories{width:100%;}
@@ -15,6 +19,20 @@ ob_start();
 }
 #included_file_search{display:inline-block;width:150px;}
 </style>
+<?php
+$files 					= get_included_files();
+$included_file_count 	= count($files);
+?>
+<h1>Included Files <?=number_format($included_file_count)?></h1>
+<?php#System_Info::$templates) ?>
+<?php 
+$plugin_details = [];
+
+foreach($plugins as $p){
+	$plugin_folder = substr($p,0,strpos($p,'/'));
+	$plugin_details[$plugin_folder] = $p;
+}
+?>
 <table class=dbg_table>
 	<thead>
 		<tr>
@@ -27,20 +45,23 @@ ob_start();
 	</thead>
 	<tbody id=included_files>	
 		<?php 
-			$plugins_path = 'wp-content'.DIRECTORY_SEPARATOR.'plugins';
 			$part_counts = [];
-			
-			$files 					= get_included_files();
-			$included_file_count 	= count($files);
+			$plugin_file_counts=[];
+			$plugin_file_sizes=[];
 		?>
 		<?php $i=1; foreach($files as $f): ?>	
 			<?php 
-				/*
-				TODO: Keep Count
-				Extract out plugin name
-				*/			
-				if(false !== strpos($f, $plugins_path)){
-					$part = 'Plugin';						
+				if(false !== strpos($f, WP_PLUGIN_DIR)){
+					$part = 'Plugin';
+					$plg = strtok(str_replace(WP_PLUGIN_DIR,'',$f),'/');
+					if(!empty($plugin_file_counts[$plg])){
+						$plugin_file_sizes[$plg] += filesize($f);
+						$plugin_file_counts[$plg]++;
+					}
+					else{
+						$plugin_file_sizes[$plg] = filesize($f);
+						$plugin_file_counts[$plg] = 1;
+					}
 				}
 				else if(false !== strpos($f, 'wp-admin')){
 					$part = 'WP-Admin';
@@ -72,15 +93,33 @@ ob_start();
 	</tbody>
 </table>
 <?php $html = ob_get_clean(); ?>
-
+<table>
+	<thead>
+		<tr>
+			<th>Plugin</th>
+			<th>Path</th>
+			<th>File Count</th>
+			<th>Size</th>
+		</tr>
+	</thead>
+	<?php arsort($plugin_file_counts); ?>
+	<?php foreach($plugin_file_counts as $plg=>$count) : ?>
+	<tr>
+		<th><?=$plg?></th>
+		<td><?=$plugin_details[$plg] ?? ''?></td>
+		<td><?=number_format($count)?></td>
+		<td><?=size_format($plugin_file_sizes[$plg])?></td>
+	</tr>
+	<?php endforeach; ?>
+</table>
 <div class=tab-nav>	
 	<ul class=file-categories>
-		<li data-area="WP-Core"><i class=fa-cogs></i> Core <?=$part_counts['WP-Core']?></li>
-		<li data-area=WP-Includes><i class=fa-cogs></i> WP Includes <?=$part_counts['WP-Includes']?></li>
-		<li data-area=WP-Admin><i class=fa-cogs></i> WP Admin <?=$part_counts['WP-Admin']?></li>
-		<li data-area=Theme><i class=fa-image></i> Theme <?=$part_counts['Theme']?></li>	
-		<li data-area=Plugin><i class=fa-plug></i> Plugin <?=$part_counts['Plugin']?></li>
-		<li data-area=Other><i class=fa-question-circle></i> Other <?=$part_counts['Other']?></li>
+		<li data-area="WP-Core">Core <?=$part_counts['WP-Core']?></li>
+		<li data-area=WP-Includes>WP Includes <?=$part_counts['WP-Includes']?></li>
+		<li data-area=WP-Admin>WP Admin <?=$part_counts['WP-Admin']?></li>
+		<li data-area=Theme>Theme <?=$part_counts['Theme']?></li>	
+		<li data-area=Plugin>Plugin <?=$part_counts['Plugin']?></li>
+		<li data-area=Other>Other <?=$part_counts['Other']?></li>
 		<li>
 			<input type=text id=included_file_search />
 			<button class="" id=included_file_search_do>Search</button>

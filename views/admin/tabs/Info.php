@@ -13,7 +13,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 ?>
 
 
-<BR/><h2><i class='cPurple fa fa-info'></i> Server Info</h2>
+<BR/><h2>Server Info</h2>
 <table class='wp-list-table widefat fixed server_info striped'>
 	<tr><th colspan=2 class=hdr>Software
 	<tr><th>OS<td><?php echo System_Info_Tools::color_format(php_uname())?>
@@ -39,8 +39,17 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 	<tr><th>WP_DEBUG_LOG</th><td><?php echo System_Info_Tools::color_format(WP_DEBUG_LOG)?></td></tr>
 	<tr><th>WP_PLUGIN_DIR</th><td><?php echo System_Info_Tools::color_format(WP_PLUGIN_DIR)?></tr>
 	<tr><th>FS_METHOD</th><td><?php if (defined('FS_METHOD')) echo System_Info_Tools::color_format(FS_METHOD)?></tr>			
+	
+	<tr><th>COOKIE_DOMAIN</th><td><?php echo System_Info_Tools::color_format(COOKIE_DOMAIN)?></tr>
+	<tr><th>COOKIEPATH</th><td><?php echo System_Info_Tools::color_format(COOKIEPATH)?></tr>
+	<tr><th>ADMIN_COOKIE_PATH</th><td><?php echo System_Info_Tools::color_format(ADMIN_COOKIE_PATH)?></tr>
+	<tr><th>SITECOOKIEPATH</th><td><?php echo System_Info_Tools::color_format(SITECOOKIEPATH)?></tr>
+	<tr><th>COOKIEHASH</th><td><?php echo System_Info_Tools::color_format(COOKIEHASH)?></tr>
+
 	<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
 	<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>
+
+
 	<tr><th colspan=2 class=hdr>MySQL Info</th></tr>	
 	<?php 
 	/*
@@ -71,7 +80,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 </table>
 
 
-<h2><i class="fa fa-2x fa-photo"></i> Image Sizes</h2>
+<h2>Image Sizes</h2>
 <table class='widefat striped'>
 	<thead>
 		<tr>
@@ -112,7 +121,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 </table>
 
 
-<BR/><h2><i class="fa fa-2x fa-cogs"></i> PHP Settings</h2>
+<BR/><h2>PHP Settings</h2>
 <table class='widefat striped'>
 <tr><th>Loaded Configuration</th><td><?php echo php_ini_loaded_file();?></td></tr>
 	<tr><th>Extensions Directory</th><td><?php echo PHP_EXTENSION_DIR?></td></tr>
@@ -171,7 +180,7 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 		</tr>
 </table>		
 
-<BR/><h2><i class="fa fa-2x fa-cogs"></i> PHP Info</h2>
+<BR/><h2>PHP Info</h2>
 <div class=postbox>
 	<div class='inside phpinfo'>
 		<?php echo $php_info ?>

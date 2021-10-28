@@ -236,7 +236,7 @@ tr.files{display:none;}
 	</div>
 	<div class="card bgBlue">
 		<h2>Memory Stats</h2>
-		<span class=topleft><i class="fa fa-microchip"></i></span>
+		<span class=topleft></span>
 		<ul>
 			<li><label>Total 		</label><span><?=size_format($cfg['opcache.memory_consumption'],0)?></span></li>
 			<li><label>Used</label> 	<span><?=size_format($m['used_memory'])?></span></li>
@@ -247,7 +247,7 @@ tr.files{display:none;}
 	</div>
 	<div class="card bgGreen">
 		<h2>String Stats</h2>
-		<span class=topleft><i class="fa fa-quote-right"></i></span>
+		<span class=topleft></span>
 		<ul>
 			<li><label>Buffer Size</label>			<span><?=size_format($string_stats['buffer_size']);?></span></li>
 			<li><label>Used Memory</label>			<span><?=size_format($string_stats['used_memory']);?></span></li>
@@ -257,7 +257,7 @@ tr.files{display:none;}
 	</div>
 	<div class="card bgDark">
 		<h2>Configuration</h2>
-		<span class=topleft><i class="fa fa-cogs"></i></span>
+		<span class=topleft></span>
 		<ul>
 			<li><label>Start Time</label><span><?=date('n/j/Y h:ia',$stats['start_time'])?></span></li>
 			<li><label><!-- Reset Count --></label><span></span></li>		

@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php $host = $_SERVER['HTTP_HOST']; ?>
 <a target=_blank href=http://sitecheck.sucuri.net/results/<?=$host?>/>Sucuri Sitecheck</a><br/>
 <a target=_blank href=http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=<?=$host?>>GoogleSafe Browsing</a>

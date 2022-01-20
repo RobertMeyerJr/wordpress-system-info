@@ -1,7 +1,8 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 
 global $WP_TIMING;
-#print_r($WP_TIMING);
+
 ob_start();
 $plugins = get_option('active_plugins');
 ?>
@@ -23,8 +24,7 @@ $plugins = get_option('active_plugins');
 $files 					= get_included_files();
 $included_file_count 	= count($files);
 ?>
-<h1>Included Files <?=number_format($included_file_count)?></h1>
-<?php#System_Info::$templates) ?>
+<h2>Included Files <?=number_format($included_file_count)?></h2>
 <?php 
 $plugin_details = [];
 
@@ -93,6 +93,11 @@ foreach($plugins as $p){
 	</tbody>
 </table>
 <?php $html = ob_get_clean(); ?>
+<?php if(!empty(System_Info::$templates)) : ?>
+	<h2>Templates</h2>
+	<?php echo implode('<br/>',System_Info::$templates); ?>
+<?php endif; ?>
+<h2>By Plugin</h2>
 <table>
 	<thead>
 		<tr>

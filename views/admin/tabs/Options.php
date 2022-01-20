@@ -1,32 +1,36 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 global $wpdb;
 
 $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 
+#TODO: Ability to delete transients
 
+$options = array_map(function($o){
+	$size = strlen($o->option_value);
+	return [$o->option_name, $size, $o->option_value];
+},$options);
+usort($options,function($a,$b){ return $b[1] > $a[1]; });
 ?>
-
 <table class='widefat striped'>
 	<thead>
 	<tr>
-		<th>Name</th>
-		<th>Autoload</th>
-		<th>Size</th>
-		<th>Value</th>		
+		<th width="10%">Size</th>		
+		<th width="20%">Name</th>
+		<th width="50%">Value</th>
+		<th width="10%">Autoload</th>
 	</thead>
 	<tbody>
 	<?php foreach($options as $o) : ?>
 		<tr>
 			<?php 
-				$v = $o->option_value;
-				$size = size_format( strlen($o->option_value) );					
-				$v = maybe_unserialize($v);			
+				list($name, $size, $v) = $o;			
 			?>
-			<th><?php echo $o->option_name; ?></th>
-			<td><?php echo $o->autoload?></td>
-			<td><?php echo $size?></td>
+			<td><?php echo size_format($size)?></td>
+			<th valign=top><?php echo $name; ?></th>
 			<td>
 				<?php 
+					$v= maybe_unserialize($v);
 					if( is_array($v) ){
 						?>
 							<div class=td-expand>
@@ -35,9 +39,9 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 									<pre><?=var_dump($v)?></pre>
 								</div>
 							</div>
-						<?php 						
+						<?php
 					}
-					else {							
+					else {
 						if(is_object($v)){
 							print_r($v);
 						}
@@ -53,7 +57,7 @@ $options = $wpdb->get_results("SELECT * FROM {$wpdb->options}");
 					}
 				?>
 			</td>
-			
+			<td><?php echo $o->autoload?></td>
 		</tr>
 	<?php endforeach; ?>
 	</tbody>

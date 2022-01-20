@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php
 /*
 http://php.net/manual/en/language.functions.php

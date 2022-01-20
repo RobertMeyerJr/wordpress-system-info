@@ -26,11 +26,8 @@ class System_Info_Admin{
 		if( version_compare(PHP_VERSION,'7.0.0') >= 0 ){
 			add_submenu_page($slug, 'OpCache', 'OpCache', 			$cap, 'wptd-opcache', [__CLASS__,'admin_tab']);
 		}
-		add_submenu_page($slug, 'MySQL', 'MySQL', 					$cap, 'wptd-MySQL', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Database', 'Database', 			$cap, 'wptd-DB', [__CLASS__,'admin_tab']);
-		add_submenu_page($slug, 'Permissions', 'Permissions',	 	$cap, 'wptd-Permissions', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Cron', 'Cron', 					$cap, 'wptd-Cron', [__CLASS__,'admin_tab']);
-		add_submenu_page($slug, 'Net Info', 'Net Info', 			$cap, 'wptd-NetInfo', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Rewrites', 'Rewrites', 			$cap, 'wptd-Rewrites', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Errors', 'Errors', 				$cap, 'wptd-Errors', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Hooks', 'Hooks', 					$cap, 'wptd-Hooks', [__CLASS__,'admin_tab']);
@@ -91,23 +88,28 @@ class System_Info_Admin{
 			$function_name = $f;
 			
 			if( empty($_POST['search']) ){
-				$item = '<h5>'.$function_name.'</h5>';
+				$item = '<span>'.$function_name.'</span>';
 			}
 			elseif(!empty($_POST['search']) && stripos($f, $_POST['search']) !== false ){
-				$item = '<h5>'.$function_name.'</h5>';				
+				$item = '<span>'.$function_name.'</span>';				
 			}
 			
 			if($count <= 10){
 				$cls = (!in_array($class,['(Internal)','(User)'])) ? $class:false;
-				$item .= self::getFunctionSource($f,$cls);
+				echo "[{$f}]\r\n";
+				$item .= self::getFunctionSource($f, $cls);
 			}
+			#if(!in_)
 			$items[] = $item;
 		} 
 		
+		echo "<ul>";
+		$items = array_unique($items);
 		sort($items);
 		foreach($items as $f){
 			echo "<li>{$f}</li>";		
 		}
+		echo "</ul>";
 		exit;
 	}
 	

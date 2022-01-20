@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <div id="total_details_extra" style="display:none;">     
 	<div class=total_details_extra>
 	<pre>

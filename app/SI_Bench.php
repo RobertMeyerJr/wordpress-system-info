@@ -1,8 +1,8 @@
 <?php 
 defined('ABSPATH') or die("Nope!");
 //This file gets included by the System_Info_Bootstrap if $_GET['sysinfo_bench']==1
-System_Info_Bench::run();
-System_Info_Bench::benchmarking();
+#System_Info_Bench::run();
+#System_Info_Bench::benchmarking();
 
 class System_Info_Bench{
 	public static $cpu_info;

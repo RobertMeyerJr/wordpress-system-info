@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php
 global $wp_rewrite;
 
@@ -25,7 +26,7 @@ global $wp_rewrite;
 </tbody>
 </table>
 
-Endpoints 
+<h2>Endpoints</h2>
 <?php foreach($wp_rewrite->endpoints as $ep) : ?>
 <ul>
 	<li><?=$ep[2]; ?></li>

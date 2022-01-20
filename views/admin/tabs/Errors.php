@@ -1,15 +1,16 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 
 $error_log = ini_get('error_log');
 
-if(file_exists($error_log) && !empty($error_log)){
-		if( filesize($error_log) > 500000){ //if over 500kB, just get the last 5000 lines
-			$error_string = System_Info_Tools::tail($error_log, 5000);
-		}
-		else{
-			$error_string = file_get_contents($error_log);	
-		}
-		$results = $error_string;
+if( file_exists($error_log) && !empty($error_log) ){
+	if( filesize($error_log) > 200000){ //if over 500kB, just get the last 1000 lines
+		$error_string = System_Info_Tools::tail($error_log, 1000);
+	}
+	else{
+		$error_string = file_get_contents($error_log);	
+	}
+	$results = $error_string;
 }
 
 function parse_error_log($lines) {
@@ -21,14 +22,29 @@ function parse_error_log($lines) {
 	}
 	return $out;
 }
+
+$error_string = preg_replace('/^\h*\v+/m', '', $error_string);#Remove empty lines
 ?>
+<style>
+.error_log{
+	padding:10px;
+	min-width:100%;
+	width:auto;
+	background-color:#2c3e50;
+}
+.error_log code{
+	white-space:pre;
+	color:#ecf0f1;
+}	
+</style>
 <div>
 	<h2>
 		Location <?php echo $error_log?>
 		<span class=cGreen><?php echo System_Info_Tools::formatBytes(filesize($error_log),2);	?></span>
 	</h2>
 	<?php if(!empty($error_string)) : ?>
-		<code style='white-space:pre;'class=error_log><?php echo htmlentities($error_string)?></code>
-		
+		<div class=error_log>
+			<code><?php echo htmlentities($error_string)?></code>
+		</div>
 	<?php endif; ?>
 </div>	

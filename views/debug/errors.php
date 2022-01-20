@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 global $SI_Errors;
 /*
@@ -7,10 +8,8 @@ TODO: Group Repeated Errors
 <table class=widefat>
 	<thead>
 		<tr class=hdr>
-			<th>Error</th>
-			<th style='width:40%'>Code</th>
-			<th>Error</th>
-			<th>Trace</th>
+			<th width=50%>Error</th>
+			<th width=50%>Trace</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -34,11 +33,11 @@ TODO: Group Repeated Errors
 						default: echo $errno;
 					}
 					?>
-				</td>
-				<td class=code>
+					<b><?php echo $errstr?></b>
 					<div class=filename title="<?=esc_attr($file)?>">
 						<strong><?=$file?></strong>
 					</div>
+					<div class=code>
 					<?php 
 						$lines 	= file($file);	
 						$start 	= ($errLine-4 > 0) ? $errLine-4 : 0;
@@ -54,21 +53,20 @@ TODO: Group Repeated Errors
 						}
 						echo "<ul>";
 					?>
-					
-				</td>
-				<td><?php echo $errstr?></td>				
+					</div>
+				</td>			
 				<td>
 					<ol>
 						<?php foreach($trace as $t) : ?>
 							<li>
 								<?php if(!empty($t['file'])) : ?>
-									<?=$t['file']?> 
+									<span><?=$t['file']?></span>
 								<?php endif; ?>
 								<?php if(!empty($t['line'])) : ?>
-									<?=$t['line']?> 
+									<span><?=$t['line']?></span>
 								<?php endif ?>
 								<?php if(!empty($t['function'])) : ?>
-									<?=$t['function']?>
+									<span style="float:right;"><?=$t['function']?></span>
 								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>

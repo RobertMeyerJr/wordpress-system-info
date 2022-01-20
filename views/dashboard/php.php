@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <!-- PHP -->
 	<tr><th class=hdr colspan=2><h2><i class='dashicons dashicons-admin-generic'></i> PHP</h2></th></tr>
 	<tr><th>Version</th><td><?=PHP_VERSION?></td></tr>

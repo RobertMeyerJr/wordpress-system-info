@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <ul class=log id=log>
     <?php 
         $log = Console::getLog(); 

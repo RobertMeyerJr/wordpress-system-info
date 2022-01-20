@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 
 if( !empty($_POST['reset_op_cache']) ){

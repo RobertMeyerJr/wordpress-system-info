@@ -1,5 +1,4 @@
 <?php 
-#Console::testLogging();
 
 class Console{
 	protected static $log = [];
@@ -72,6 +71,13 @@ class Console{
 			#d($bt);
 			#$where = empty($bt[1]) ? [] : $bt[1];
 		}		
+
+		if( !is_array($msg) && !is_object($msg) ){
+			$msg = $msg;
+		}
+		else{
+			$msg = print_r($msg,true);
+		}
 		
 		self::$log[] = [
 			'date'	=> microtime(true),

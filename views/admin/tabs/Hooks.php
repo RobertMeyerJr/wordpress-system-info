@@ -1,9 +1,11 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 
 global $wp_filter,$wp_actions,$merged_filters;		
 $hook = $wp_filter;
 ksort($hook);
-#d($hook);
+
+#var_dump($hook);
 
 $search = !empty($_GET['search']) ? $_GET['search']:'';
 
@@ -34,7 +36,11 @@ function where_defined($function_name){
 <button>Search</button>
 </form>
 
+<style>
+.expand{
 
+}
+</style>
 <?php if(!empty($_GET['get_hooks'])) : ?>
 <table class='wp-list-table widefat fixed striped'>
 	<thead>
@@ -75,12 +81,24 @@ function where_defined($function_name){
 								<td><?=$val['accepted_args']?>
 							<?php else: ?>
 								<td><h2>									
-									<span class=cPurple><?= is_object($val['function'][0]) ? get_class($val['function'][0]) : $val['function'][0] ?></span>
+									<span class=cPurple>
+											<?php 
+												try{
+													echo is_object($val['function'][0]) ? get_class($val['function'][0]) : $val['function'][0];
+												}catch(Throwable $e){
+													echo "Error";
+												}
+											?>
+									</span>
 									::
-									<span class=cBlue><?=$val['function'][1]?></span>
+									<span class=cBlue><?=is_array($val['function']) ? $val['function'][1] : ''?></span>
 									</h2>
 								</td>
-								<td colspan=4><?php echo htmlentities( print_r($val,true) );?></td>
+								<td colspan=4>
+									<div style="overflow: hidden;text-overflow: ellipsis;max-height:200px;">
+										<?php echo htmlentities( print_r($val,true) );?>
+									</div>
+								</td>
 							<?php endif; ?>						
 						<?php endforeach; ?>
 						</table>

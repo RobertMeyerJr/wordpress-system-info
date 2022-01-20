@@ -6,8 +6,7 @@ jQuery(window).load(function(){
 });
 
 jQuery(function($){	
-	
-	
+	jQuery('#dbg_bar table.sortable').tablesorter();
 
 	jQuery(function($){
 		$('.value-info').click(function(){ $(this).toggleClass('expanded') });
@@ -64,7 +63,34 @@ jQuery(function($){
 	
 	$('#included_file_search_do').click(included_file_search);
 	colorize_sql();
+
+	$('#filter_hooks').click(filter_hooks);
+
+	$('#do_query_search').click(do_query_search);
 });
+
+function do_query_search(){
+	var v = jQuery('#query_search_value').val();
+	console.log('Queyr Search :'+v)
+	if(v == ''){
+		jQuery('#query_table tr').show();
+	}
+	else {
+		jQuery('#query_table tr:not(:contains("'+v+'"))').hide();
+	}
+}
+
+function filter_hooks(){
+	var name = jQuery('#filter_hooks_by').val();
+	console.log('filtering hooks '+name);
+	if(name == ''){
+		jQuery('#dbg_hooks tr').show();
+	}
+	else {
+		jQuery('#dbg_hooks tr:not(:contains("'+name+'"))').hide();
+	}
+	console.log('done!');
+}
 
 function mouse_move(event){
 	var scrollPosition = jQuery(window).scrollTop();
@@ -88,15 +114,17 @@ function included_file_search(){
 
 function dbg_performance(){
 	var now = new Date().getTime();
-	
-	var t 				= window.performance.timing;		
+	//https://web.dev/navigation-and-resource-timing/
+	var t = performance.getEntriesByType("navigation")[0];
+
+	//var t 				= window.performance.timing;		
 	var dns 			= t.domainLookupEnd - t.domainLookupStart;
 	var tcp 			= t.connectEnd - t.connectStart;
-	var ttfb 			= t.responseStart - t.navigationStart;
+	var ttfb 			= t.responseStart;
 	
 	var responseTime 	= t.responseStart - t.responseEnd;
 	
-	var pageloadtime 	= now - t.navigationStart;
+	var pageloadtime 	= t.loadEventStart;
 	var connectTime 	= t.responseEnd - t.requestStart;
 	var domTime 		= window.performance.timing.domContentLoadedEventEnd - window.performance.timing.domContentLoadedEventStart;
 	var basePage 		= t.responseEnd - t.responseStart;
@@ -119,13 +147,15 @@ function dbg_performance(){
 	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2)+'ms' );
 	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2)+'ms' );
 	
-	//Todo, refactor
+	
+	//t.transferSize
 	
 	var h = '';
 		h += '<tr><th>DNS</th><td>'+dbg_progress_bar(percs.dns)+'</td><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td></tr>';
 		h += '<tr><th>TCP</th><td>'+dbg_progress_bar(percs.tcp)+'</td><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.tcp+'%</td></tr>';				
-		h += '<tr><th>Time to First Byte</th><td>'+dbg_progress_bar(percs.ttfb)+'</td><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td></tr>';
+		//h += '<tr><th>SSL</th><td>'+dbg_progress_bar(percs.ssl)+'</td><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.ssl+'%</td></tr>';				
 		h += '<tr><th>Connect Time</th>	<td>'+dbg_progress_bar(percs.connect)+'</td><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td></tr>';				
+		h += '<tr><th>Time to First Byte</th><td>'+dbg_progress_bar(percs.ttfb)+'</td><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td></tr>';
 		h += '<tr><th>Send Response</th><td>'+dbg_progress_bar(percs.basePage)+'</td><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td></tr>';
 		h += '<tr><th>Front End</th><td>'+dbg_progress_bar(percs.frontEnd)+'</td><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td></tr>';
 		h += '<tr><th>DOM</th><td>'+dbg_progress_bar(percs.dom)+'</td><td>'+domTime.toFixed(2)+'ms</td><td>'+percs.dom+'%</td></tr>';

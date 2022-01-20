@@ -1,5 +1,6 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
-global $template;
+global $template,$wp_query;
 $p = get_queried_object();
 
 
@@ -7,10 +8,7 @@ if(!empty($p->post_type) ){
 	$page_meta = get_post_meta($p->ID);
 }
 
-global $wp_query;
-
-
-#System_Info_Tools::dbg_table_out($wp_query->query_vars);
+#d($wp_query);
 ?>
 
 <table>

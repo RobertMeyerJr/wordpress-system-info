@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <div>
 	Check for "admin" user with id = 1
 	Check for prefix != "wp_"

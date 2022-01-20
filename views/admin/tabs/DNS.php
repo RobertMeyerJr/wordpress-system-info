@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 $host 	= System_Info_Tools::get_domain( 'http://'.$_SERVER['HTTP_HOST'] );
 $dns 	= dns_get_record( $host );

@@ -1,7 +1,6 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php
 $u = wp_get_current_user();
-#d($u);
-#$u->add_cap('administrator',true);
 ?>
 <div class="inner text-center">
 	<div>

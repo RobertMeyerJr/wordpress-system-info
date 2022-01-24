@@ -3,7 +3,7 @@
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
 Description: Provides debugging features and insights into wordpress and the server environment it is running on.
-Version: 1.0.0a
+Version: 1.0.025a
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 */	

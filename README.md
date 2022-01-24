@@ -1,13 +1,11 @@
-VERSION: 1.00001a
+VERSION: 1.0.025a
 
 TODO:
-TODO: CSS and JS that isn't in enqueue
+TODO: CSS and JS that isn't in enqueue?
 TODO:
 
 HTML pretty dump
 Details::dump($obj, $limit=3)
-
-
 
 https://kinsta.com/knowledgebase/wp-options-autoloaded-data/
 To Add: Auto Load Data Size:
@@ -24,56 +22,17 @@ Add list of ajax hooks
 Add list json routes
 
 Goals
-	Secure:			No security or DDOS vulnerabilities. Load nothing if the user is not an admin
+	Secure:			No security or DDOS vulnerabilities. Load as near to nothing as possible if the user is not an admin or not debugging
 	Fast:			Zero Impact when not used
 	Insight:		Provide transparency into the how Wordpress functions for developers
 
 ------------------------------------------------------------------------------	
-https://wordpress.org/plugins/disabler/
-
-OverWhelming Pages:	
-	Developer Only	
-		Info (Need Restricted Version)
-		MySQL
-		Merge DNS & Whois
-	
-Settings	
-	Disable Comments
-	Pingback header
-	XML RPC
-	Emoji Scripts				
-	Generator					remove_action('wp_head', 'wp_generator');
-	
-	
-	Speed & Security
-		prefix
-		file permissions
-		admin username exists
-		
-[Comment Management]
-		Delete all by IP
-		Delete by URL Contents
-		Delete by Comment Contents
-		Delete by Comment Agent	
-	Show Comments by IP	
-	Comment Stats
-		by IP
-		by Agents
-		by
-		by post id		
-		
-	Comments Stats:
-		Top User Agents		
-		Top
-
 
 [TO DO]
 
 Catch Fatal Errors, Display Like Simplified Whoops
 
 -----------------------------------------------
-On Comment:	
-	Deny comments without a referrer
 	
 -----Inspiration
 https://github.com/eworksmedia/php-server-status-dashboard

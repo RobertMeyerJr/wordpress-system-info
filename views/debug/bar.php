@@ -41,7 +41,7 @@ $show_filters = isset($_GET['filters']);
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js" integrity="sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<div class=dbg-nav>
 		<div class=resize-bar></div>
-		<ul class=tabs>
+		<ul class=tabs id=dbg_nav_tabs>
 			<li title="Debug Bar"><a href="#dbg_about">About</a></li>
 			<li <?=($current == 'console') ? 'class=current':''?>><a href=#dbg_console>Console</a></li>
 			<li <?=($current == 'errors') ? 'class=current':''?>><a href=#dbg_errors>Errors <small class="bdg bgRed"><?php echo $error_count?></small></a></li>		
@@ -55,6 +55,7 @@ $show_filters = isset($_GET['filters']);
 			<li><a href=#dbg_files>Included Files</a></li>		
 			<li><a href=#dbg_cache>Cache</a></li>						
 			<li><a href=#dbg_scripts>Scripts &amp; Styles</a></li>
+			<li class="ajax_sql"style="display:none"><a href="#dbg_ajax_sql">AJAX SQL <span id=ajax_sql_count class="bdg bgBlue"></span></a></li>
 			<li class=right id=close_dbg></li>
 			<li class='right stats'<?php echo number_format(memory_get_peak_usage()/1024,0) ?>KB</li>		
 			<li class='right stats' title=Total><span class="bdg bgRed TotalTime"></span></li>
@@ -73,6 +74,7 @@ $show_filters = isset($_GET['filters']);
 		<?php endif; ?>
 		<div class=panel id=dbg_qvars><?php include('qvars.php')?></div>
 		<div class=panel id=dbg_db><?php include('db.php')?></div>
+		<div class=panel id=dbg_ajax_sql><table id=ajax_query_table><thead><tr><th>URL</th><th>SQL</th><th>Type</th><th>Time</th></tr></thead></table></div>
 		<div class=panel id=dbg_scripts><?php include('scripts_styles.php'); ?></div>	
 		<div class=panel id=dbg_timeline><?php include('timeline.php'); ?></div>	
 		<div class=panel id=dbg_cache><?php include('cache.php'); ?></div>

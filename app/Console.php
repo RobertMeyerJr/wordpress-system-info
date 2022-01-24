@@ -78,15 +78,23 @@ class Console{
 		else{
 			$msg = print_r($msg,true);
 		}
-		
-		self::$log[] = [
-			'date'	=> microtime(true),
-			'name'	=> self::findArgName($bt),
-			'type'	=> $type,
-			'trace'	=> $where,
-			'msg'	=> $msg
-		];
+
+		$msg = esc_html($msg); //Sanitize
+
+		if(defined('DOING_AJAX') && DOING_AJAX && false !== stripos($_SERVER['HTTP_REFERER'],'debug=1') ){ //Do something better here, need more security
+			header('x-total-debug-console: '.base64_encode($msg), false);
+		}
+		else{
+			self::$log[] = [
+				'date'	=> microtime(true),
+				'name'	=> self::findArgName($bt),
+				'type'	=> $type,
+				'trace'	=> $where,
+				'msg'	=> $msg
+			];
+		}
 	}
+
 	protected static function timerLog($msg){ self::log($msg, 'time'); }
 	public static function debug($msg){ self::log($msg,'debug'); }
 	public static function info($msg){ self::log($msg,'info'); }

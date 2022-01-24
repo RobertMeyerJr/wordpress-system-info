@@ -34,9 +34,7 @@ TODO: Group Repeated Errors
 					}
 					?>
 					<b><?php echo $errstr?></b>
-					<div class=filename title="<?=esc_attr($file)?>">
-						<strong><?=$file?></strong>
-					</div>
+					<span class=filename title="<?=esc_attr($file)?>"> <strong><?=$file?></strong></span>
 					<div class=code>
 					<?php 
 						$lines 	= file($file);	
@@ -48,7 +46,7 @@ TODO: Group Repeated Errors
 							if($start>0 && isset($lines[$i]) ){
 								$lineClass = ($currentLineNum == $errLine) ? 'error':'';
 								$line = htmlentities($lines[$i]);
-								echo "<li class='{$lineClass}'><span class='lineNum'>{$currentLineNum}: </span>{$line}</li>";
+								echo "<li class='{$lineClass}'><code><span class='lineNum'>{$currentLineNum}: </span>{$line}</code></li>";
 							}
 						}
 						echo "<ul>";
@@ -56,7 +54,8 @@ TODO: Group Repeated Errors
 					</div>
 				</td>			
 				<td>
-					<ol>
+					<ol class=trace>
+						<a class=show_trace href="#">Show Trace</a>
 						<?php foreach($trace as $t) : ?>
 							<li>
 								<?php if(!empty($t['file'])) : ?>

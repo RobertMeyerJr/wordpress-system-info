@@ -95,7 +95,24 @@ foreach($plugins as $p){
 <?php $html = ob_get_clean(); ?>
 <?php if(!empty(System_Info::$templates)) : ?>
 	<h2>Templates</h2>
-	<?php echo implode('<br/>',System_Info::$templates); ?>
+	<table>
+		<thead>
+		<tr>
+			<th>Slug</th>
+			<th>Name</th>
+			<th>Templates</th>
+		</tr>
+		</thead>
+		<tbody>
+	<?php foreach(System_Info::$templates as $tpl) : list($slug,$name,$templates) = $tpl?>
+		<tr>
+			<td><?=$slug?></td>
+			<td><?=$name?></td>
+			<td><?=implode('<br/>',$templates)?></td>
+		</tr>
+		</tbody>
+	<?php endforeach; ?>
+	</table>
 <?php endif; ?>
 <h2>By Plugin</h2>
 <table>

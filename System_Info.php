@@ -3,10 +3,9 @@
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
 Description: Provides debugging features and insights into wordpress and the server environment it is running on.
-Version: 1.0a
+Version: 1.0.0a
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
-
 */	
 define('SI_START_TIME', microtime(true));
 
@@ -16,8 +15,47 @@ if( isset($_GET['debug']) ){
 	include('app/ErrorHandler.php');
 }
 
-$total_details_doing_debug = isset( $_GET['debug'] ) && (!empty($_COOKIES[LOGGED_IN_COOKIE]) || (defined('WP_TD_ALLOW_GUEST') && WP_TD_ALLOW_GUEST) );
+/* 
+SQL Debug headers not working for rest routes
+*/
+
+if( defined('REST_REQUEST') && REST_REQUEST ){
+	error_log('In Construct for REST request');
+}
+
+$total_details_doing_debug = is_td_debug(); 
 $total_details = System_Info::getInstance();
+//error_log('total_details_doing_debug '.$total_details_doing_debug?'Yes':'No');
+
+function is_td_debug(){
+	//If we have already fired init, see if we are an admin, otherwise return false
+	if( did_action('init') && !current_user_can('manage_options') ){
+		return false;
+	}
+	else if( empty($_COOKIE[LOGGED_IN_COOKIE]) ){
+		return false;
+	}
+
+	if( isset( $_GET['debug'] ) ){
+		return true;
+	}
+
+	$referer_debug = false != stripos($_SERVER['HTTP_REFERER'],'debug=1');
+	
+	if(defined('DOING_AJAX') && DOING_AJAX && $referer_debug){ //Need a better check here
+		return true;
+	}
+
+	if( defined('REST_REQUEST') && REST_REQUEST && $referer_debug){ //Need a better check here
+		return true;
+	}
+
+	if($referer_debug &&  empty( $GLOBALS['wp']->query_vars['rest_route'] ) ){
+		return true;
+	}
+
+	return false;
+}
 
 class System_Info{	
 	protected static $instance;
@@ -29,10 +67,13 @@ class System_Info{
 	public static $timeline = [];
 	protected static $remote_get_urls = [];
 	protected static $remote_request_count = 0;
-	public static function getInstance(){	
+	public static function getInstance(){
+		if( empty($_COOKIE[LOGGED_IN_COOKIE]) ){
+			return self;
+		}
 		/*Make sure running PHP 5.4+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '7.3') < 0 ){
-			 add_action('admin_notices', array($this,'wont_load'));
+			 add_action('admin_notices', array(SELF,'wont_load'));
 			 return;
 		}
 		
@@ -41,23 +82,37 @@ class System_Info{
 		}
 		return self::$instance;
 	}
-	
-
 
 	public function __construct(){
-		global $total_details_doing_debug;
-		if( !empty($total_details_doing_debug) ){
+
+		if( is_td_debug() ){
 			/*
 				Should add another check here, but we can't check	
 				is_user_logged_in yet as we want the 
 				benchmarking and error handler to start as early as possible
 			*/
-						
-			SI_ErrorHandler::enable_error_handling();
+			
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
 			}
 			
+			if( defined('DOING_AJAX') && DOING_AJAX || defined('REST_REQUEST') && REST_REQUEST || !empty($GLOBALS['wp']->query_vars['rest_route']) ){
+				add_filter('log_query_custom_data',function($query_data, $query, $query_time, $query_callstack, $query_start){
+					$json = json_encode([$query,$query_time]);//Limit data passed in headers
+					if( !headers_sent() ){
+						header('x-total-debug-sql: '.base64_encode($json), false);
+					}
+					return $query_data;
+				},10,5);
+				/*
+				add_action('shutdown',function(){
+					Console::log('Ajax Shutdown');
+				});
+				*/
+			}
+			else if( class_exists('SI_ErrorHandler') ){
+				SI_ErrorHandler::enable_error_handling();
+			}
 			//http_request_args?
 
 			add_action('requests-curl.before_request', 	array($this, 'before_remote_request'), 10, 1);
@@ -73,13 +128,15 @@ class System_Info{
 			$this->all_actions();
 
 			add_action('get_template_part',function($slug=null, $name=null, $templates=null, $args=null){
-				self::$templates[] = $slug;
+				self::$templates[] = [$slug, $name, $templates];
 			},10,4);
-
-			add_filter('template_include_DISABLED',function($tpl){
+			
+			/*
+			add_filter('template_include',function($tpl){
 				Console::log('template_include: '.$tpl);
 				return $tpl;
 			});
+			*/
 			
 		}
 		
@@ -88,10 +145,14 @@ class System_Info{
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );
 		
 		$important_filters = [
-			'after_setup_theme',
 			'plugins_loaded',
+			'setup_theme',
+			'after_setup_theme',
 			'init',
 			'wp_loaded',
+			'wp_print_scripts',
+			'wp_print_styles',
+			'wp_body_open',
 			'parse_request',
 			'wp',
 			'template_redirect',
@@ -133,7 +194,7 @@ class System_Info{
 
 		
 		//See if we can get the size of the request
-		Console::log($res);
+		//Console::log($res);
 		#Console::log($ctx);
 		#Console::log($last_key);
 		#Console::log('completed');
@@ -188,26 +249,30 @@ class System_Info{
 	}	
 	
 	public function init(){			
-		global $total_details_doing_debug;
-		if( current_user_can('manage_options') || (defined('WP_TD_ALLOW_GUEST') && WP_TD_ALLOW_GUEST) ){
+		global $wp;
+		if( current_user_can('manage_options') ){
 			add_action('admin_bar_menu', 						array($this,'admin_menu'),9000);	
 			add_action('wp_dashboard_setup', function(){			
 				wp_add_dashboard_widget('debugbar_dashboard', '<i class="dashicons dashicons-dashboard"></i> Total Details', array($this,'dashboard_widget'));
 			});			
 			
-			if( $total_details_doing_debug ){
+			if( is_td_debug() && !defined('DOING_AJAX') && empty($wp->query_vars['rest_route']) ){
 				$this->debug_start();
 			}		
 			
 			$this->admin();
 			
-			add_action('deprecated_function_run',function($function, $replacement, $version){
-				Console::warn("Deprecated Function {$function} Replacement: $replacement Version: $version");
-				Console::log(debug_backtrace(false));
-			},10,3);
+			add_action('deprecated_function_run',[$this,'deprecated_function_run'],10,3);
 		}
 	}	
 	
+	public function deprecated_function_run($func, $replace, $ver){
+		Console::warn("Deprecated Function {$func} Replacement: $replace Version: $ver");
+		if( !defined('DOING_AJAX') ){
+			Console::log(debug_backtrace(false));
+		}
+	}
+
 	//Dashboard Widget All Logic is in the php file	
 	public function dashboard_widget(){ include('views/dashboard-widget.php'); }
 	
@@ -255,7 +320,10 @@ class System_Info{
 	}
 
 	public function renderDebugBar(){
-		include(__DIR__.'/views/debug/bar.php');
+		global $wp;
+		if( empty($wp->query_vars['rest_route']) ){
+			include(__DIR__.'/views/debug/bar.php');
+		}
 	}
 		
 	/*

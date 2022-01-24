@@ -33,7 +33,14 @@
 						</div>
 					</td>
 					<td>
-						<ol>
+						<?php
+						$type = strtok($sql,' ');
+						echo strtoupper($type);
+						?> 
+					</td>
+					<td>
+						<ol class=trace>
+							<a class=show_trace href="#">Show Trace</a>
 						<?php 
 							$trace_parts = explode(',',$trace);
 							foreach($trace_parts as $p){

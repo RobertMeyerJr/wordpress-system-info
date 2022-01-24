@@ -6,6 +6,7 @@ body{
 #dbg_bar{
 	font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
 	font-size:14px;
+	background:black;
 }
 
 #dbg_bar h1,#dbg_bar h2,#dbg_bar h3{
@@ -43,17 +44,6 @@ body{
 
 
 #dbg_bar .pre{whitespace:pre;}
-
-#dbg_bar [class*=fa-]{	
-	display: inline-block;
-	font-family: FontAwesome;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	color:#777;
-}
 
 #dbg_bar{
 	position: fixed;
@@ -143,7 +133,7 @@ body{
 	color:white;
 	background:#2d3748;
 	display: none;
-	padding:0;
+	padding:10px;
 	width:100%;
 	min-height:100%;	
 	margin:0 !important;
@@ -179,14 +169,16 @@ body{
 #dbg_bar tbody tr:nth-child(even){background-color:rgba(0,0,0,0.08);}
 #dbg_bar thead th{background:black;color:white;}
 
-#dbg_bar code.sql{
+#dbg_bar code{
 	display:block;
 	background-color:rgb(20, 20, 20);
 	color:white;
 	padding:10px;
 	line-height:1.5em;
 	word-break:break-all;
+	white-space:pre;
 }
+#dbg_bar li code{padding:0;}
 
 #dbg_bar .code_container{
 	width:100%;
@@ -309,3 +301,7 @@ body{
 /* Remove styling from themes that may alter appearence */
 #dbg_bar li::before{content:unset;}
 #dbg_bar progress{border-radius:5px;background-color:#2980b9;}
+
+
+ol.trace li{display:none;}
+ol.trace.show li{display:list-item;}

@@ -1,11 +1,66 @@
 var dbg_start = Date.now();
 
+
+
 jQuery(window).load(function(){
 	//setTimeout(dbg_performance,1000);
 	dbg_performance();
 });
 
+jQuery(document).ajaxComplete(function(event, jqXHR, opt){
+	var headers = jqXHR.getAllResponseHeaders().trim().split(/[\r\n]+/);
+	var url = opt.url;
+	tdLog('AJAX Request '+opt.type+' '+url,'info');
+	for(var i=0;i<headers.length;i++){
+		var [hdr,content] = headers[i].split(':',2);
+		if( -1 != hdr.indexOf('x-total-debug-console') ){
+			var logs = content.split(',');
+			var msg = '';
+			for(var j=0; j<logs.length; j++){
+				tdLog( atob( logs[j].trim() ) );
+			}
+		}
+		else if( -1 != hdr.indexOf('x-total-debug-sql') ){
+			var logs = content.split(',');
+			var html = '';
+			for(var j=0; j<logs.length; j++){
+				try{
+					var json = atob( logs[j].trim() );
+					var [sql,time] = JSON.parse(json);
+					var type = sql.split(' ')[0];
+					html += '<tr><td>'+url+'</td><td><code class=sql>'+colorizeQuery(sql)+'</code></td><td>'+type+'</td><td>'+time.toFixed(4)+'</td></tr>';
+				}catch(err){
+					console.log('Error with AJAX SQL Debug',err);
+				}
+			}
+			$('#ajax_query_table').append(html);
+			$('.ajax_sql').show();
+
+			var curCount = parseInt( $('#ajax_sql_count').text() || 0 );
+			var total = curCount + logs.length;
+			$('#ajax_sql_count').text(total);
+		}
+	}
+	//console.log(headers);
+});
+
 jQuery(function($){	
+
+	/*
+	jQuery.ajaxSetup({
+		beforeSend: function(j,xhr,o) {
+			//console.log('Ajax Request URL'+xhr.url+' Type '+xhr.type);
+			//console.log(q);
+			//console.log('beforeSend');
+		},
+		complete: function() {
+			console.log('complete');
+		},
+		success: function() {
+			console.log('success');
+		}
+	});
+	*/
 	jQuery('#dbg_bar table.sortable').tablesorter();
 
 	jQuery(function($){
@@ -67,7 +122,15 @@ jQuery(function($){
 	$('#filter_hooks').click(filter_hooks);
 
 	$('#do_query_search').click(do_query_search);
+
+	$('.trace .show_trace').click(function(){
+		$(this).closest('ol').toggleClass('show');
+	});
 });
+
+function tdLog(msg, type){
+	$('#dbg_console #log').append('<li class="'+type+'">'+msg+'</li>');
+}
 
 function do_query_search(){
 	var v = jQuery('#query_search_value').val();
@@ -175,35 +238,38 @@ This is a quick and dirty colorizer
 We don't want to load a seperate library like prism or rainbow to do this
 Just some basic syntax hilighting
 */
+
+function colorizeQuery(h){
+	h = h.replace(/([!=])/gi,	'<i class=op>$1</i> ');
+		
+	h = h.replace(/SELECT /gi,		'<i class=mn>SELECT</i> ');
+	h = h.replace(/FROM /gi,		'<i class=mn>FROM</i> ');
+	h = h.replace(/LIMIT /gi,		'<br/><i class=mn>LIMIT</i> ');
+	h = h.replace(/ORDER BY/gi ,	'<br/><i class=mn>ORDER BY</i> ');
+	h = h.replace(/GROUP BY/gi ,	'<br/><i class=mn>GROUP BY</i> ');
+	h = h.replace(/LEFT JOIN /gi,	'<br/><i class=mn>LEFT JOIN</i> ');
+	h = h.replace(/RIGHT JOIN /gi,	'<br/><i class=mn>RIGHT JOIN</i> ');
+	h = h.replace(/JOIN /gi,		'<br/><i class=mn>JOIN</i> ');
+	h = h.replace(/WHERE /gi,		'<br/><i class=cnd>WHERE</i> ');		
+	h = h.replace(/'(.*)'/gi,		'<i class=str>\'$1\'</i> ');
+	h = h.replace(/ ON /gi,			' <i class=mn>ON</i> ');
+	h = h.replace(/ AS /gi,			' <i class=mn>AS</i> ');
+	
+	h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> ');
+	h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');
+	h = h.replace(/ IN /gi,			' <i class=mn>IN</i> ');
+	h = h.replace(/ AND /gi,		'<br/>&nbsp;&nbsp;<i class=mn> AND </i> ');
+	h = h.replace(/ LIKE /gi,		'<i class=mn> LIKE </i> ');			
+	h = h.replace(/SHOW VARIABLES/gi,	'<i class=mn>SHOW VARIABLES </i><br/> ');					
+	
+	h = h.replace(/(\d+)/gi,		'<i class=int>$1</i>');		
+	return h;
+}
+
 function colorize_sql(){
 	jQuery('#dbg_db code.sql').each(function(){
 		var h = jQuery(this).html();
-		
-			h = h.replace(/([!=])/gi,	'<i class=op>$1</i> ');
-		
-			h = h.replace(/SELECT /gi,		'<i class=mn>SELECT</i> ');
-			h = h.replace(/FROM /gi,		'<i class=mn>FROM</i> ');
-			h = h.replace(/LIMIT /gi,		'<br/><i class=mn>LIMIT</i> ');
-			h = h.replace(/ORDER BY/gi ,	'<br/><i class=mn>ORDER BY</i> ');
-			h = h.replace(/GROUP BY/gi ,	'<br/><i class=mn>GROUP BY</i> ');
-			h = h.replace(/LEFT JOIN /gi,	'<br/><i class=mn>LEFT JOIN</i> ');
-			h = h.replace(/RIGHT JOIN /gi,	'<br/><i class=mn>RIGHT JOIN</i> ');
-			h = h.replace(/JOIN /gi,		'<br/><i class=mn>JOIN</i> ');
-			h = h.replace(/WHERE /gi,		'<br/><i class=cnd>WHERE</i> ');		
-			h = h.replace(/'(.*)'/gi,		'<i class=str>\'$1\'</i> ');
-			h = h.replace(/ ON /gi,			' <i class=mn>ON</i> ');
-			h = h.replace(/ AS /gi,			' <i class=mn>AS</i> ');
-			
-			h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> ');
-			h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');
-			h = h.replace(/ IN /gi,			' <i class=mn>IN</i> ');
-			h = h.replace(/ AND /gi,		'<br/>&nbsp;&nbsp;<i class=mn> AND </i> ');
-			h = h.replace(/ LIKE /gi,		'<i class=mn> LIKE </i> ');			
-			h = h.replace(/SHOW VARIABLES/gi,	'<i class=mn>SHOW VARIABLES </i><br/> ');					
-			
-			h = h.replace(/(\d+)/gi,		'<i class=int>$1</i>');				
-			
-			
+		h = colorizeQuery(h);
 		jQuery(this).html(h);	
 	});
 }

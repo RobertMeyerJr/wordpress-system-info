@@ -5,20 +5,15 @@
         $START =  isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : $_SERVER['REQUEST_TIME'];
     ?>
     <?php if( empty($log) ) : ?>
-        Nothing Logged.
-        <p>
-            The console is a useful tool for development and debugging.
-            You can use the following statements to output data to the console in your theme or plugin:
-        </p>
-        Console::info($variable_or_text_to_output);<br/>
-        Console::success($variable_or_text_to_output);<br/>
-        Console::warn($variable_or_text_to_output);<br/>
-        Console::error($variable_or_text_to_output);<br/>
+        <li>
+            The console is a useful tool for development and debugging. You can use the following statements to output data to the console in your theme or plugin:</p>
+            Console::info($variable_or_text_to_output);<br/>
+            Console::success($variable_or_text_to_output);<br/>
+            Console::warn($variable_or_text_to_output);<br/>
+            Console::error($variable_or_text_to_output);<br/>
 
-        Console::stopwatch('timer name'); (Call once to start, and again to stop and report duration)</br/>
-        
-        <b>Note</b>: These statements should be removed from production.
-        </p>
+            Console::stopwatch('timer name'); (Call once to start, and again to stop and report duration)</br/>
+        </li>
     <?php else: ?>
         <?php foreach($log as $l) : ?>
             <?php 

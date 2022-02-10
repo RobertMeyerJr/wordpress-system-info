@@ -114,7 +114,7 @@ foreach($plugins as $p){
 	<?php endforeach; ?>
 	</table>
 <?php endif; ?>
-<h2>By Plugin</h2>
+<h2>By Plugin (<?=count($plugin_file_counts)?> Plugins Loaded)</h2>
 <table>
 	<thead>
 		<tr>

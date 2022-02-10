@@ -68,7 +68,6 @@ class Console{
 		}
 		
 		if( empty($where) ){
-			#d($bt);
 			#$where = empty($bt[1]) ? [] : $bt[1];
 		}		
 

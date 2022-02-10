@@ -2,8 +2,6 @@
 <h2>WP Object Cache</h2>
 <?php 
 global $wp_object_cache;
-
-#d($wp_object_cache);
 ?>
 <div class=object-cache>
 	<?php if( method_exists($wp_object_cache, 'stats') ) : ?>

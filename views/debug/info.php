@@ -8,7 +8,6 @@ if(!empty($p->post_type) ){
 	$page_meta = get_post_meta($p->ID);
 }
 
-#d($wp_query);
 ?>
 
 <table>

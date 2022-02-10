@@ -50,7 +50,7 @@ function is_td_debug(){
 		return true;
 	}
 
-	if($referer_debug &&  empty( $GLOBALS['wp']->query_vars['rest_route'] ) ){
+	if($referer_debug && !empty( $GLOBALS['wp']->query_vars['rest_route'] ) ){
 		return true;
 	}
 
@@ -180,6 +180,7 @@ class System_Info{
 
 	public static function before_remote_request($res){
 		$index = self::$remote_request_count++;
+		//Trace?
 		self::$remote_get_urls[$index] = ['start'=>microtime(true)];
 	}
 	public static function after_remote_request($res, $ctx, $class, $r, $url){
@@ -190,7 +191,12 @@ class System_Info{
 		self::$remote_get_urls[$index]['end'] = microtime(true);
 		self::$remote_get_urls[$index]['method'] = $r['method'];
 		self::$remote_get_urls[$index]['url'] = $url;
-		self::$remote_get_urls[$index]['code'] = $res['response']['code'];
+		if( is_wp_error($res) ){
+			self::$remote_get_urls[$index]['code'] = 'WP Error';
+		}
+		else{
+			self::$remote_get_urls[$index]['code'] = $res['response']['code'];
+		}
 
 		
 		//See if we can get the size of the request

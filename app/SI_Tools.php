@@ -367,7 +367,7 @@ class System_Info_Tools{
 				echo "<tr>";
 				if( !empty($r) ){
 					if( !is_array($r) ){
-						#d($r);
+						
 					}
 					else{
 						foreach($r as $c){
@@ -384,7 +384,7 @@ class System_Info_Tools{
 					}
 				}
 				else{
-					#d($r);
+					
 				}
 				echo "</tr>";
 			}

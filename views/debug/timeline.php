@@ -7,7 +7,7 @@ $total_time = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4)
 $query_time = number_format($total_query_time,4);
 
 ?>
-<?php if(!empty(System_Info::$remote_get_urls)) : ?>	
+<?php if(!empty(System_Info::$remote_get_urls)) : $total_req_time = 0;?>	
 	<h3>Remote URL Requests</h3>
 	<table>
 		<thead>
@@ -19,18 +19,31 @@ $query_time = number_format($total_query_time,4);
 			</tr>
 		</thead>
 		<tbody>
-		<?php foreach(System_Info::$remote_get_urls as $req) : ?>
+		<?php foreach(System_Info::$remote_get_urls as $req) : 
+			if(empty($end) || empty($start)){
+				$req_time = $req['end']-$req['start'];
+				$total_req_time += $req_time;
+			}
+			else{
+				$req_time = false;
+			}
+			?>
 			<tr>
 				<td><?=$req['method']?>
 				<td><?=$req['url']?>
 				<td><?=$req['code']?>
 				<td>
-					<?php if(empty($end) || empty($start)) : ?>
+					<?php if( empty($req_time) ) : ?>
 						Start: <?=$req['start']?> End: <?=$req['end']?>
 					<?php else : ?>
-						<?=number_format($req['end']-$req['start'],4)?> seconds
+						<?=number_format($req_time,4)?> seconds
 					<?php endif; ?>
 		<?php endforeach; ?>
+		<tfoot>
+			<tr>
+				<th colspan=4>Total Time <?=number_format($total_req_time,2)?></th>
+			</tr>
+		</tfoot>
 	</table>
 <?php endif; ?>
 <h2>Wordpress Measurements</h2>
@@ -72,9 +85,6 @@ $query_time = number_format($total_query_time,4);
 
 <?php if( isset($_GET['all_actions']) ) : ?>
 <h3>Action Timeline</h3>
-<?php 
-#d(System_Info::$actions);
-?>
 <input type=text id=wptd_action_search placeholder="Search by Action">
 <table>
 	<thead>

@@ -33,12 +33,12 @@ jQuery(document).ajaxComplete(function(event, jqXHR, opt){
 					console.log('Error with AJAX SQL Debug',err);
 				}
 			}
-			$('#ajax_query_table').append(html);
-			$('.ajax_sql').show();
+			jQuery('#ajax_query_table').append(html);
+			jQuery('.ajax_sql').show();
 
-			var curCount = parseInt( $('#ajax_sql_count').text() || 0 );
+			var curCount = parseInt( jQuery('#ajax_sql_count').text() || 0 );
 			var total = curCount + logs.length;
-			$('#ajax_sql_count').text(total);
+			jQuery('#ajax_sql_count').text(total);
 		}
 	}
 	//console.log(headers);
@@ -129,7 +129,7 @@ jQuery(function($){
 });
 
 function tdLog(msg, type){
-	$('#dbg_console #log').append('<li class="'+type+'">'+msg+'</li>');
+	jQuery('#dbg_console #log').append('<li class="'+type+'">'+msg+'</li>');
 }
 
 function do_query_search(){
@@ -217,12 +217,12 @@ function dbg_performance(){
 		h += '<tr><th>DNS</th><td>'+dbg_progress_bar(percs.dns)+'</td><td>'+dns.toFixed(2)+'ms</td><td>'+percs.dns+'%</td></tr>';
 		h += '<tr><th>TCP</th><td>'+dbg_progress_bar(percs.tcp)+'</td><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.tcp+'%</td></tr>';				
 		//h += '<tr><th>SSL</th><td>'+dbg_progress_bar(percs.ssl)+'</td><td>'+tcp.toFixed(2)+'ms</td><td>'+percs.ssl+'%</td></tr>';				
-		h += '<tr><th>Connect Time</th>	<td>'+dbg_progress_bar(percs.connect)+'</td><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td></tr>';				
+		//h += '<tr><th>Connect Time</th>	<td>'+dbg_progress_bar(percs.connect)+'</td><td>'+connectTime.toFixed(2)+'ms</td><td>'+percs.connect+'%</td></tr>';				
 		h += '<tr><th>Time to First Byte</th><td>'+dbg_progress_bar(percs.ttfb)+'</td><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td></tr>';
 		h += '<tr><th>Send Response</th><td>'+dbg_progress_bar(percs.basePage)+'</td><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td></tr>';
 		h += '<tr><th>Front End</th><td>'+dbg_progress_bar(percs.frontEnd)+'</td><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td></tr>';
 		h += '<tr><th>DOM</th><td>'+dbg_progress_bar(percs.dom)+'</td><td>'+domTime.toFixed(2)+'ms</td><td>'+percs.dom+'%</td></tr>';
-		h += '<tr><th>Page Load</th><td>'+pageloadtime.toFixed(2)+'ms</td><td></td></tr>';
+		h += '<tr><th>Page Load</th><td></td><td>'+pageloadtime.toFixed(2)+'ms</td><td>100%</td></tr>';
 		
 	jQuery('#dbg_frontend').html(h);	
 }

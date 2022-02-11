@@ -178,6 +178,10 @@ body{
 	word-break:break-all;
 	white-space:pre;
 }
+#dbg_bar code.sql{
+	white-space: normal;
+}
+
 #dbg_bar li code{padding:0;}
 
 #dbg_bar .code_container{
@@ -186,6 +190,7 @@ body{
 	background-color:#141414;
 	display:flex;
 	flex-grow:1;
+	max-width:80vw;
 }
 
 #dbg_bar .qry{width:60%;background:#141414;}

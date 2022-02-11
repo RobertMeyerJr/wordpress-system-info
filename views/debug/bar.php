@@ -65,9 +65,7 @@ $show_filters = isset($_GET['filters']);
 	</div>
 	
 	<div class=dbg_body>	
-		<div class=panel id=dbg_about><?php include('about.php');?></div>		
-		<div class="panel <?=($current=='console')?'active':''?>" id=dbg_console><?php include('console.php');?></div>		
-		<div class="panel <?=($current=='errors')?'active':''?>" id=dbg_errors><?php include('errors.php');?></div>
+		<div class=panel id=dbg_about><?php include('about.php');?></div>
 		<div class="panel <?=($current=='info')?'active':''?>" id=dbg_info><?php include('info.php');?></div>
 		<?php if($show_filters) : ?>
 			<div class=panel id=dbg_filters><?php include('filters.php')?></div>
@@ -79,6 +77,8 @@ $show_filters = isset($_GET['filters']);
 		<div class=panel id=dbg_timeline><?php include('timeline.php'); ?></div>	
 		<div class=panel id=dbg_cache><?php include('cache.php'); ?></div>
 		<div class=panel id=dbg_files><?php include('included_files.php'); ?></div>	
+		<div class="panel <?=($current=='console')?'active':''?>" id=dbg_console><?php include('console.php');?></div>		
+		<div class="panel <?=($current=='errors')?'active':''?>" id=dbg_errors><?php include('errors.php');?></div>
 	</div>
 </div>
 <script>

@@ -23,13 +23,22 @@ if( defined('REST_REQUEST') && REST_REQUEST ){
 	error_log('In Construct for REST request');
 }
 
-$total_details_doing_debug = is_td_debug(); 
 $total_details = System_Info::getInstance();
-//error_log('total_details_doing_debug '.$total_details_doing_debug?'Yes':'No');
+
+function is_td_guest_debug(){
+	if( !defined('DEBUG_KEY') ){
+		return false;
+	}
+	if( strlen(DEBUG_KEY) < 10 ){
+		return false;
+	}
+	
+	return $_GET['debug'] == DEBUG_KEY;
+}
 
 function is_td_debug(){
 	//If we have already fired init, see if we are an admin, otherwise return false
-	if( did_action('init') && !current_user_can('manage_options') ){
+	if( did_action('init') && !is_td_guest_debug() && !current_user_can('manage_options') ){
 		return false;
 	}
 	else if( empty($_COOKIE[LOGGED_IN_COOKIE]) ){
@@ -68,7 +77,7 @@ class System_Info{
 	protected static $remote_get_urls = [];
 	protected static $remote_request_count = 0;
 	public static function getInstance(){
-		if( empty($_COOKIE[LOGGED_IN_COOKIE]) ){
+		if( empty($_COOKIE[LOGGED_IN_COOKIE]) && !is_td_guest_debug() ){
 			return self;
 		}
 		/*Make sure running PHP 5.4+, otherwise dont even load */
@@ -84,13 +93,8 @@ class System_Info{
 	}
 
 	public function __construct(){
-
-		if( is_td_debug() ){
-			/*
-				Should add another check here, but we can't check	
-				is_user_logged_in yet as we want the 
-				benchmarking and error handler to start as early as possible
-			*/
+		if( is_td_debug() || is_td_guest_debug() ){
+			define('DONOTCACHEPAGE',true); #PREVENT CACHING THE PAGE
 			
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
@@ -121,22 +125,15 @@ class System_Info{
 			
 			$GLOBALS['SI_Errors'] 			= array();
 			$GLOBALS['dbg_filter_calls']	= array();
-			$GLOBALS['dbg_filter_times'] 	= array();			
+			$GLOBALS['dbg_filter_times'] 	= array();
 			$GLOBALS['dbg_filter_start']	= array();
-			$GLOBALS['dbg_filter_stop']		= array();			
+			$GLOBALS['dbg_filter_stop']		= array();
 			
 			$this->all_actions();
 
 			add_action('get_template_part',function($slug=null, $name=null, $templates=null, $args=null){
 				self::$templates[] = [$slug, $name, $templates];
 			},10,4);
-			
-			/*
-			add_filter('template_include',function($tpl){
-				Console::log('template_include: '.$tpl);
-				return $tpl;
-			});
-			*/
 			
 		}
 		
@@ -256,13 +253,13 @@ class System_Info{
 	
 	public function init(){			
 		global $wp;
-		if( current_user_can('manage_options') ){
+		if( current_user_can('manage_options') || is_td_guest_debug() ){
 			add_action('admin_bar_menu', 						array($this,'admin_menu'),9000);	
 			add_action('wp_dashboard_setup', function(){			
 				wp_add_dashboard_widget('debugbar_dashboard', '<i class="dashicons dashicons-dashboard"></i> Total Details', array($this,'dashboard_widget'));
 			});			
 			
-			if( is_td_debug() && !defined('DOING_AJAX') && empty($wp->query_vars['rest_route']) ){
+			if( (is_td_guest_debug() || is_td_debug()) && !defined('DOING_AJAX') && empty($wp->query_vars['rest_route']) ){
 				$this->debug_start();
 			}		
 			
@@ -350,7 +347,7 @@ class System_Info{
 		
 	//Includes only happen if they are needed
 	public function do_includes(){
-		if( !is_user_logged_in() ){
+		if( !is_user_logged_in() && !is_td_guest_debug()){
 			return;
 		}
 		if( is_admin() ){ //Should also make sure page is ours

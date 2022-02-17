@@ -66,10 +66,6 @@ class Console{
 				break;
 			}
 		}
-		
-		if( empty($where) ){
-			#$where = empty($bt[1]) ? [] : $bt[1];
-		}		
 
 		if( !is_array($msg) && !is_object($msg) ){
 			$msg = $msg;
@@ -77,8 +73,6 @@ class Console{
 		else{
 			$msg = print_r($msg,true);
 		}
-
-		$msg = esc_html($msg); //Sanitize
 
 		if(defined('DOING_AJAX') && DOING_AJAX && false !== stripos($_SERVER['HTTP_REFERER'],'debug=1') ){ //Do something better here, need more security
 			header('x-total-debug-console: '.base64_encode($msg), false);

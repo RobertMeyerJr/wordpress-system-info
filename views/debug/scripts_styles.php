@@ -49,7 +49,7 @@ global $wp_scripts,$wp_styles;
 	</tbody>
 </table>
 <h2>Styles (<?=count($wp_styles->queue)?>)</h2>
-<table>
+<table id=styles_table>
 	<thead>
 		<tr>
 			<th>Name</th>
@@ -78,7 +78,7 @@ global $wp_scripts,$wp_styles;
 					<?=$s->ver?>
 				<?php endif; ?>
 			</td>
-			<td>
+			<td class="<?=empty($s->src)?'inline':'file'?>" data-name="<?=esc_attr($q)?>">
 				<?php 
 					if( stripos($s->src,'/wp-content/') !== false || stripos($s->src,'/wp-includes/') !== false ){
 						$file = rtrim(ABSPATH,'.').parse_url($s->src,PHP_URL_PATH);
@@ -104,5 +104,10 @@ jQuery(function($){
 	//var code = jQuery(this).html();
 	//source = '<div class=hidden_code> <span>( inline )</span> <pre>'+code+'<pre></div>';
 	//jQuery('#si_inline_scripts table').append('<tr><th>Script</th><td>'+source);
+	$('#styles_table td.inline').each(function(){
+		var name = $(this).data('name');
+		var css = $(`#${name}-inline-css`).html();
+		$(this).html(css);
+	});
 });
 </script>

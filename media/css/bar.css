@@ -200,6 +200,7 @@ body{
 #dbg_bar .dbg_body .int{color:#2980b9;}
 #dbg_bar .dbg_body .str{color:#2ecc71}
 #dbg_bar h3{text-align:center;color:#2980b9;margin:20px;font-size:1.4em;}
+#dbg_bar .dbg_out{width:100%}
 #dbg_bar .dbg_out td{padding:3px;word-break: break-all;}
 
 #dbg_files > ul li{display:inline-block;}

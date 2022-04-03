@@ -9,19 +9,15 @@ Author URI: http://www.RobertMeyerJr.com
 */	
 define('SI_START_TIME', microtime(true));
 
-include('app/Console.php');
+include('app/Console.php'); #Always included to prevent errors if called
 
 if( isset($_GET['debug']) ){
-	include('app/ErrorHandler.php');
+	include('app/ErrorHandler.php'); #ToDo: Improve this, only run when allowed
 }
 
 /* 
 SQL Debug headers not working for rest routes
 */
-
-if( defined('REST_REQUEST') && REST_REQUEST ){
-	error_log('In Construct for REST request');
-}
 
 $total_details = System_Info::getInstance();
 
@@ -74,15 +70,17 @@ class System_Info{
 	public static $action_end;
 	public static $templates;
 	public static $timeline = [];
+	public static $blocks = [];
+
 	protected static $remote_get_urls = [];
 	protected static $remote_request_count = 0;
 	public static function getInstance(){
 		if( empty($_COOKIE[LOGGED_IN_COOKIE]) && !is_td_guest_debug() ){
-			return self;
+			return;
 		}
-		/*Make sure running PHP 5.4+, otherwise dont even load */
+		/*Make sure running PHP 7.3+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '7.3') < 0 ){
-			 add_action('admin_notices', array(SELF,'wont_load'));
+			 add_action('admin_notices', array(__CLASS__,'wont_load'));
 			 return;
 		}
 		
@@ -165,7 +163,17 @@ class System_Info{
 		foreach($important_filters as $f){
 			add_action($f,[$this,'timeline'], -100);
 		}
+
+		add_filter('render_block',[$this,'render_block'], 10, 2);
 	}	
+
+	public function render_block($content, $block){
+		self::$blocks[] = [
+			$block['blockName'],
+			$block['attrs'],
+		];
+		return $content;
+	}
 	
 	public function timeline(){
 		self::$timeline[] = [
@@ -215,8 +223,8 @@ class System_Info{
 	
 	}
 
-	public function wont_load(){
-		$msg = sprintf('The Total Details plugin requires at least PHP 5.4. You have %s', PHP_VERSION);
+	public static function wont_load(){
+		$msg = sprintf('The Total Details plugin requires at least PHP 7.3 You have %s', PHP_VERSION);
 		echo "<div class='error below-h2'><p>{$msg}</p></div>";
 	}	
 	

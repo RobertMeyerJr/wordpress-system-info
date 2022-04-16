@@ -5,6 +5,7 @@ global $SI_Errors;
 TODO: Group Repeated Errors
 */
 ?>
+<h2>Errors</h2>
 <table class=widefat>
 	<thead>
 		<tr class=hdr>
@@ -75,3 +76,16 @@ TODO: Group Repeated Errors
 		<?php endforeach; ?>
 	</tbody>
 </table>
+
+<?php if( !empty(System_Info::$doing_it_wrong) ) : ?>
+<h2>Doing it Wrong</h2>
+<table>
+	<?php foreach(System_Info::$doing_it_wrong as list($function,$message,$ver)) : ?>
+		<tr>
+			<td><?=esc_html($function)?></td>
+			<td><?=esc_html($message)?></td>
+			<td><?=esc_html($ver)?></td>
+		</tr>
+	<?php endforeach; ?>
+</table>
+<?php endif; ?>

@@ -266,6 +266,7 @@ tr.files{display:none;}
 			<li><label>revalidate_freq</label><span><?=number_format($cfg['opcache.revalidate_freq'])?></span></li>
 			<li><label>interned_strings_buffer</label><span><?=number_format($cfg['opcache.interned_strings_buffer'])?></span></li>
 			<li><label>max_accelerated_files 	</label><span><?=number_format($cfg['opcache.max_accelerated_files'])?></span></li>
+			<li><label>huge_code_pages 	</label><span><?=number_format($cfg['opcache.huge_code_pages'])?></span></li>
 		</ul>
 	</div>
 	

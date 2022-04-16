@@ -36,14 +36,13 @@ if(!empty($p->post_type) ){
 		?>
 		<?php endforeach; ?>
 	<?php endif; ?>
-
+	<tr><th class=hdr colspan=2>Info
 	<tr><th>User ID</th><td><?php echo get_current_user_id(); ?></td></tr>
 	<tr><th>ABSPATH</th><td><?php echo ABSPATH; ?></td></tr>
 	<tr><th>DB_NAME</th><td><?php echo DB_NAME; ?></td></tr>
 	<tr><th>DB_HOST</th><td><?php echo DB_HOST; ?></td></tr>
 	<tr><th>Template Directory</th><td><?php echo $tpl_dir ?></td></tr>		
 	<tr><th>SERVER_SOFTWARE</th><td><?php echo $_SERVER['SERVER_SOFTWARE'] ?></td></tr>
-	<tr><th>REQUEST_URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>		
 	
 	<?Php if(!empty($_SERVER['COMPUTERNAME'])) : ?><tr><th>Computer Name</th><td><?php echo $_SERVER['COMPUTERNAME'] ?></td></tr><?php endif; ?>
 	<?Php if(!empty($_SERVER['NUMBER_OF_PROCESSORS'])) : ?><tr><th>NUMBER_OF_PROCESSORS</th><td><?php echo $_SERVER['NUMBER_OF_PROCESSORS'] ?></td></tr><?php endif; ?>

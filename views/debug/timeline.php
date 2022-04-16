@@ -50,7 +50,7 @@ $query_time = number_format($total_query_time,4);
 <table>
 	<tr><th>WP Core Time</th><td><?php echo $WP_CORE_TIME?></td>
 	<tr><th>Query Time</th><td><?php echo $query_time?></td>
-	<tr><th>Request Time</th><td><?php echo $total_time?></td>	
+	<tr><th>Request Time</th><td><?php echo $total_time?></td>
 </table>
 <h2>Browser Measurements</h2>
 <table>
@@ -70,17 +70,31 @@ $query_time = number_format($total_query_time,4);
 	<thead>
 		<tr>
 			<th>Action</th>
-			<th>Memory</th>
+			<th>Mem</th>
+			<th>Mem Used</th>
 			<th>Time Fired</th>
+			<th>Queries</th>
+			<th>Duration</th>
+			<th>Count</th>
 		</tr>
 	</thead>
-	<?php foreach(System_Info::$timeline as list($f, $mem, $dur)) : ?>
+	<?php
+	$timeline_entries = count(System_Info::$timeline);
+	?>
+	<?php for($i=0;$i<$timeline_entries;$i++) : 
+		list($f, $mem, $dur, $queries) = System_Info::$timeline[$i];
+		list($f2, $mem2, $dur2, $queries2) = System_Info::$timeline_end[$i];
+	?>
 		<tr>
 			<th><?=$f?>
 			<td><?=size_format($mem)?>
+			<td><?=size_format($mem2-$mem)?>
 			<td><?=number_format($dur,5)?>
+			<td><?=$queries?> / <?=$queries2-$queries?>
+			<td><?=number_format($dur2-$dur,5)?>
+			<td><?=$wp_actions[$f]?>
 		</tr>
-	<?php endforeach; ?>
+	<?php endfor; ?>
 </table>
 
 <?php if( isset($_GET['all_actions']) ) : ?>
@@ -98,7 +112,7 @@ $query_time = number_format($total_query_time,4);
 		
 		<?php foreach(System_Info::$actions as list($filter, $start, $end) ) : $dur = $end-$start;?>
 			<?php
-				if( $dur <= 0.0000001 ){
+				if( $dur <= 0.00000010 ){
 					continue;
 				}
 			?>
@@ -106,7 +120,7 @@ $query_time = number_format($total_query_time,4);
 				<th><?php echo $filter?></th>
 				<td><?php echo number_format( $start - $_SERVER['REQUEST_TIME_FLOAT'], 4); ?>
 				<td><?php echo number_format( $end - $_SERVER['REQUEST_TIME_FLOAT'], 4);?>
-				<td><?php echo number_format( ($dur), 8); ?>
+				<td><?php echo number_format( $dur, 8); ?>
 			</tr>
 		<?php endforeach; ?>
 </table>

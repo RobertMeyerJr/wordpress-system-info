@@ -16,6 +16,7 @@ TODO:
 <tr><th>Document Root</th><td><?php echo $_SERVER['DOCUMENT_ROOT']?></td></tr>
 <tr><th>Database Host</th><td><?php echo DB_HOST?></td></tr>
 <tr><th>Database</th><td><?php echo DB_NAME?></td></tr>
+<tr><th>MySQLi</th><td><?=$wpdb->use_mysqli?'Yes':'No'?></td></tr>
 <tr><th>Table Prefix</th><td><?php echo $wpdb->prefix?></td></tr>
 <tr><th>WP Cache<td><?=(defined('WP_CACHE') && WP_CACHE == 1) ? '<span class="dashicons dashicons-yes cGreen"></span>':'<span class="dashicons dashicons-no cRed"></span>' ?></td></tr>	
 <tr><th>DB Size</th><td><?php echo "{$db_used}, {$db_free} Free" ?></td></tr>

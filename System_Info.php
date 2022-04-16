@@ -7,18 +7,23 @@ Version: 1.0.0a
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 */	
-define('SI_START_TIME', microtime(true));
+define('SI_START_TIME', microtime(true)); #Todo: Move this to Must Use Plugin
 
 include('app/Console.php'); #Always included to prevent errors if called
 
 if( isset($_GET['debug']) ){
 	include('app/ErrorHandler.php'); #ToDo: Improve this, only run when allowed
+	
+	//Todo: Do something better here
+	add_action('plugin_loaded',function($plugin){
+		global $plugin_memory_load;
+		$plugin_memory_load[$plugin] = [memory_get_usage(),microtime(true)-SI_START_TIME];
+	});
 }
 
 /* 
 SQL Debug headers not working for rest routes
 */
-
 $total_details = System_Info::getInstance();
 
 function is_td_guest_debug(){
@@ -69,9 +74,11 @@ class System_Info{
 	public static $action_start;
 	public static $action_end;
 	public static $templates;
-	public static $timeline = [];
+	public static $timeline 	= [];
+	public static $timeline_end = [];
 	public static $blocks = [];
-
+	public static $plugin_memory_load = [];
+	public static $doing_it_wrong = [];
 	protected static $remote_get_urls = [];
 	protected static $remote_request_count = 0;
 	public static function getInstance(){
@@ -93,13 +100,14 @@ class System_Info{
 	public function __construct(){
 		if( is_td_debug() || is_td_guest_debug() ){
 			define('DONOTCACHEPAGE',true); #PREVENT CACHING THE PAGE
-			
+			add_action('doing_it_wrong_run',[$this,'doing_it_wrong_run'], 10, 3);
 			if( !defined('SAVEQUERIES') ){
 				define('SAVEQUERIES', true );
 			}
 			
 			if( defined('DOING_AJAX') && DOING_AJAX || defined('REST_REQUEST') && REST_REQUEST || !empty($GLOBALS['wp']->query_vars['rest_route']) ){
 				add_filter('log_query_custom_data',function($query_data, $query, $query_time, $query_callstack, $query_start){
+					//Limit this
 					$json = json_encode([$query,$query_time]);//Limit data passed in headers
 					if( !headers_sent() ){
 						header('x-total-debug-sql: '.base64_encode($json), false);
@@ -113,7 +121,7 @@ class System_Info{
 				*/
 			}
 			else if( class_exists('SI_ErrorHandler') ){
-				SI_ErrorHandler::enable_error_handling();
+				#SI_ErrorHandler::enable_error_handling();
 			}
 			//http_request_args?
 
@@ -127,12 +135,15 @@ class System_Info{
 			$GLOBALS['dbg_filter_start']	= array();
 			$GLOBALS['dbg_filter_stop']		= array();
 			
-			$this->all_actions();
+			if(!empty($_GET['all_actions'])){
+				$this->all_actions();
+			}
 
 			add_action('get_template_part',function($slug=null, $name=null, $templates=null, $args=null){
 				self::$templates[] = [$slug, $name, $templates];
 			},10,4);
 			
+			#add_action('plugin_loaded', [$this,'plugin_loaded']);
 		}
 		
 		add_action('init', array($this,'init'));
@@ -142,30 +153,53 @@ class System_Info{
 		$important_filters = [
 			'plugins_loaded',
 			'setup_theme',
+			#'unload_textdomain',
+			#'load_textdomain',
 			'after_setup_theme',
+			'auth_cookie_malformed',
+			'auth_cookie_valid',
+			'set_current_user',
 			'init',
+			'widgets_init',
+			'register_sidebar',
 			'wp_loaded',
-			'wp_print_scripts',
-			'wp_print_styles',
-			'wp_body_open',
 			'parse_request',
+			'send_headers',
+			#'query',		This is a filter
+			'parse_query',
+			'pre_get_posts',
 			'wp',
 			'template_redirect',
+			'wp_print_scripts',
+			'wp_print_styles',
 			'get_header',
+			'wp_body_open',
 			'wp_head',
 			'loop_start',
 			'the_post',
 			'loop_end',
 			'get_sidebar',
 			'get_footer',
+			'wp_footer',
+			'wp_print_footer_scripts',
+			'wp_before_admin_bar_render',
 			'wp_after_admin_bar_render',
+			'shutdown'
 		];
 		foreach($important_filters as $f){
+			//Todo: Get more info here. Number of Queries
 			add_action($f,[$this,'timeline'], -100);
+			add_action($f,[$this,'timeline_end'], PHP_INT_MAX-1);
 		}
+
+		//Add action after each plugin load to show memory
 
 		add_filter('render_block',[$this,'render_block'], 10, 2);
 	}	
+
+	public function doing_it_wrong_run($function, $message, $version){
+		self::$doing_it_wrong[] = [$function, $message, $version];
+	}
 
 	public function render_block($content, $block){
 		self::$blocks[] = [
@@ -178,8 +212,18 @@ class System_Info{
 	public function timeline(){
 		self::$timeline[] = [
 			current_filter(),
-			memory_get_peak_usage(), 
-			microtime(true)-SI_START_TIME
+			memory_get_peak_usage(),
+			microtime(true)-SI_START_TIME,
+			get_num_queries()
+		];
+	}
+
+	public function timeline_end(){
+		self::$timeline_end[] = [
+			current_filter(),
+			memory_get_peak_usage(),
+			microtime(true)-SI_START_TIME,
+			get_num_queries()
 		];
 	}
 
@@ -312,7 +356,7 @@ class System_Info{
 				System_Info_Admin::init();
 			}
 		}catch(Exception $e){
-			add_action( 'admin_notices', function(){ 
+			add_action( 'admin_notices', function() use($e){ 
 				echo "<div class=error><p>System_Info - Error<br/><pre>".print_r($e,true)."</pre></p></div>";
 			});
 		}
@@ -364,6 +408,16 @@ class System_Info{
 		require_once('app/SI_Admin.php');
 		require_once('app/SI_SQL.php');
 		require_once('app/SI_Tools.php');
+	}
+
+	public static function sizeofvar(&$var){
+		try{
+			$start_memory = memory_get_usage();
+			$tmp = unserialize(serialize($var));
+			return memory_get_usage() - $start_memory;
+		}catch(Throwable $e){
+			return -1;
+		}
 	}
 
 }

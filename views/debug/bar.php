@@ -54,6 +54,7 @@ $show_filters = isset($_GET['filters']);
 			<li><a href=#dbg_db>Queries <small class="bdg bgBlue"><?php echo $query_details;?></small></a></li>
 			<?php if(!empty(System_Info::$blocks)):?><li><a href=#dbg_blocks>Blocks</a></li><?php endif; ?>
 			<li><a href=#dbg_files>Included Files</a></li>		
+			<li><a href=#dbg_mem>Memory</a></li>
 			<li><a href=#dbg_cache>Cache</a></li>						
 			<li><a href=#dbg_scripts>Scripts &amp; Styles</a></li>
 			<li class="ajax_sql"style="display:none"><a href="#dbg_ajax_sql">AJAX SQL <span id=ajax_sql_count class="bdg bgBlue"></span></a></li>
@@ -77,6 +78,7 @@ $show_filters = isset($_GET['filters']);
 		<div class=panel id=dbg_scripts><?php include('scripts_styles.php'); ?></div>	
 		<div class=panel id=dbg_timeline><?php include('timeline.php'); ?></div>	
 		<div class=panel id=dbg_cache><?php include('cache.php'); ?></div>
+		<div class=panel id=dbg_mem><?php include('memory.php'); ?></div>
 		<div class=panel id=dbg_blocks>
 			<?php if( !empty(System_Info::$blocks) ){ include('blocks.php'); } ?>
 		</div>

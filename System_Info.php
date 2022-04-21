@@ -11,8 +11,8 @@ define('SI_START_TIME', microtime(true)); #Todo: Move this to Must Use Plugin
 
 include('app/Console.php'); #Always included to prevent errors if called
 
-if( isset($_GET['debug']) ){
-	include('app/ErrorHandler.php'); #ToDo: Improve this, only run when allowed
+if( isset($_GET['debug']) && is_td_debug() ){
+	include('app/ErrorHandler.php');
 	
 	//Todo: Do something better here
 	add_action('plugin_loaded',function($plugin){
@@ -121,7 +121,7 @@ class System_Info{
 				*/
 			}
 			else if( class_exists('SI_ErrorHandler') ){
-				#SI_ErrorHandler::enable_error_handling();
+				SI_ErrorHandler::enable_error_handling();
 			}
 			//http_request_args?
 

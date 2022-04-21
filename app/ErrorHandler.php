@@ -3,14 +3,14 @@
 class SI_ErrorHandler{
 	//Custom Error Handling
 	public static function enable_error_handling(){
-		set_error_handler( array(__CLASS__,'error_handler'), E_ALL );		
-		#set_exception_handler( array(__CLASS__,'error_handler'));				
+		set_error_handler( array(__CLASS__,'error_handler'), E_ALL );
+		set_exception_handler( array(__CLASS__,'error_handler'));
 		register_shutdown_function( array(__CLASS__,'shutdown_function') );	
 	}
 	
 	protected static function return_bytes($val){ 
 		$val = trim($val); 
-		$last = strtolower($val[strlen($val) - 1]); 
+		$last = strtolower($val[strlen($val) - 1]);
 		switch ($last) {
 			case 'g': 
 				$val *= 1024; 
@@ -42,9 +42,8 @@ class SI_ErrorHandler{
 			$trace ?? false
 		);
 		//Fatal Error?
-		if($errno == E_USER_ERROR){
+		if($errno === E_USER_ERROR){
 			echo "<h1>Fatal Error</h1>";
-			//Dump the output and die
 			$out = ob_get_clean();
 			echo $out;
 			exit;

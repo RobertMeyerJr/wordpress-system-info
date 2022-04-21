@@ -37,20 +37,22 @@ TODO: Group Repeated Errors
 					<b><?php echo $errstr?></b>
 					<span class=filename title="<?=esc_attr($file)?>"> <strong><?=$file?></strong></span>
 					<div class=code>
-					<?php 
-						$lines 	= file($file);	
-						$start 	= ($errLine-4 > 0) ? $errLine-4 : 0;
-						$end 	= $errLine+4;
-						echo "<ul class=\"pre code\" start={$errLine}>";
-						for($i=$start; $i<=$end; $i++){
-							$currentLineNum = $i+1;
-							if($start>0 && isset($lines[$i]) ){
-								$lineClass = ($currentLineNum == $errLine) ? 'error':'';
-								$line = htmlentities($lines[$i]);
-								echo "<li class='{$lineClass}'><code><span class='lineNum'>{$currentLineNum}: </span>{$line}</code></li>";
+					<?php
+						if( !empty($file) && file_exists($file)){
+							$lines 	= file($file);	
+							$start 	= ($errLine-4 > 0) ? $errLine-4 : 0;
+							$end 	= $errLine+4;
+							echo "<ul class=\"pre code\" start={$errLine}>";
+							for($i=$start; $i<=$end; $i++){
+								$currentLineNum = $i+1;
+								if($start>0 && isset($lines[$i]) ){
+									$lineClass = ($currentLineNum == $errLine) ? 'error':'';
+									$line = htmlentities($lines[$i]);
+									echo "<li class='{$lineClass}'><code><span class='lineNum'>{$currentLineNum}: </span>{$line}</code></li>";
+								}
 							}
+							echo "<ul>";
 						}
-						echo "<ul>";
 					?>
 					</div>
 				</td>			

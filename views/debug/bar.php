@@ -46,12 +46,12 @@ $show_filters = isset($_GET['filters']);
 			<li <?=($current == 'console') ? 'class=current':''?>><a href=#dbg_console>Console</a></li>
 			<li <?=($current == 'errors') ? 'class=current':''?>><a href=#dbg_errors>Errors <small class="bdg bgRed"><?php echo $error_count?></small></a></li>		
 			<li <?=($current == 'info') ? 'class=current':''?>><a href=#dbg_info>Info</a></li>
-			<li><a href=#dbg_qvars>QVars</a></li>
+			<li><a href=#dbg_qvars>WP Query</a></li>
 			<li><a href=#dbg_timeline>Timeline</a></li>
 			<?php if($show_filters) : ?>				
 				<li><a href=#dbg_filters>Filters</a></li>				
 			<?php endif; ?>
-			<li><a href=#dbg_db>Queries <small class="bdg bgBlue"><?php echo $query_details;?></small></a></li>
+			<li><a href=#dbg_db>SQL <small class="bdg bgBlue"><?php echo $query_details;?></small></a></li>
 			<?php if(!empty(System_Info::$blocks)):?><li><a href=#dbg_blocks>Blocks</a></li><?php endif; ?>
 			<li><a href=#dbg_files>Included Files</a></li>		
 			<li><a href=#dbg_mem>Memory</a></li>

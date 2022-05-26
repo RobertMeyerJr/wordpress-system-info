@@ -36,7 +36,7 @@ if(!empty($p->post_type) ){
 		?>
 		<?php endforeach; ?>
 	<?php endif; ?>
-	<tr><th class=hdr colspan=2>Info
+	<tr id=dbg_bar_info><th class=hdr colspan=2>Info
 	<tr><th>User ID</th><td><?php echo get_current_user_id(); ?></td></tr>
 	<tr><th>ABSPATH</th><td><?php echo ABSPATH; ?></td></tr>
 	<tr><th>DB_NAME</th><td><?php echo DB_NAME; ?></td></tr>

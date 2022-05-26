@@ -45,7 +45,7 @@ jQuery(document).ajaxComplete(function(event, jqXHR, opt){
 });
 
 jQuery(function($){	
-
+	console.log('In Debug Bar');
 	/*
 	jQuery.ajaxSetup({
 		beforeSend: function(j,xhr,o) {
@@ -126,6 +126,25 @@ jQuery(function($){
 	$('.trace .show_trace').click(function(){
 		$(this).closest('ol').toggleClass('show');
 	});
+	$('#dbg_bar .expand .toggle').click(function(){
+		$(this).parent().toggleClass('show');
+		return false;
+	});
+	
+	var robots = $('meta[name=robots]').attr('content') || '';
+	var title = $('head title').text() || '';
+	var desc = $('meta[name=description]').attr('content') || '';
+	var og_type = $('meta[property="og:type"]').attr('content') || '';
+	var og_image = $('meta[property="og:image"]').attr('content') || '';
+	var site_name = $('meta[property="og:site_name"]').attr('content') || '';
+	var meta_html = `<tr><th>Robots</th><td>${robots}</td></tr>
+					 <tr><th>Title</th><td>${title}</td></tr>
+					 <tr><th>Description</th><td>${desc}</td></tr>
+					 <tr><th>OG Site Name</th><td>${site_name}</td></tr>
+					 <tr><th>OG Type</th><td>${og_type}</td></tr>
+					 <tr><th>OG Image</th><td>${og_image}</td></tr>
+					 `;
+	$(meta_html).insertBefore('#dbg_bar_info');
 });
 
 function tdLog(msg, type){

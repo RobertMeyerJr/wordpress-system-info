@@ -2,6 +2,7 @@
 <?php
 global $wp_scripts,$wp_styles;
 #ToDo: Add files included due to dependency arrays
+#ToDo: Add fetchpriority
 ?>
 <h2>Scripts (<?=count($wp_scripts->queue)?>)</h2>
 <table id=scripts_table>
@@ -106,7 +107,7 @@ jQuery(function($){
 	//jQuery('#si_inline_scripts table').append('<tr><th>Script</th><td>'+source);
 	$('#styles_table td.inline').each(function(){
 		var name = $(this).data('name');
-		var css = $(`#${name}-inline-css`).html();
+		var css = '<details><summary>Toggle</summary><div>'+$(`#${name}-inline-css`).html()+'</div></details>';
 		$(this).html(css);
 	});
 });

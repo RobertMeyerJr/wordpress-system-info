@@ -58,20 +58,22 @@ TODO: Group Repeated Errors
 				</td>			
 				<td>
 					<ol class=trace>
-						<a class=show_trace href="#">Show Trace</a>
-						<?php foreach($trace as $t) : ?>
-							<li>
-								<?php if(!empty($t['file'])) : ?>
-									<span><?=$t['file']?></span>
-								<?php endif; ?>
-								<?php if(!empty($t['line'])) : ?>
-									<span><?=$t['line']?></span>
-								<?php endif ?>
-								<?php if(!empty($t['function'])) : ?>
-									<span style="float:right;"><?=$t['function']?></span>
-								<?php endif; ?>
-							</li>
-						<?php endforeach; ?>
+						<?php if(!empty($trace)) : ?>
+							<a class=show_trace href="#">Show Trace</a>
+							<?php foreach($trace as $t) : ?>
+								<li>
+									<?php if(!empty($t['file'])) : ?>
+										<span><?=$t['file']?></span>
+									<?php endif; ?>
+									<?php if(!empty($t['line'])) : ?>
+										<span><?=$t['line']?></span>
+									<?php endif ?>
+									<?php if(!empty($t['function'])) : ?>
+										<span style="float:right;"><?=$t['function']?></span>
+									<?php endif; ?>
+								</li>
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</ol>
 				</td>
 			</tr>

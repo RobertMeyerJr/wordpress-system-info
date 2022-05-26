@@ -311,3 +311,7 @@ body{
 
 ol.trace li{display:none;}
 ol.trace.show li{display:list-item;}
+
+
+#dbg_bar .expand div{display:none;}
+#dbg_bar .expand.show div{display:block;}

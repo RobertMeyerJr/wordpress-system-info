@@ -10,29 +10,32 @@ class SI_ErrorHandler{
 	
 	protected static function return_bytes($val){ 
 		$val = trim($val); 
+		if( !is_numeric($val) ){
+			return $val;
+		}
 		$last = strtolower($val[strlen($val) - 1]);
 		switch ($last) {
-			case 'g': 
-				$val *= 1024; 
-			case 'm': 
-				$val *= 1024; 
-			case 'k': 
-				$val *= 1024; 
+			case 'g': $val *= 1024; 
+			case 'm': $val *= 1024; 
+			case 'k': $val *= 1024; 
 		} 
 	 
 		return $val; 
 	} 
 
-	public static function error_handler($errno,$str="",$file=null,$line=null,$context=null){ 
+	public static function error_handler($errno, $str="",$file=null,$line=null,$context=null){ 
 		global $SI_Errors;	
 		
 		$mem_usage = memory_get_usage();
 		$mem_limit = self::return_bytes(ini_get('memory_limit'));
 		//Todo: Only backtrace if we haven't seen the error before
-		if($mem_usage <= $mem_limit + ($mem_limit * 0.1)){ //If memory limit within 10%, dont backtrace?
+		/*
+		$limit = $mem_limit + ($mem_limit * 0.1);
+		if( $mem_usage <= $limit ){ //If memory limit within 10%, dont backtrace?
 			$trace = debug_backtrace(10); 
 		}
-		
+		*/
+		#Console::log($errno);
 		$SI_Errors[] = array(
 			$errno,
 			$str,

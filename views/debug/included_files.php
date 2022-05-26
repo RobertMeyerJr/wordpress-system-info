@@ -1,7 +1,7 @@
 <?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
 
-global $WP_TIMING;
+global $WP_TIMING,$template;
 
 ob_start();
 $plugins = get_option('active_plugins');
@@ -104,6 +104,7 @@ foreach($plugins as $p){
 		</tr>
 		</thead>
 		<tbody>
+			<tr><td><td>Main Template<td><?=$template?>
 	<?php foreach(System_Info::$templates as $tpl) : list($slug,$name,$templates) = $tpl?>
 		<tr>
 			<td><?=$slug?></td>

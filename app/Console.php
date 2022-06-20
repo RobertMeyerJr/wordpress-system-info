@@ -74,6 +74,7 @@ class Console{
 			$msg = print_r($msg,true);
 		}
 
+		//Need to check how many headers already sent
 		if(defined('DOING_AJAX') && DOING_AJAX && false !== stripos($_SERVER['HTTP_REFERER'],'debug=1') ){ //Do something better here, need more security
 			header('x-total-debug-console: '.base64_encode($msg), false);
 		}

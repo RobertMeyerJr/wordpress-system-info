@@ -61,7 +61,9 @@ jQuery(function($){
 		}
 	});
 	*/
-	jQuery('#dbg_bar table.sortable').tablesorter();
+	if(typeof jQuery.fn.tablesorter == 'function'){
+		jQuery('#dbg_bar table.sortable').tablesorter();
+	}
 
 	jQuery(function($){
 		$('.value-info').click(function(){ $(this).toggleClass('expanded') });
@@ -260,16 +262,21 @@ Just some basic syntax hilighting
 
 function colorizeQuery(h){
 	h = h.replace(/([!=])/gi,	'<i class=op>$1</i> ');
-		
+	
+
+	h = h.replace(/ SQL_CALC_FOUND_ROWS /gi,		' <i class=op>SQL_CALC_FOUND_ROWS</i> ');
+
 	h = h.replace(/SELECT /gi,		'<i class=mn>SELECT</i> ');
+	h = h.replace(/INSERT INTO /gi, '<i class=mn>INSERT INTO</i> ');
+	h = h.replace(/DELETE /gi, 		'<i class=mn>INSERT INTO</i> ');
 	h = h.replace(/FROM /gi,		'<i class=mn>FROM</i> ');
-	h = h.replace(/LIMIT /gi,		'<br/><i class=mn>LIMIT</i> ');
-	h = h.replace(/ORDER BY/gi ,	'<br/><i class=mn>ORDER BY</i> ');
-	h = h.replace(/GROUP BY/gi ,	'<br/><i class=mn>GROUP BY</i> ');
-	h = h.replace(/LEFT JOIN /gi,	'<br/><i class=mn>LEFT JOIN</i> ');
-	h = h.replace(/RIGHT JOIN /gi,	'<br/><i class=mn>RIGHT JOIN</i> ');
-	h = h.replace(/JOIN /gi,		'<br/><i class=mn>JOIN</i> ');
-	h = h.replace(/WHERE /gi,		'<br/><i class=cnd>WHERE</i> ');		
+	h = h.replace(/LIMIT /gi,		'<i class=mn>LIMIT</i> ');
+	h = h.replace(/ORDER BY/gi ,	'<i class=mn>ORDER BY</i> ');
+	h = h.replace(/GROUP BY/gi ,	'<i class=mn>GROUP BY</i> ');
+	h = h.replace(/LEFT JOIN /gi,	'<i class=mn>LEFT JOIN</i> ');
+	h = h.replace(/RIGHT JOIN /gi,	'<i class=mn>RIGHT JOIN</i> ');
+	h = h.replace(/JOIN /gi,		'<i class=mn>JOIN</i> ');
+	h = h.replace(/WHERE /gi,		'<i class=cnd>WHERE</i> ');		
 	h = h.replace(/'(.*)'/gi,		'<i class=str>\'$1\'</i> ');
 	h = h.replace(/ ON /gi,			' <i class=mn>ON</i> ');
 	h = h.replace(/ AS /gi,			' <i class=mn>AS</i> ');
@@ -277,11 +284,11 @@ function colorizeQuery(h){
 	h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> ');
 	h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');
 	h = h.replace(/ IN /gi,			' <i class=mn>IN</i> ');
-	h = h.replace(/ AND /gi,		'<br/>&nbsp;&nbsp;<i class=mn> AND </i> ');
+	h = h.replace(/ AND /gi,		' <i class=mn> AND </i> ');
 	h = h.replace(/ LIKE /gi,		'<i class=mn> LIKE </i> ');			
-	h = h.replace(/SHOW VARIABLES/gi,	'<i class=mn>SHOW VARIABLES </i><br/> ');					
+	h = h.replace(/SHOW VARIABLES/gi,	'<i class=mn>SHOW VARIABLES </i><br/> ');
 	
-	h = h.replace(/(\d+)/gi,		'<i class=int>$1</i>');		
+	h = h.replace(/(\d+)/gi,		'<i class=int>$1</i>');
 	return h;
 }
 
@@ -289,6 +296,7 @@ function colorize_sql(){
 	jQuery('#dbg_db code.sql').each(function(){
 		var h = jQuery(this).html();
 		h = colorizeQuery(h);
+		//hide br's depending on length
 		jQuery(this).html(h);	
 	});
 }

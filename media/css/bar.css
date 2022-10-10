@@ -52,7 +52,7 @@ body{
 	width: 100%;
 	margin: 0;	
 	padding: 0;
-	z-index:99999; /*Greater than wp-admin sidebar*/
+	z-index:99999999; /*Greater than wp-admin sidebar, greater than nf-builder*/
 }
 
 
@@ -315,3 +315,5 @@ ol.trace.show li{display:list-item;}
 
 #dbg_bar .expand div{display:none;}
 #dbg_bar .expand.show div{display:block;}
+
+#dbg_bar .positive_conditionals{color:#2ecc71;}

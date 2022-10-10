@@ -9,8 +9,15 @@ $u = wp_get_current_user();
 		Caps <?php print_r($u->caps,true) ?>
 	</p>
 	<p>
+		WordPress <?php echo $GLOBALS['wp_version']?><br/>
+		PHP <?php echo phpversion(); ?><br/>
 		Peak Memory memory_get_peak_usage: <?php echo size_format( memory_get_peak_usage() )?><br/>
 		Current Memory Usage: <?php echo size_format( memory_get_usage () )?>
+	</p>		
+	<p>
+		ABSPATH			<?php echo ABSPATH; ?><br/> 					
+		TEMPLATEPATH			<?php echo TEMPLATEPATH; ?><br/>
+		STYLESHEETPATH			<?php echo STYLESHEETPATH; ?> 		 		
 	</p>
 	<p>
 		Developed by Robert Meyer Jr.

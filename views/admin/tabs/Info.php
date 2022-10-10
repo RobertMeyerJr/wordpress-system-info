@@ -1,6 +1,6 @@
 <?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
-global $_wp_additional_image_sizes, $wpdb, $wp_version; 
+global $_wp_additional_image_sizes, $wpdb, $wp_version, $total_details; 
 
 $web_root 		= realpath($_SERVER['DOCUMENT_ROOT'].'/../');
 $directories 	= glob($web_root.'/*' , GLOB_ONLYDIR);
@@ -11,6 +11,10 @@ ob_start();
 ob_end_clean();		 
 $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 
+if( !empty($_GET['make_first']) ){
+	$total_details->make_first_plugin();
+	echo "<h3>Made First Plugin</h3>";
+}
 ?>
 
 
@@ -46,6 +50,17 @@ $php_info = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$php_info);
 	<tr><th>ADMIN_COOKIE_PATH</th><td><?php echo System_Info_Tools::color_format(ADMIN_COOKIE_PATH)?></tr>
 	<tr><th>SITECOOKIEPATH</th><td><?php echo System_Info_Tools::color_format(SITECOOKIEPATH)?></tr>
 	<tr><th>COOKIEHASH</th><td><?php echo System_Info_Tools::color_format(COOKIEHASH)?></tr>
+
+
+	<tr><th>AUTH_KEY</th><td><?php echo System_Info_Tools::color_format(AUTH_KEY)?></td></tr>
+ 	<tr><th>SECURE_AUTH_KEY</th><td><?php echo System_Info_Tools::color_format(SECURE_AUTH_KEY)?></td></tr>
+ 	<tr><th>LOGGED_IN_KEY</th><td><?php echo System_Info_Tools::color_format(LOGGED_IN_KEY)?></td></tr>
+ 	<tr><th>NONCE_KEY</th><td><?php echo System_Info_Tools::color_format(NONCE_KEY)?></td></tr>
+ 	<tr><th>AUTH_SALT</th><td><?php echo System_Info_Tools::color_format(AUTH_SALT)?></td></tr>      
+ 	<tr><th>SECURE_AUTH_SALT</th><td><?php echo System_Info_Tools::color_format(SECURE_AUTH_SALT)?></td></tr>
+ 	<tr><th>LOGGED_IN_SALT</th><td><?php echo System_Info_Tools::color_format(LOGGED_IN_SALT)?></td></tr> 
+ 	<tr><th>NONCE_SALT</th><td><?php echo System_Info_Tools::color_format(NONCE_SALT)?></td></tr>     
+
 
 	<tr><th>Post Revisions<td><?php echo (WP_POST_REVISIONS)?'Yes':'No'?></tr>
 	<tr><th>Auto Save Interval</th><td><?php echo AUTOSAVE_INTERVAL?></tr>

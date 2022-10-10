@@ -9,8 +9,9 @@ TODO: Group Repeated Errors
 <table class=widefat>
 	<thead>
 		<tr class=hdr>
-			<th width=50%>Error</th>
-			<th width=50%>Trace</th>
+			<th width=5%>Type</th>
+			<th width=15%>Error</th>
+			<th width=75%>Trace</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -18,23 +19,28 @@ TODO: Group Repeated Errors
 			<tr>
 				<td>
 					<?php
-					switch($errno){
-						case E_ERROR:				echo "E_ERROR"; break;
-						case E_WARNING:				echo "E_USER_ERROR"; break;
-						case E_NOTICE:				echo "E_NOTICE";break;
-						case E_USER_ERROR: 			echo "E_USER_ERROR"; break;
-						case E_USER_NOTICE:			echo "E_USER_NOTICE"; break;
-						case E_USER_WARNING: 		echo "E_USER_WARNING"; break;
-						case E_USER_NOTICE:			echo "E_USER_NOTICE";break;
-						case E_DEPRECATED:			echo "E_DEPRECATED";break;
-						case E_USER_DEPRECATED:		echo "E_USER_DEPRECATED"; break;
-						case E_RECOVERABLE_ERROR:	echo "E_RECOVERABLE_ERROR"; break;
-						case E_ALL :				echo "E_ALL"; break;
-						case E_STRICT :				echo "E_STRICT"; break;
-						default: echo $errno;
+					if( is_numeric($errno) ){
+						switch($errno){
+							case E_ERROR:				echo "E_ERROR"; break;
+							case E_WARNING:				echo "E_USER_ERROR"; break;
+							case E_NOTICE:				echo "E_NOTICE";break;
+							case E_USER_ERROR: 			echo "E_USER_ERROR"; break;
+							case E_USER_NOTICE:			echo "E_USER_NOTICE"; break;
+							case E_USER_WARNING: 		echo "E_USER_WARNING"; break;
+							case E_USER_NOTICE:			echo "E_USER_NOTICE";break;
+							case E_DEPRECATED:			echo "E_DEPRECATED";break;
+							case E_USER_DEPRECATED:		echo "E_USER_DEPRECATED"; break;
+							case E_RECOVERABLE_ERROR:	echo "E_RECOVERABLE_ERROR"; break;
+							case E_ALL :				echo "E_ALL"; break;
+							case E_STRICT :				echo "E_STRICT"; break;
+							default: echo $errno;
+						}
 					}
 					?>
-					<b><?php echo $errstr?></b>
+					<td>
+						<b><?php echo $errstr?></b>
+					</td>
+					<td>
 					<span class=filename title="<?=esc_attr($file)?>"> <strong><?=$file?></strong></span>
 					<div class=code>
 					<?php
@@ -48,7 +54,7 @@ TODO: Group Repeated Errors
 								if($start>0 && isset($lines[$i]) ){
 									$lineClass = ($currentLineNum == $errLine) ? 'error':'';
 									$line = htmlentities($lines[$i]);
-									echo "<li class='{$lineClass}'><code><span class='lineNum'>{$currentLineNum}: </span>{$line}</code></li>";
+									echo "<li class='{$lineClass}'><code><span class='lineNum'>{$currentLineNum}: </span> {$line}</code></li>";
 								}
 							}
 							echo "<ul>";

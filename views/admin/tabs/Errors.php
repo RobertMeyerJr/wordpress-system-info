@@ -43,8 +43,6 @@ $error_string = preg_replace('/^\h*\v+/m', '', $error_string);#Remove empty line
 		<span class=cGreen><?php echo System_Info_Tools::formatBytes(filesize($error_log),2);	?></span>
 	</h2>
 	<?php if(!empty($error_string)) : ?>
-		<div class=error_log>
-			<code><?php echo htmlentities($error_string)?></code>
-		</div>
+		<div class=error_log><code><?php echo htmlentities($error_string)?></code></div>
 	<?php endif; ?>
 </div>	

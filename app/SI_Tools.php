@@ -2,6 +2,29 @@
 
 class System_Info_Tools{
 
+	public static function determine_wpdb_backtrace_source($trace){
+	
+		$plugin_dir = WP_PLUGIN_DIR;
+		$theme_dir 	= get_template_directory();
+		$child_dir 	= get_stylesheet_directory();
+		$source 	= 'WP Core';
+		#d($trace);
+		foreach($trace as $bt){
+			if( false !== stripos($bt['file'],$plugin_dir) ){
+				$plugin = explode('/',str_replace($plugin_dir,'', $bt['file']))[1];
+				$source = "Plugin ".$plugin;
+				break;
+			}
+			elseif( false !== stripos($bt['file'],$theme_dir) ){
+				$source = "Theme";
+			}
+			elseif( false !== stripos($bt['file'],$child_dir) ){
+				$source = "Child Theme";
+			}
+		}
+		return $source;
+	}
+
 	public static function hilight_trace_part($str){
 		//require_once
 		//require
@@ -29,7 +52,7 @@ class System_Info_Tools{
 			if( empty($arr) ){
 				return;
 			}
-			echo "<table class=dbg_out>";
+			echo "<table class='dbg_out'>";
 				echo "<thead><tr><th>Key</th><th>Value</th></tr></thead>";
 				echo "<tbody>";
 				$skip = array('_COOKIE','_FILES','_ENV','GLOBALS','_SERVER','_REQUEST','_GET','_POST','wp_filter');

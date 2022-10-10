@@ -1,6 +1,6 @@
 var dbg_start = Date.now();
 
-
+console.log('in Bar.js');
 
 jQuery(window).load(function(){
 	//setTimeout(dbg_performance,1000);
@@ -8,6 +8,7 @@ jQuery(window).load(function(){
 });
 
 jQuery(document).ajaxComplete(function(event, jqXHR, opt){
+	console.log('ajaxComplete');
 	var headers = jqXHR.getAllResponseHeaders().trim().split(/[\r\n]+/);
 	var url = opt.url;
 	tdLog('AJAX Request '+opt.type+' '+url,'info');
@@ -23,6 +24,8 @@ jQuery(document).ajaxComplete(function(event, jqXHR, opt){
 		else if( -1 != hdr.indexOf('x-total-debug-sql') ){
 			var logs = content.split(',');
 			var html = '';
+			console.log('Logs',logs);
+			return;
 			for(var j=0; j<logs.length; j++){
 				try{
 					var json = atob( logs[j].trim() );

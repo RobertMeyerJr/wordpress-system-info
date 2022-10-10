@@ -17,6 +17,7 @@ global $wp_rewrite;
 		<?php if(!empty($wp_rewrite->$area)) : ?>
 			<?php foreach($wp_rewrite->$area as $regex=>$rule) : ?>
 			<tr>
+				<th><?=$area?></th>
 				<th><?=$regex?></th>
 				<td><?=$rule?></td>
 			</tr>
@@ -33,6 +34,19 @@ global $wp_rewrite;
 </ul>
 <?php endforeach; ?>
 
+<?php 
+/*
+$rest = rest_get_server(); 
+$routes = $rest->get_routes();
+print_r($routes);
+?>
+<table>
+	<?php foreach($routes as $r) : ?>
+		<tr>
+			
+		</tr>
+	<?php endforeach; ?>
+</table>
 <!--- 
 $wp_rewrite->rewritecode
 $wp_rewrite->extra_permastructs

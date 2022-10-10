@@ -3,12 +3,13 @@
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
 Description: Provides debugging features and insights into wordpress and the server environment it is running on.
-Version: 1.0.1a
+Version: 1.0.5
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 */	
 define('SI_START_TIME', microtime(true)); #Todo: Move this to Must Use Plugin
-
+define('SI_START_MEM', memory_get_usage());
+define('SI_WPCORE_LOAD', SI_START_TIME - WP_START_TIMESTAMP);
 include('app/Console.php'); #Always included to prevent errors if called
 
 if( isset($_GET['debug']) && is_td_debug() ){
@@ -17,7 +18,8 @@ if( isset($_GET['debug']) && is_td_debug() ){
 	//Todo: Do something better here
 	add_action('plugin_loaded',function($plugin){
 		global $plugin_memory_load;
-		$plugin_memory_load[$plugin] = [memory_get_usage(),microtime(true)-SI_START_TIME];
+		#Console::log($plugin);
+		$plugin_memory_load[$plugin] = [memory_get_usage(),microtime(true)];
 	});
 }
 
@@ -34,7 +36,7 @@ function is_td_guest_debug(){
 		return false;
 	}
 	
-	return $_GET['debug'] == DEBUG_KEY;
+	return ($_GET['debug'] ?? '') == DEBUG_KEY;
 }
 
 function is_td_debug(){
@@ -67,9 +69,19 @@ function is_td_debug(){
 	return false;
 }
 
+
+if( false !== stripos($_SERVER['REQUEST_URI'], 'wp-json/ninja-forms-submissions/submissions') ){
+	add_action('all', function($a){
+		$action = current_action();
+		if( stripos($action,'ninja') !== false ){
+			#error_log('URL: '.$_SERVER['REQUEST_URI'].'Current Action '.$action);
+		}
+	}, -100);
+}
+
 class System_Info{	
 	protected static $instance;
-	
+	public static $query_backtraces = [];
 	public static $actions = [];
 	public static $action_start;
 	public static $action_end;
@@ -79,12 +91,18 @@ class System_Info{
 	public static $blocks = [];
 	public static $plugin_memory_load = [];
 	public static $doing_it_wrong = [];
+
+	public static $server_timings = [];
+	public static $last_timing = 0;
+
 	protected static $remote_get_urls = [];
 	protected static $remote_request_count = 0;
 	public static function getInstance(){
 		if( empty($_COOKIE[LOGGED_IN_COOKIE]) && !is_td_guest_debug() ){
-			return;
+			//Change here in wp6?
+			#return;
 		}
+		
 		/*Make sure running PHP 7.3+, otherwise dont even load */
 		if( version_compare(PHP_VERSION, '7.3') < 0 ){
 			 add_action('admin_notices', array(__CLASS__,'wont_load'));
@@ -99,6 +117,12 @@ class System_Info{
 
 	public function __construct(){
 		if( is_td_debug() || is_td_guest_debug() ){
+			
+
+			if( !empty($_GET['disable_admin_bar']) ){
+				Console::log('in here!!');
+				add_filter('show_admin_bar', '__return_false');
+			}
 			define('DONOTCACHEPAGE',true); #PREVENT CACHING THE PAGE
 			add_action('doing_it_wrong_run',[$this,'doing_it_wrong_run'], 10, 3);
 			if( !defined('SAVEQUERIES') ){
@@ -107,11 +131,18 @@ class System_Info{
 			
 			if( defined('DOING_AJAX') && DOING_AJAX || defined('REST_REQUEST') && REST_REQUEST || !empty($GLOBALS['wp']->query_vars['rest_route']) ){
 				add_filter('log_query_custom_data',function($query_data, $query, $query_time, $query_callstack, $query_start){
-					//Limit this
-					$json = json_encode([$query,$query_time]);//Limit data passed in headers
-					if( !headers_sent() ){
-						header('x-total-debug-sql: '.base64_encode($json), false);
+					static $query_log_count = 0;
+					$query_log_count++;
+					$time = number_format($query_time,4);
+					$query = str_replace(["\r","\n","\t"],' ',$query);
+					$query = trim(str_replace(",","%2C", $query)); #Replace normal commas with full with to help on javascript side
+					/*
+					$bt = System_Info::$query_backtraces[md5($query)];
+					$source = System_Info_Tools::determine_wpdb_backtrace_source($bt);
+					if( !headers_sent() && ( $query_log_count<=50 || $query_time >= 0.3) ){
+						header("x-dbg-sql: {$time}:$source|{$query}", false);
 					}
+					*/
 					return $query_data;
 				},10,5);
 				/*
@@ -144,8 +175,16 @@ class System_Info{
 			},10,4);
 			
 			#add_action('plugin_loaded', [$this,'plugin_loaded']);
+
+			add_filter('query',function($q){
+				$bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				self::$query_backtraces[md5($q)] = $bt;
+				return $q;
+			});
 		}
 		
+		add_action( 'send_headers', [$this,'send_headers']);
+
 		add_action('init', array($this,'init'));
 
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );
@@ -156,12 +195,12 @@ class System_Info{
 			#'unload_textdomain',
 			#'load_textdomain',
 			'after_setup_theme',
-			'auth_cookie_malformed',
-			'auth_cookie_valid',
+			#'auth_cookie_malformed',
+			#'auth_cookie_valid',
 			'set_current_user',
 			'init',
 			'widgets_init',
-			'register_sidebar',
+			#'register_sidebar',
 			'wp_loaded',
 			'parse_request',
 			'send_headers',
@@ -170,6 +209,7 @@ class System_Info{
 			'pre_get_posts',
 			'wp',
 			'template_redirect',
+			'wp_enqueue_scripts',
 			'wp_print_scripts',
 			'wp_print_styles',
 			'get_header',
@@ -195,6 +235,17 @@ class System_Info{
 		//Add action after each plugin load to show memory
 
 		add_filter('render_block',[$this,'render_block'], 10, 2);
+
+		#Server Timing Headers, ordered by sequence
+		add_action('plugins_loaded',[$this,'server_action_timing'],PHP_INT_MAX);
+		add_action('setup_theme',[$this,'server_action_timing'],PHP_INT_MAX);
+		add_action('init',[$this,'server_action_timing'],PHP_INT_MAX);
+		add_action('wp_loaded',[$this,'server_action_timing'],PHP_INT_MAX);
+		add_action('wp',[$this,'server_action_timing'],PHP_INT_MAX);
+		//ToDo: REST Timing
+		
+		self::$server_timings[] = 'WPTD-Init;dur='. number_format(SI_START_TIME - $_SERVER['REQUEST_TIME_FLOAT'],4);
+		self::$last_timing = microtime(true);
 	}	
 
 	public function doing_it_wrong_run($function, $message, $version){
@@ -219,18 +270,24 @@ class System_Info{
 	}
 
 	public function timeline_end(){
+		$filter = current_filter();
 		self::$timeline_end[] = [
-			current_filter(),
+			$filter,
 			memory_get_peak_usage(),
 			microtime(true)-SI_START_TIME,
 			get_num_queries()
 		];
+		
+		if($filter == 'plugins_loaded'){
+			define('SI_PLUGINS_LOADED', microtime(true));
+		}
 	}
 
 	public static function before_remote_request($res){
 		$index = self::$remote_request_count++;
 		//Trace?
-		self::$remote_get_urls[$index] = ['start'=>microtime(true)];
+		$trace = debug_backtrace();
+		self::$remote_get_urls[$index] = ['start'=>microtime(true),'trace'=>$trace];
 	}
 	public static function after_remote_request($res, $ctx, $class, $r, $url){
 		//$arr = &self::$remote_get_urls;		
@@ -319,6 +376,8 @@ class System_Info{
 			
 			add_action('deprecated_function_run',[$this,'deprecated_function_run'],10,3);
 		}
+
+		
 	}	
 	
 	public function deprecated_function_run($func, $replace, $ver){
@@ -365,8 +424,8 @@ class System_Info{
 	public function debug_start(){
 		$bar_style  = plugins_url( '/media/css/bar.css',__FILE__);
 		$bar_js 	= plugins_url( '/media/js/Bar.js',__FILE__);
-		wp_enqueue_style( 'debug-bar', $bar_style);
-		wp_enqueue_script('debug-bar', $bar_js, array('jquery'), '2.2', true);
+		wp_enqueue_style( 'total-debug-bar', $bar_style);
+		wp_enqueue_script('total-debug-bar', $bar_js, array('jquery'), '2.2', true);
 		register_shutdown_function(function(){
 			//Check if there was a fatal error, iff so output debugbar script/style manually
 			restore_error_handler(); 
@@ -377,7 +436,22 @@ class System_Info{
 	public function renderDebugBar(){
 		global $wp;
 		if( empty($wp->query_vars['rest_route']) ){
-			include(__DIR__.'/views/debug/bar.php');
+			if( did_action('wp_footer') || did_action('admin_footer') ){
+				include(__DIR__.'/views/debug/bar.php');
+			}
+			else{
+				//Todo: Figure out what to do here. WP didn't fully run or is missing wp_footer call
+				wp_footer();
+				echo "<h1>wp_footer or admin_footer not called</h1>";
+				include(__DIR__.'/views/debug/bar.php');
+				$err = error_get_last();
+				if( !empty($err) ){
+					print_r($err);
+				}
+			}
+		}
+		else{
+			//No output on rest route
 		}
 	}
 		
@@ -387,14 +461,18 @@ class System_Info{
 		TODO: Switch to using mu plugin?
 	*/
 	public function make_first_plugin(){
-		$path = str_replace( WP_PLUGIN_DIR . '/', '', __FILE__ );
+		#$path = str_replace( WP_PLUGIN_DIR . '/', '', __FILE__ );
 		if ( $plugins = get_option( 'active_plugins' ) ) {
+			$folder_name = end(explode('/',__DIR__));
+			$path = $folder_name.'/'.basename(__FILE__);
 			if ( $key = array_search( $path, $plugins ) ) {
 				array_splice( $plugins, $key, 1 );
 				array_unshift( $plugins, $path );
 				update_option( 'active_plugins', $plugins );
+				return true;
 			}
 		}
+		return false;
 	}
 		
 	//Includes only happen if they are needed
@@ -420,5 +498,17 @@ class System_Info{
 		}
 	}
 
+	public function server_action_timing(){
+		$action = current_action();
+		self::$server_timings[] = $action.';dur='. number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],4);
+		self::$last_timing = microtime(true);
+	}
+
+	public function send_headers(){
+		$timings = implode(',',self::$server_timings);
+		if( current_user_can('manage_options') ){
+			header('Server-Timing:'.$timings);
+		}
+	}
 }
 

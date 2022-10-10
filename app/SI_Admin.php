@@ -29,10 +29,14 @@ class System_Info_Admin{
 		add_submenu_page($slug, 'Database', 'Database', 			$cap, 'wptd-DB', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Cron', 'Cron', 					$cap, 'wptd-Cron', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Rewrites', 'Rewrites', 			$cap, 'wptd-Rewrites', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Post Types', 'Post Types', 		$cap, 'wptd-post_types', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Errors', 'Errors', 				$cap, 'wptd-Errors', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Hooks', 'Hooks', 					$cap, 'wptd-Hooks', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Functions', 'Functions', 			$cap, 'wptd-Functions', [__CLASS__,'admin_tab']);		
 		add_submenu_page($slug, 'Options', 'WP Options', 			$cap, 'wptd-Options', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Globals', 'Globals', 				$cap, 'wptd-globals', [__CLASS__,'admin_tab']);
+
+		add_submenu_page($slug, 'Statistics', 'Statistics', 					$cap, 'wptd-Statistics', [__CLASS__,'admin_tab']);
 	}
 	#-----------------------------Tabs
 	
@@ -40,6 +44,7 @@ class System_Info_Admin{
 		$start = microtime(true);
 		$tab = $_GET['page'];
 		$tab = str_replace('wptd-','',$tab);
+		//sanitize the tab?
 		if($tab == 'wp-total-details')
 			$tab = 'Info';
 		?>
@@ -49,7 +54,7 @@ class System_Info_Admin{
 				<?php 
 					$tab_path = __DIR__.'/../views/admin/tabs/'.$tab.'.php';
 					if( !include($tab_path) ){
-						echo "<h2>Error with section {$tab}</h2>";
+						echo "<h2>Error with Section [{$tab}]</h2>";
 					}
 				?>				
 			</div>

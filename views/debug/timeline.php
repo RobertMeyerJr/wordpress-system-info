@@ -2,9 +2,11 @@
 <?php 
 global $wp_actions;
 
-$WP_CORE_TIME = number_format(SI_START_TIME - $_SERVER['REQUEST_TIME_FLOAT'], 4);
-$total_time = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4);
-$query_time = number_format($total_query_time,4);
+$WP_CORE_TIME 	= number_format(WP_START_TIMESTAMP - $_SERVER['REQUEST_TIME_FLOAT'], 4);
+$total_time 	= number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4);
+$query_time 	= number_format($total_query_time,4);
+$wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
+
 
 ?>
 <?php if(!empty(System_Info::$remote_get_urls)) : $total_req_time = 0;?>	
@@ -16,6 +18,7 @@ $query_time = number_format($total_query_time,4);
 				<th>URL</th>
 				<th>Response Code</th>
 				<th>Time</th>
+				<th>Source</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -30,7 +33,7 @@ $query_time = number_format($total_query_time,4);
 			?>
 			<tr>
 				<td><?=$req['method']?>
-				<td><?=$req['url']?>
+				<td><?=esc_attr($req['url'])?>
 				<td><?=$req['code']?>
 				<td>
 					<?php if( empty($req_time) ) : ?>
@@ -38,6 +41,9 @@ $query_time = number_format($total_query_time,4);
 					<?php else : ?>
 						<?=number_format($req_time,4)?> seconds
 					<?php endif; ?>
+				<td>
+					<?=System_Info_Tools::determine_wpdb_backtrace_source($req['trace'])?>
+					<?php #d($req['trace']);?>
 		<?php endforeach; ?>
 		<tfoot>
 			<tr>
@@ -49,6 +55,7 @@ $query_time = number_format($total_query_time,4);
 <h2>Wordpress Measurements</h2>
 <table>
 	<tr><th>WP Core Time</th><td><?php echo $WP_CORE_TIME?></td>
+	<tr><th>Plugin Load</th><td><?php echo $wp_plugin_load?></td>
 	<tr><th>Query Time</th><td><?php echo $query_time?></td>
 	<tr><th>Request Time</th><td><?php echo $total_time?></td>
 </table>

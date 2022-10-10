@@ -10,7 +10,7 @@
         'max_num_page',
     ];
     ?>
-    <tr><th>queried_object<td><?=get_class($wp_query->queried_object)?>
+    <tr><th>queried_object<td><?=!empty($wp_query->queried_object)? get_class($wp_query->queried_object) : 'None' ?>
     <?php foreach($fields as $f) : ?>
         <tr><th><?=$f?><td><?=$wp_query->{$f} ?? ''?>
     <?php endforeach; ?>
@@ -44,10 +44,17 @@
     'is_time',
     'is_attachment',
 ];?>
+
+<?php 
+$cProps = [];
+foreach($conditions as $func){
+    $isYes = $wp_query->{$func}() ? 'Yes':'No';
+    $cProps[$isYes][] = "<span>{$func}</span>";
+}
+?>
 <table>
-    <?php foreach($conditions as $func) : ?>
-        <tr><th><?=$func?><td><?=$wp_query->{$func}() ? 'Yes' : ''?>
-    <?php endforeach; ?>
+    <tr><th>True Conditionals<td><div class=positive_conditionals><?=implode(' ',$cProps['Yes'])?></div>
+    <tr><th>False Conditionals<td><div class=negative_conditionals><?=implode(' ',$cProps['No'])?></div>
 </table>
 <h2>Query Vars</h2>
 <?php

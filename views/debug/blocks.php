@@ -1,3 +1,4 @@
+<?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <h2>Blocks</h2>
 
 <?php #d(System_Info::$blocks); ?>

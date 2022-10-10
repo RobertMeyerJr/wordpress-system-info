@@ -33,12 +33,10 @@ usort($options,function($a,$b){ return $b[1] > $a[1]; });
 					$v= maybe_unserialize($v);
 					if( is_array($v) ){
 						?>
-							<div class=td-expand>
-								<a href="#">Read More</a>
-								<div>
-									<pre><?=var_dump($v)?></pre>
-								</div>
-							</div>
+							<details>
+								<summary>Expand</summary>
+								<pre><?=var_dump($v)?></pre>
+							</details>
 						<?php
 					}
 					else {

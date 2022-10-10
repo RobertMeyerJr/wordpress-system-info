@@ -2,7 +2,7 @@
 Contributors: Robert Meyer Jr
 Tags: details, debug, information, system
 Requires at least: 5.0
-Tested up to: 5.8
+Tested up to: 6.0
 
 == Description ==
 

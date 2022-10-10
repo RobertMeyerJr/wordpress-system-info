@@ -3,11 +3,13 @@
 class SI_ErrorHandler{
 	//Custom Error Handling
 	public static function enable_error_handling(){
+		//Make sure we are logged in and an admin
 		set_error_handler( array(__CLASS__,'error_handler'), E_ALL );
-		set_exception_handler( array(__CLASS__,'error_handler'));
+		set_exception_handler( array(__CLASS__,'exception_handler'));
 		register_shutdown_function( array(__CLASS__,'shutdown_function') );	
 	}
-	
+
+
 	protected static function return_bytes($val){ 
 		$val = trim($val); 
 		if( !is_numeric($val) ){
@@ -22,6 +24,20 @@ class SI_ErrorHandler{
 	 
 		return $val; 
 	} 
+
+	public static function exception_handler($ex){
+		#UnCaught Exception
+		echo "<h1>Fatal Exception</h1>";
+		$out = ob_get_clean();
+		echo "<pre>
+				{$ex->getCode()}
+				<p>{$ex->getMessage()}</p>
+				{$ex->getFile()} 
+				Line: {$ex->getLine()}
+		</pre>";
+		self::error_handler($ex->getCode(),$ex->getMessage(),$ex->getFile(),$ex->getLine(),null);
+		exit;
+	}
 
 	public static function error_handler($errno, $str="",$file=null,$line=null,$context=null){ 
 		global $SI_Errors;	
@@ -44,6 +60,9 @@ class SI_ErrorHandler{
 			$context,
 			$trace ?? false
 		);
+
+		#d($errno);
+		#d(E_USER_ERROR);
 		//Fatal Error?
 		if($errno === E_USER_ERROR){
 			echo "<h1>Fatal Error</h1>";

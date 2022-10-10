@@ -4,11 +4,19 @@ global $wp_scripts,$wp_styles;
 #ToDo: Add files included due to dependency arrays
 #ToDo: Add fetchpriority
 ?>
+<h2>Body Classes</h2>
+<div>
+	<?php $body_classes = get_body_class(); ?>
+	<ul style="columns: 3;">
+		<li><?php echo implode('<li>',$body_classes);?>
+	</ul>
+</div>
 <h2>Scripts (<?=count($wp_scripts->queue)?>)</h2>
 <table id=scripts_table>
 	<thead>
 		<tr>
 			<th>Name</th>
+			<th>Position</th>
 			<th>Src</th>
 			<th>Deps</th>
 			<th>Ver</th>
@@ -21,6 +29,7 @@ global $wp_scripts,$wp_styles;
 			<?php $s = $wp_scripts->registered[$q]; ?>
 			<tr>
 				<th><?php echo $q?></th>
+				<td><?=in_array($q, $wp_scripts->in_footer) ? 'footer':'header';?></td>
 				<td>
 					<?php if(!empty($s->src)) : ?>
 						<a class="script-src" href="<?=$s->src?>"><?=$s->src?></a>
@@ -64,7 +73,7 @@ global $wp_scripts,$wp_styles;
 		<?php $s = $wp_styles->registered[$q]; ?>
 		<tr>
 			<th><?php echo $q?></th>
-			<td>
+			<td class="<?=empty($s->src)?'inline':'file'?>" data-name="<?=esc_attr($q)?>">
 				<?php if(!empty($s->src)) : ?>
 					<a href="<?=$s->src?>"><?=$s->src?></a>
 				<?php endif; ?>
@@ -79,7 +88,7 @@ global $wp_scripts,$wp_styles;
 					<?=$s->ver?>
 				<?php endif; ?>
 			</td>
-			<td class="<?=empty($s->src)?'inline':'file'?>" data-name="<?=esc_attr($q)?>">
+			<td>
 				<?php 
 					if( stripos($s->src,'/wp-content/') !== false || stripos($s->src,'/wp-includes/') !== false ){
 						$file = rtrim(ABSPATH,'.').parse_url($s->src,PHP_URL_PATH);

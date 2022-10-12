@@ -10,15 +10,16 @@ class System_Info_Tools{
 		$source 	= 'WP Core';
 		#d($trace);
 		foreach($trace as $bt){
-			if( false !== stripos($bt['file'],$plugin_dir) ){
-				$plugin = explode('/',str_replace($plugin_dir,'', $bt['file']))[1];
+			$file = $bt['file'] ?? '';
+			if( false !== stripos($file,$plugin_dir) ){
+				$plugin = explode('/',str_replace($plugin_dir,'', $file))[1];
 				$source = "Plugin ".$plugin;
 				break;
 			}
-			elseif( false !== stripos($bt['file'],$theme_dir) ){
+			elseif( false !== stripos($file,$theme_dir) ){
 				$source = "Theme";
 			}
-			elseif( false !== stripos($bt['file'],$child_dir) ){
+			elseif( false !== stripos($file,$child_dir) ){
 				$source = "Child Theme";
 			}
 		}

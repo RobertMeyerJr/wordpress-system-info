@@ -25,3 +25,4 @@
 	<tr><th>Disabled Functions</th><td>
 		<?php $disabled= ini_get('disable_functions')?>
 		<span class=breakword><?=(empty($disabled))?'No functions are disabled':$disabled?></span></td></tr>
+	<tr><th>Error Log</th><td><?=ini_get('error_log')?></td></tr>

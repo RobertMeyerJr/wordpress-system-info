@@ -26,6 +26,7 @@ class System_Info_Admin{
 		if( version_compare(PHP_VERSION,'7.0.0') >= 0 ){
 			add_submenu_page($slug, 'OpCache', 'OpCache', 			$cap, 'wptd-opcache', [__CLASS__,'admin_tab']);
 		}
+		add_submenu_page($slug, 'Sessions', 'Sessions',				$cap, 'wptd-Sessions', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Database', 'Database', 			$cap, 'wptd-DB', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Cron', 'Cron', 					$cap, 'wptd-Cron', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Rewrites', 'Rewrites', 			$cap, 'wptd-Rewrites', [__CLASS__,'admin_tab']);

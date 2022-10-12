@@ -52,7 +52,7 @@ function is_td_debug(){
 		return true;
 	}
 
-	$referer_debug = false != stripos($_SERVER['HTTP_REFERER'],'debug=1');
+	$referer_debug = false != stripos($_SERVER['HTTP_REFERER'] ?? '','debug=1');
 	
 	if(defined('DOING_AJAX') && DOING_AJAX && $referer_debug){ //Need a better check here
 		return true;
@@ -120,7 +120,6 @@ class System_Info{
 			
 
 			if( !empty($_GET['disable_admin_bar']) ){
-				Console::log('in here!!');
 				add_filter('show_admin_bar', '__return_false');
 			}
 			define('DONOTCACHEPAGE',true); #PREVENT CACHING THE PAGE

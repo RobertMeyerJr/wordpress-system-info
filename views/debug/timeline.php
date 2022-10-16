@@ -99,7 +99,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 			<td><?=number_format($dur,5)?>
 			<td><?=$queries?> / <?=$queries2-$queries?>
 			<td><?=number_format($dur2-$dur,5)?>
-			<td><?=$wp_actions[$f]?>
+			<td><?=$wp_actions[$f] ?? ''?>
 		</tr>
 	<?php endfor; ?>
 </table>

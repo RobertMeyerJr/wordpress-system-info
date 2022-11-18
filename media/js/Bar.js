@@ -2,7 +2,7 @@ var dbg_start = Date.now();
 
 console.log('in Bar.js');
 
-jQuery(window).load(function(){
+jQuery(window).on("load", function(){
 	//setTimeout(dbg_performance,1000);
 	dbg_performance();
 });
@@ -197,6 +197,10 @@ function included_file_search(){
 	else {
 		jQuery('#included_files tr:not(:contains("'+file+'"))').hide();
 	}
+	var total_files = $('#included_files tbody tr').length; 
+	var file_count = $('#included_files tbody tr:visible').length;
+	var filter_count = total_files == file_count ? '' : '( Filtered : '+file_count+')';
+	$('#wptd_filtered_files').html(filter_count);
 }
 
 function dbg_performance(){
@@ -271,8 +275,9 @@ function colorizeQuery(h){
 
 	h = h.replace(/SELECT /gi,		'<i class=mn>SELECT</i> ');
 	h = h.replace(/INSERT INTO /gi, '<i class=mn>INSERT INTO</i> ');
-	h = h.replace(/DELETE /gi, 		'<i class=mn>INSERT INTO</i> ');
+	h = h.replace(/DELETE /gi, 		'<i class=mn>DELETE</i> ');
 	h = h.replace(/FROM /gi,		'<i class=mn>FROM</i> ');
+	h = h.replace(/ VALUES /gi,		'<i class=mn>VALUES</i> ');
 	h = h.replace(/LIMIT /gi,		'<i class=mn>LIMIT</i> ');
 	h = h.replace(/ORDER BY/gi ,	'<i class=mn>ORDER BY</i> ');
 	h = h.replace(/GROUP BY/gi ,	'<i class=mn>GROUP BY</i> ');
@@ -284,11 +289,12 @@ function colorizeQuery(h){
 	h = h.replace(/ ON /gi,			' <i class=mn>ON</i> ');
 	h = h.replace(/ AS /gi,			' <i class=mn>AS</i> ');
 	
-	h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> ');
-	h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');
+	h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> '); //May also end the string
+	h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');//May also end the string
 	h = h.replace(/ IN /gi,			' <i class=mn>IN</i> ');
 	h = h.replace(/ AND /gi,		' <i class=mn> AND </i> ');
 	h = h.replace(/ LIKE /gi,		'<i class=mn> LIKE </i> ');			
+	h = h.replace(/ FOUND_ROWS\(\)/gi,'<i class=op> FOUND_ROWS()</i> ');
 	h = h.replace(/SHOW VARIABLES/gi,	'<i class=mn>SHOW VARIABLES </i><br/> ');
 	
 	h = h.replace(/(\d+)/gi,		'<i class=int>$1</i>');

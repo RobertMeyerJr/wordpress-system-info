@@ -6,15 +6,19 @@ TODO: Group Repeated Errors
 */
 ?>
 <h2>Errors</h2>
-<table class=widefat>
+<table class=wpdb_table>
 	<thead>
 		<tr class=hdr>
 			<th width=5%>Type</th>
-			<th width=15%>Error</th>
-			<th width=75%>Trace</th>
+			<th width=30%>Error</th>
+			<th width=5%>Source</th>
+			<th width=45%>Code &amp; Trace</th>
 		</tr>
 	</thead>
 	<tbody>
+		<?php if(empty($SI_Errors)) : ?>
+			<tr><td colspan=5>No Errors</td></tr>
+		<?php else : ?>
 		<?php foreach($SI_Errors as $e) : list($errno,$errstr,$file,$errLine,$context,$trace) = $e; ?>
 			<tr>
 				<td>
@@ -41,6 +45,9 @@ TODO: Group Repeated Errors
 						<b><?php echo $errstr?></b>
 					</td>
 					<td>
+						<?php echo System_Info_Tools::determine_wpdb_backtrace_source($trace); ?>
+					</td>
+					<td>
 					<span class=filename title="<?=esc_attr($file)?>"> <strong><?=$file?></strong></span>
 					<div class=code>
 					<?php
@@ -61,11 +68,9 @@ TODO: Group Repeated Errors
 						}
 					?>
 					</div>
-				</td>			
-				<td>
 					<ol class=trace>
 						<?php if(!empty($trace)) : ?>
-							<a class=show_trace href="#">Show Trace</a>
+							<a class=show_trace href="#">Toggle Trace</a>
 							<?php foreach($trace as $t) : ?>
 								<li>
 									<?php if(!empty($t['file'])) : ?>
@@ -84,6 +89,7 @@ TODO: Group Repeated Errors
 				</td>
 			</tr>
 		<?php endforeach; ?>
+		<?php endif; ?>
 	</tbody>
 </table>
 

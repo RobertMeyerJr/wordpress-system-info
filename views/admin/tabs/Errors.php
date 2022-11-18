@@ -4,7 +4,7 @@
 $error_log = ini_get('error_log');
 
 if( file_exists($error_log) && !empty($error_log) ){
-	if( filesize($error_log) > 200000){ //if over 500kB, just get the last 1000 lines
+	if( filesize($error_log) > 200000){ //if too big, just get the last 1000 lines
 		$error_string = System_Info_Tools::tail($error_log, 1000);
 	}
 	else{

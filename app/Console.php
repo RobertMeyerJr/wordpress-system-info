@@ -1,8 +1,12 @@
 <?php 
-
+Console::init();
 class Console{
 	protected static $log = [];
 	protected static $timers = [];
+	
+	public static function init(){
+
+	}
 
 	public static function testLogging(){
 			$arr1 = ['test'=>'test','test2'=>'test','test3'=>'test'];

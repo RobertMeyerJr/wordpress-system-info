@@ -12,7 +12,8 @@ $u = wp_get_current_user();
 		WordPress <?php echo $GLOBALS['wp_version']?><br/>
 		PHP <?php echo phpversion(); ?><br/>
 		Peak Memory memory_get_peak_usage: <?php echo size_format( memory_get_peak_usage() )?><br/>
-		Current Memory Usage: <?php echo size_format( memory_get_usage () )?>
+		Current Memory Usage: <?php echo size_format( memory_get_usage () )?><br/>
+		Operating System <?=PHP_OS?>
 	</p>		
 	<p>
 		ABSPATH			<?php echo ABSPATH; ?><br/> 					

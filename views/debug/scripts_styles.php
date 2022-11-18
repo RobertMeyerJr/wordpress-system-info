@@ -66,6 +66,7 @@ global $wp_scripts,$wp_styles;
 			<th>Src</th>
 			<th>Deps</th>
 			<th>Ver</th>
+			<th>Attr</th>
 			<th>Size</th>
 		</tr>
 	</thead>
@@ -88,6 +89,7 @@ global $wp_scripts,$wp_styles;
 					<?=$s->ver?>
 				<?php endif; ?>
 			</td>
+			<td class=attr></td>
 			<td>
 				<?php 
 					if( stripos($s->src,'/wp-content/') !== false || stripos($s->src,'/wp-includes/') !== false ){
@@ -118,6 +120,14 @@ jQuery(function($){
 		var name = $(this).data('name');
 		var css = '<details><summary>Toggle</summary><div>'+$(`#${name}-inline-css`).html()+'</div></details>';
 		$(this).html(css);
+	});
+
+	$('#styles_table th').each(function(){
+		var name = $(this).text();
+		var onload = $('link#'+name).attr('onload') || '';
+		if( onload.indexOf('this.rel') != -1 ){
+			$(this).parent().find('.attr').html('Defer');
+		}
 	});
 });
 </script>

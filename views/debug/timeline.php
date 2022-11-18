@@ -2,11 +2,12 @@
 <?php 
 global $wp_actions;
 
+$NOW = microtime(true);
+
 $WP_CORE_TIME 	= number_format(WP_START_TIMESTAMP - $_SERVER['REQUEST_TIME_FLOAT'], 4);
-$total_time 	= number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4);
+$total_time 	= number_format($NOW - $_SERVER['REQUEST_TIME_FLOAT'], 4);
 $query_time 	= number_format($total_query_time,4);
 $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
-
 
 ?>
 <?php if(!empty(System_Info::$remote_get_urls)) : $total_req_time = 0;?>	
@@ -54,11 +55,47 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 <?php endif; ?>
 <h2>Wordpress Measurements</h2>
 <table>
-	<tr><th>WP Core Time</th><td><?php echo $WP_CORE_TIME?></td>
-	<tr><th>Plugin Load</th><td><?php echo $wp_plugin_load?></td>
-	<tr><th>Query Time</th><td><?php echo $query_time?></td>
-	<tr><th>Request Time</th><td><?php echo $total_time?></td>
+	<tr><th>WP Core Time</th><td><?php echo $WP_CORE_TIME?></td><td><?=number_format(($WP_CORE_TIME/$total_time)*100,2)?>%</td>
+	<tr><th>Plugin Load</th><td><?php echo $wp_plugin_load?></td><td><?=number_format(($wp_plugin_load/$total_time)*100,2)?>%</td>
+	<tr><th>Query Time</th><td><?php echo $query_time?></td><td><?=number_format(($query_time/$total_time)*100,2)?>%</td>
+	<tr><th>Setup Theme</th><td>
+	<tr><th>Head</th><td>
+	<tr><th>Loop</th><td>
+	<tr><th>Footer</th><td>
+	<tr><th>Request Time</th><td><?php echo $total_time?></td><td></td>
 </table>
+<?php if(!empty(System_Info::$templates_loaded)) : ?>
+<h2>Templates</h2>
+<table>
+	<thead>
+		<th>Template</th>
+		<th>Require Once</th>
+		<th>Duration</th>
+		<th>%</th>
+	</thead>
+	<tbody>
+		<?php $total_tpl_time = 0; ?>
+		<?php foreach(System_Info::$templates_loaded as $tpl=>$data) : $r = $data[0]; $time_taken = $r['end'] - $r['start'];
+			$total_tpl_time += $time_taken;
+			?>
+			<tr>
+				<th><?=str_replace(WP_CONTENT_DIR,'',$tpl)?></th>
+				<td><?=$r['once']?></td>
+				<td><?=number_format($time_taken,4)?></td>
+				<td class=perc><?php echo number_format(($time_taken/$total_time)*100,4); ?>%</td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+	<tfoot>
+		<tr>
+			<th>Total Time in Templates</th>
+			<td></td>
+			<td><?=number_format($total_tpl_time,4)?></td>
+			<th class=perc><?php echo number_format(($total_tpl_time/$total_time)*100,4); ?>%</th>
+		</tr>
+	</tfoot>
+</table>
+<?php endif; ?>
 <h2>Browser Measurements</h2>
 <table>
 	<thead>
@@ -83,6 +120,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 			<th>Queries</th>
 			<th>Duration</th>
 			<th>Count</th>
+			<th>%</th>
 		</tr>
 	</thead>
 	<?php
@@ -91,6 +129,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 	<?php for($i=0;$i<$timeline_entries;$i++) : 
 		list($f, $mem, $dur, $queries) = System_Info::$timeline[$i];
 		list($f2, $mem2, $dur2, $queries2) = System_Info::$timeline_end[$i];
+		$time_taken = $dur2-$dur;
 	?>
 		<tr>
 			<th><?=$f?>
@@ -98,8 +137,9 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 			<td><?=size_format($mem2-$mem)?>
 			<td><?=number_format($dur,5)?>
 			<td><?=$queries?> / <?=$queries2-$queries?>
-			<td><?=number_format($dur2-$dur,5)?>
+			<td><?=number_format($time_taken,5)?>
 			<td><?=$wp_actions[$f] ?? ''?>
+			<td class=perc><?php echo number_format(($time_taken/$total_time)*100,4); ?>%</td>
 		</tr>
 	<?php endfor; ?>
 </table>

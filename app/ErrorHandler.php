@@ -27,8 +27,9 @@ class SI_ErrorHandler{
 
 	public static function exception_handler($ex){
 		#UnCaught Exception
-		echo "<h1>Fatal Exception</h1>";
+		
 		$out = ob_get_clean();
+		echo "<h1>Fatal Exception</h1>";
 		echo "<pre>
 				{$ex->getCode()}
 				<p>{$ex->getMessage()}</p>
@@ -42,16 +43,12 @@ class SI_ErrorHandler{
 	public static function error_handler($errno, $str="",$file=null,$line=null,$context=null){ 
 		global $SI_Errors;	
 		
-		$mem_usage = memory_get_usage();
-		$mem_limit = self::return_bytes(ini_get('memory_limit'));
-		//Todo: Only backtrace if we haven't seen the error before
-		/*
-		$limit = $mem_limit + ($mem_limit * 0.1);
-		if( $mem_usage <= $limit ){ //If memory limit within 10%, dont backtrace?
-			$trace = debug_backtrace(10); 
-		}
-		*/
-		#Console::log($errno);
+		#$mem_usage = memory_get_usage();
+		#$mem_limit = self::return_bytes(ini_get('memory_limit'));
+		
+		//Todo: Only backtrace if we haven't seen the error before, make sure not near mem limit
+		$trace = debug_backtrace(false, 20);
+		
 		$SI_Errors[] = array(
 			$errno,
 			$str,
@@ -61,8 +58,6 @@ class SI_ErrorHandler{
 			$trace ?? false
 		);
 
-		#d($errno);
-		#d(E_USER_ERROR);
 		//Fatal Error?
 		if($errno === E_USER_ERROR){
 			echo "<h1>Fatal Error</h1>";

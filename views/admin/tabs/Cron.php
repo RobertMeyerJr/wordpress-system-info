@@ -28,7 +28,15 @@ $schedules 	= wp_get_schedules();
 					<td><?php if(!empty($job['args']))var_dump($job['args'])?></td>
 					<td class=cPurple><?php echo empty($job['schedule']) ? 'Single Run Event':$job['schedule']?></td>
 					<td class=cOrange><?=date('n/j/Y @ g:iA',$timestamp)?></td>
-					<td class=cBlue><?=human_time_diff($timestamp)?></td>
+					<td class=cBlue>
+						<?php 
+							$past=false;
+							if( $timestamp < time() ){
+								$past=true;
+							}
+						?>
+						<?php echo human_time_diff($timestamp). ($past ? ' ago':'') ?>
+					</td>
 					<td>
 						<?php if( !empty($wp_filter[$name]) ) : ?>
 							<?php foreach( $wp_filter[$name]->callbacks as $pri=>$cbs ) : ?>

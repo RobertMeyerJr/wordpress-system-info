@@ -3,12 +3,16 @@
 class System_Info_Tools{
 
 	public static function determine_wpdb_backtrace_source($trace){
-	
+		//Issue: WP Rocket not being identified as plugin
+		//SELECT option_value FROM cb_62_options WHERE option_name = 'wpr_rucss_resources_version' LIMIT 1
+
 		$plugin_dir = WP_PLUGIN_DIR;
 		$theme_dir 	= get_template_directory();
 		$child_dir 	= get_stylesheet_directory();
 		$source 	= 'WP Core';
-		#d($trace);
+		if( empty($trace) ){
+			return '(Unknown)';
+		}
 		foreach($trace as $bt){
 			$file = $bt['file'] ?? '';
 			if( false !== stripos($file,$plugin_dir) ){

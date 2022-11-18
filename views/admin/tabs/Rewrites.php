@@ -4,10 +4,11 @@ global $wp_rewrite;
 
 ?>
 
-<table class=widefat>
+<table class="widefat striped">
 <thead>
 	<tr>
 		<th>Regex</th>
+		<th>Regular Expression</th>
 		<th>Rule</th>
 	</tr>
 </thead>
@@ -52,3 +53,4 @@ $wp_rewrite->rewritecode
 $wp_rewrite->extra_permastructs
 $wp_rewrite->non_wp_rules
 -->
+*/

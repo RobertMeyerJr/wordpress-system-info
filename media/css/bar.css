@@ -13,7 +13,7 @@ body{
 	margin:5px 0;
 	color:#fff;
 }
-
+#dbg_bar h2{font-size:1.5em;}
 #dbg_bar .cBlue{color:#3498db !important;}
 #dbg_bar .cRed{color:#c0392b !important;}
 #dbg_bar .cGreen{color:#27ae60 !important;}
@@ -53,6 +53,7 @@ body{
 	margin: 0;	
 	padding: 0;
 	z-index:99999999; /*Greater than wp-admin sidebar, greater than nf-builder*/
+	line-height:1.75em;
 }
 
 
@@ -77,7 +78,7 @@ body{
 #dbg_bar .tabs{	
 	visibility:visible;
 	background: #1a202c;
-	padding: 0px 10px 0 0;
+	padding: 4px 10px 0 0;
 	margin:0;
 	text-align:left;
 	width:100%;	
@@ -227,7 +228,8 @@ body{
 	vertical-align: baseline;
 	background-color: #777;
 	border-radius: 10px;	
-	position:relative;	
+	position:relative;
+	font-size:15px;	
 }
 
 

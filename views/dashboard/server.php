@@ -1,4 +1,8 @@
 <?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
+<?php global $wpdb;
+
+$mysql_version = $wpdb->get_var("SELECT VERSION()");
+?>
 <tr><th class=hdr colspan=2><h2><i class='dashicons dashicons-desktop'></i> Server</h2></th></tr>
 <tr><th>OS</th><td><?=php_uname()?></td></tr>
 <?php if( !empty($linux_details) ) : ?>
@@ -39,3 +43,4 @@
 		</td>
 	</tr>
 <?php endif; ?>
+<tr><th>MySQL Version</th><td><?=$mysql_version?></td></tr>

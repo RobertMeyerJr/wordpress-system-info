@@ -24,7 +24,7 @@ $plugins = get_option('active_plugins');
 $files 					= get_included_files();
 $included_file_count 	= count($files);
 ?>
-<h2>Included Files <?=number_format($included_file_count)?></h2>
+<h2>Included Files <?=number_format($included_file_count)?> <span id=wptd_filtered_files></span></h2>
 <?php 
 $plugin_details = [];
 
@@ -165,13 +165,13 @@ jQuery(function($){
 			$('.file-categories li').removeClass('active');
 			$(this).addClass('active');
 		}	
-		
-		
 	}
 	function searchFiles(){
 		$('.file-categories li').removeClass('active');
 		$('#included_files tr').show();
 		$('#included_files tr:not(:contains('+$(this).val()+'))').hide();
+		console.log('Search Files');
+		
 	}
 });
 </script>

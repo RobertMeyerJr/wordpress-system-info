@@ -3,8 +3,6 @@
 
 #print_r(System_Info::$query_backtraces);
 
-
-
 ?>
 <h2>
 	<?php echo "{$wpdb->num_queries} Queries in {$total_query_time_ms}ms"; ?>	
@@ -15,6 +13,7 @@
 </h2>
 <?php
 $SQLbyType=[];
+$TimebySource=[];
 ?>
 <?php ob_start(); ?>
 <?php if(!empty($wpdb->queries)) : ?>
@@ -56,7 +55,7 @@ $SQLbyType=[];
 					<td><?=$record_count ?? ''?></td>
 					<td>
 						<ol class=trace>
-							<a class=show_trace href="#">Show Trace</a>
+							<a class=show_trace href="#">Toggle Trace</a>
 						<?php 
 							$trace_parts = explode(',',$trace);
 							foreach($trace_parts as $p){
@@ -71,11 +70,12 @@ $SQLbyType=[];
 								echo "WP Core - Admin";
 							}
 							else{
-								$bt = System_Info::$query_backtraces[md5($sql)];
+								$bt = System_Info::$query_backtraces[md5($sql)] ?? false;
 								$source = System_Info_Tools::determine_wpdb_backtrace_source($bt);
 								$source = ucwords(str_replace(['-','_'],' ',$source));
 								echo $source;
 								empty($SQLbyType[$source]) ? $SQLbyType[$source]=1 : $SQLbyType[$source]++;
+								empty($TimebySource[$source]) ? $TimebySource[$source] = $elapsed : $TimebySource[$source] += $elapsed;
 							}
 						?>
 					</td>
@@ -87,7 +87,10 @@ $SQLbyType=[];
 	<?php arsort($SQLbyType); ?>
 	<table>
 		<?php foreach($SQLbyType as $k=>$v) : ?>
-			<tr><th><?=$k?><td><?=$v?>
+			<tr>
+				<th><?=$k?>
+				<td><?=$v?>
+				<td><?=number_format(($TimebySource[$k] ?? 0)*1000,2)?>ms
 		<?php endforeach; ?>
 	</table>
 	<?=$sqlTable;?>

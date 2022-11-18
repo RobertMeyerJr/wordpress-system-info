@@ -12,21 +12,21 @@ define('SI_START_MEM', memory_get_usage());
 define('SI_WPCORE_LOAD', SI_START_TIME - WP_START_TIMESTAMP);
 include('app/Console.php'); #Always included to prevent errors if called
 
-if( isset($_GET['debug']) && is_td_debug() ){
-	include('app/ErrorHandler.php');
-	
-	//Todo: Do something better here
-	add_action('plugin_loaded',function($plugin){
-		global $plugin_memory_load;
-		#Console::log($plugin);
-		$plugin_memory_load[$plugin] = [memory_get_usage(),microtime(true)];
-	});
-}
-
 /* 
 SQL Debug headers not working for rest routes
 */
-$total_details = System_Info::getInstance();
+if( !empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_guest_debug() ){ #Dont load at all if not logged in unless guest debug enabled
+	if( isset($_GET['debug']) && is_td_debug() ){
+		include('app/ErrorHandler.php');
+		
+		//Todo: Do something better here, Must Use?
+		add_action('plugin_loaded',function($plugin){
+			global $plugin_memory_load;
+			$plugin_memory_load[$plugin] = [memory_get_usage(),microtime(true)];
+		});
+	}
+	$total_details = System_Info::getInstance();
+}
 
 function is_td_guest_debug(){
 	if( !defined('DEBUG_KEY') ){
@@ -36,7 +36,7 @@ function is_td_guest_debug(){
 		return false;
 	}
 	
-	return ($_GET['debug'] ?? '') == DEBUG_KEY;
+	return ($_GET['debug'] ?? '') === DEBUG_KEY;
 }
 
 function is_td_debug(){
@@ -69,16 +69,6 @@ function is_td_debug(){
 	return false;
 }
 
-
-if( false !== stripos($_SERVER['REQUEST_URI'], 'wp-json/ninja-forms-submissions/submissions') ){
-	add_action('all', function($a){
-		$action = current_action();
-		if( stripos($action,'ninja') !== false ){
-			#error_log('URL: '.$_SERVER['REQUEST_URI'].'Current Action '.$action);
-		}
-	}, -100);
-}
-
 class System_Info{	
 	protected static $instance;
 	public static $query_backtraces = [];
@@ -86,6 +76,7 @@ class System_Info{
 	public static $action_start;
 	public static $action_end;
 	public static $templates;
+	public static $templates_loaded = [];
 	public static $timeline 	= [];
 	public static $timeline_end = [];
 	public static $blocks = [];
@@ -100,7 +91,7 @@ class System_Info{
 	public static function getInstance(){
 		if( empty($_COOKIE[LOGGED_IN_COOKIE]) && !is_td_guest_debug() ){
 			//Change here in wp6?
-			#return;
+			return;
 		}
 		
 		/*Make sure running PHP 7.3+, otherwise dont even load */
@@ -116,12 +107,16 @@ class System_Info{
 	}
 
 	public function __construct(){
+		if( !empty($_GET['disable_admin_bar']) ){
+			add_filter('show_admin_bar', '__return_false');
+			add_action( 'init',function(){
+				#wp_deregister_script('l10n');
+			});
+		}
+		
 		if( is_td_debug() || is_td_guest_debug() ){
 			
 
-			if( !empty($_GET['disable_admin_bar']) ){
-				add_filter('show_admin_bar', '__return_false');
-			}
 			define('DONOTCACHEPAGE',true); #PREVENT CACHING THE PAGE
 			add_action('doing_it_wrong_run',[$this,'doing_it_wrong_run'], 10, 3);
 			if( !defined('SAVEQUERIES') ){
@@ -173,6 +168,8 @@ class System_Info{
 				self::$templates[] = [$slug, $name, $templates];
 			},10,4);
 			
+			add_action('wp_before_load_template',[$this,'before_load_template'], 0, 2);
+			add_action('wp_after_load_template', [$this,'after_load_template'], PHP_INT_MAX, 2);
 			#add_action('plugin_loaded', [$this,'plugin_loaded']);
 
 			add_filter('query',function($q){
@@ -194,9 +191,14 @@ class System_Info{
 			#'unload_textdomain',
 			#'load_textdomain',
 			'after_setup_theme',
-			#'auth_cookie_malformed',
-			#'auth_cookie_valid',
+			'determine_current_user', //Filter
+			'auth_cookie_malformed', //
+			'auth_cookie_expired',
+			'auth_cookie_bad_username',
+			'auth_cookie_bad_hash',
+			'auth_cookie_bad_session_token',
 			'set_current_user',
+			'auth_cookie_valid',
 			'init',
 			'widgets_init',
 			#'register_sidebar',
@@ -212,7 +214,7 @@ class System_Info{
 			'wp_print_scripts',
 			'wp_print_styles',
 			'get_header',
-			'wp_body_open',
+			'wp_body_open',	
 			'wp_head',
 			'loop_start',
 			'the_post',
@@ -251,24 +253,40 @@ class System_Info{
 		self::$doing_it_wrong[] = [$function, $message, $version];
 	}
 
+	public function before_load_template($tpl, $once){
+		self::$templates_loaded[$tpl][] = ['require_once'=>$once,'start'=>microtime(true)];
+	}
+
+	public function after_load_template($tpl, $once){
+		#$item = &end(self::$templates_loaded);
+		$k = array_key_last(self::$templates_loaded[$tpl]);
+		#Console::log($tpl);
+		#Console::log($k);
+		self::$templates_loaded[$tpl][$k]['end'] = microtime(true);
+		#Console::log(self::$templates_loaded[$k]);
+	}
+
 	public function render_block($content, $block){
-		self::$blocks[] = [
-			$block['blockName'],
-			$block['attrs'],
-		];
+		if( !empty($block['blockName']) ){
+			self::$blocks[] = [
+				$block['blockName'],
+				$block['attrs'],
+			];
+		}
 		return $content;
 	}
 	
-	public function timeline(){
+	public function timeline($v=null){
 		self::$timeline[] = [
 			current_filter(),
 			memory_get_peak_usage(),
 			microtime(true)-SI_START_TIME,
 			get_num_queries()
 		];
+		return $v;
 	}
 
-	public function timeline_end(){
+	public function timeline_end($v=null){
 		$filter = current_filter();
 		self::$timeline_end[] = [
 			$filter,
@@ -280,6 +298,7 @@ class System_Info{
 		if($filter == 'plugins_loaded'){
 			define('SI_PLUGINS_LOADED', microtime(true));
 		}
+		return $v;
 	}
 
 	public static function before_remote_request($res){
@@ -380,9 +399,10 @@ class System_Info{
 	}	
 	
 	public function deprecated_function_run($func, $replace, $ver){
-		Console::warn("Deprecated Function {$func} Replacement: $replace Version: $ver");
+		$DEPRECATION_MSG="Deprecated Function {$func} Replacement: $replace Version: $ver";
+		Console::warn($DEPRECATION_MSG);
 		if( !defined('DOING_AJAX') ){
-			Console::log(debug_backtrace(false));
+			Console::log(debug_backtrace(~DEBUG_BACKTRACE_PROVIDE_OBJECT));
 		}
 	}
 
@@ -445,7 +465,9 @@ class System_Info{
 				include(__DIR__.'/views/debug/bar.php');
 				$err = error_get_last();
 				if( !empty($err) ){
-					print_r($err);
+					echo "<pre>".print_r($err,true)."</pre>";
+					$bt = debug_backtrace(10);
+					echo "<pre>".print_r($bt,true)."</pre>";
 				}
 			}
 		}
@@ -480,7 +502,7 @@ class System_Info{
 			return;
 		}
 		if( is_admin() ){ //Should also make sure page is ours
-			wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jQuery'), true);		
+			wp_enqueue_script( 'wp-dev-bar-admin', plugins_url( '/media/js/Admin.js',__FILE__), array('jquery'), true);		
 		}
 		require_once('app/SI_Admin.php');
 		require_once('app/SI_SQL.php');

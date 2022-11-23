@@ -94,7 +94,7 @@ foreach($plugins as $p){
 </table>
 <?php $html = ob_get_clean(); ?>
 <?php if(!empty(System_Info::$templates)) : ?>
-	<h2>Templates</h2>
+	<h2>Template Parts</h2>
 	<table>
 		<thead>
 		<tr>

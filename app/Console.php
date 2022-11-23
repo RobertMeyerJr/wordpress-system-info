@@ -5,7 +5,24 @@ class Console{
 	protected static $timers = [];
 	
 	public static function init(){
+		$actions = [
+			'qm/emergency',
+			'qm/alert',
+			'qm/critical',
+			'qm/error',
+			'qm/warning',
+			'qm/notice',
+			'qm/info',
+			'qm/debug',
+		];
+		foreach($actions as $act){
+			add_action($act,[__CLASS__,'qm_log']);
+		}
+	}
 
+	public static function qm_log($msg){
+		#https://querymonitor.com/docs/logging-variables/
+		Console::log($msg);
 	}
 
 	public static function testLogging(){
@@ -60,6 +77,7 @@ class Console{
 
 	public static function log($msg, $type='info', $where=false){
 		$bt = debug_backtrace();
+		//Trace should show where it comes from
 		
 		$where = [];
 		$trace_length = count($bt);

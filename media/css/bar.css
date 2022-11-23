@@ -153,6 +153,7 @@ body{
 	display: flex;
 	align-items: center;	
 	justify-content: center;
+	flex-direction: column;
 }
 
 #dbg_bar table thead th{

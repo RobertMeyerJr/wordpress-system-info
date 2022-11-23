@@ -14,6 +14,7 @@ $u = wp_get_current_user();
 		<tr><th>PHP<td><?php echo phpversion(); ?>
 		<tr><th>Peak Memory memory_get_peak_usage<td><?php echo size_format( memory_get_peak_usage() )?>
 		<tr><th>Current Memory Usage<td><?php echo size_format( memory_get_usage () )?>
+		<tr><th>Operating System (uname)<td><?=php_uname()?>
 		<tr><th>Operating System<td><?=PHP_OS?>
 		<tr><th>ABSPATH<td><?php echo ABSPATH; ?>
 		<tr><th>TEMPLATEPATH<td><?php echo TEMPLATEPATH; ?>

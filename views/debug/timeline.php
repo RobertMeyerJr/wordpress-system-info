@@ -44,7 +44,6 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 					<?php endif; ?>
 				<td>
 					<?=System_Info_Tools::determine_wpdb_backtrace_source($req['trace'])?>
-					<?php #d($req['trace']);?>
 		<?php endforeach; ?>
 		<tfoot>
 			<tr>

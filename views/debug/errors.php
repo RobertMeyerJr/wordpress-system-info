@@ -2,9 +2,13 @@
 <?php 
 global $SI_Errors;
 /*
-TODO: Group Repeated Errors
+TODO: 
+Group Repeated Errors
+Hide Deprecated
 */
+$error_source_counts = [];
 ?>
+<?php ob_start(); ?>
 <h2>Errors</h2>
 <table class=wpdb_table>
 	<thead>
@@ -45,7 +49,11 @@ TODO: Group Repeated Errors
 						<b><?php echo $errstr?></b>
 					</td>
 					<td>
-						<?php echo System_Info_Tools::determine_wpdb_backtrace_source($trace); ?>
+						<?php 
+							$source = System_Info_Tools::determine_wpdb_backtrace_source($trace); 
+							$error_source_counts[$source] = ($error_source_counts[$source]??0)+1;
+							echo $source;
+						?>
 					</td>
 					<td>
 					<span class=filename title="<?=esc_attr($file)?>"> <strong><?=$file?></strong></span>
@@ -92,7 +100,15 @@ TODO: Group Repeated Errors
 		<?php endif; ?>
 	</tbody>
 </table>
-
+<?php $errors = ob_get_clean(); ?>
+<h2>Errors by Source</h2>
+<table>
+<?php arsort($error_source_counts); ?>
+<?php foreach($error_source_counts as $source=>$error_count) : ?>
+	<tr><th><?=$source?></th><td><?=$error_count?></td></tr>
+<?php endforeach; ?>
+</table>
+<?php echo $errors ?>
 <?php if( !empty(System_Info::$doing_it_wrong) ) : ?>
 <h2>Doing it Wrong</h2>
 <table>

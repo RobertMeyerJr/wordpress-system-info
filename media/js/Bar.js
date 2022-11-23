@@ -2,11 +2,6 @@ var dbg_start = Date.now();
 
 console.log('in Bar.js');
 
-jQuery(window).on("load", function(){
-	//setTimeout(dbg_performance,1000);
-	dbg_performance();
-});
-
 jQuery(document).ajaxComplete(function(event, jqXHR, opt){
 	console.log('ajaxComplete');
 	var headers = jqXHR.getAllResponseHeaders().trim().split(/[\r\n]+/);
@@ -47,7 +42,9 @@ jQuery(document).ajaxComplete(function(event, jqXHR, opt){
 	//console.log(headers);
 });
 
-jQuery(function($){	
+jQuery(window).on("load", function(){
+	var $ = jQuery;
+	setTimeout(dbg_performance, 3000);
 	console.log('In Debug Bar');
 	/*
 	jQuery.ajaxSetup({
@@ -64,9 +61,6 @@ jQuery(function($){
 		}
 	});
 	*/
-	if(typeof jQuery.fn.tablesorter == 'function'){
-		jQuery('#dbg_bar table.sortable').tablesorter();
-	}
 
 	jQuery(function($){
 		$('.value-info').click(function(){ $(this).toggleClass('expanded') });
@@ -203,24 +197,79 @@ function included_file_search(){
 	$('#wptd_filtered_files').html(filter_count);
 }
 
+// https://medium.com/zattoo_tech/performance-monitoring-928bcaa88272
+// https://github.com/GoogleChrome/web-vitals
+// https://stackoverflow.com/questions/72485999/lcp-result-is-totally-opposite-from-performance-api-than-the-pagespeed-insights
+// https://kinsta.com/blog/eliminate-render-blocking-javascript-css/
+// https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
 function dbg_performance(){
+	//Need a performance observer for LCP and other items
+	// Need % of LCP
+
 	var now = new Date().getTime();
 	//https://web.dev/navigation-and-resource-timing/
 	var t = performance.getEntriesByType("navigation")[0];
 
+	dbg_resources(); //Move this, or fine here?
+	dbg_cwv();
+	//Show Front End Time + Backend Time as a single bar with Percentages
+
+	//performance.getEntriesByType('resource')
+	//performance.getEntriesByName('first-contentful-paint')[0]
+
+	//images = performance.getEntriesByType('img')
+	//img.duration
+	//img.name
+
+	//link 
+	//script 
+	//css
+
+	//Show TTFB
+
 	//var t 				= window.performance.timing;		
+	var pageloadtime 	= t.duration;
+	//var domComplete = t.domComplete;
+	//var domInteractive = t.interactive;
+
+	//DOM:		domInteractive 	to loadEventStart
+	//Parsing: 	responseEnd 	to domInteractive
+
 	var dns 			= t.domainLookupEnd - t.domainLookupStart;
 	var tcp 			= t.connectEnd - t.connectStart;
 	var ttfb 			= t.responseStart;
 	
 	var responseTime 	= t.responseStart - t.responseEnd;
 	
-	var pageloadtime 	= t.loadEventStart;
 	var connectTime 	= t.responseEnd - t.requestStart;
-	var domTime 		= window.performance.timing.domContentLoadedEventEnd - window.performance.timing.domContentLoadedEventStart;
+	var domTime 		= t.domComplete - t.responseEnd;//Is this right? Also includes Parsing Time?
 	var basePage 		= t.responseEnd - t.responseStart;
 	var frontEnd 		= t.loadEventStart - t.responseEnd;
-	
+	var loadEvent 		= t.loadEventEnd - t.loadEventStart;
+	/*
+		jQuery ready vs load?
+
+		Simple Pie Chart:
+		scripts
+		css
+		images
+		font
+		media (video)
+		Bytes for each
+
+
+		domComplete - domLoading
+
+	 	unloadEventStart;
+    	unloadEventEnd;
+    	domInteractive;
+    	domContentLoadedEventStart;
+    	domContentLoadedEventEnd;
+    	domComplete;
+    	loadEventStart;
+    	loadEventEnd;
+	*/
+	//t.transferSize
 	var percs = {
 		dns:		dbg_percentage(dns, 		pageloadtime),
 		tcp:		dbg_percentage(tcp, 		pageloadtime),
@@ -228,6 +277,7 @@ function dbg_performance(){
 		ttfb:		dbg_percentage(ttfb, 		pageloadtime),
 		basePage:	dbg_percentage(basePage,	pageloadtime),
 		frontEnd:	dbg_percentage(frontEnd,	pageloadtime),	
+		load:		dbg_percentage(loadEvent,	pageloadtime),	
 		dom:		dbg_percentage(domTime,		pageloadtime),	
 	};
 	//console.table(percs);	
@@ -236,7 +286,7 @@ function dbg_performance(){
 
 	jQuery('.serverTotalTime').html( (serverTotalTime).toFixed(2)+'ms' )
 	jQuery('.browserTotalTime').html( (browserTotalTime).toFixed(2)+'ms' );
-	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2)+'ms' );
+	jQuery('.TotalTime').html((browserTotalTime + serverTotalTime).toFixed(2)+'ms' ); //This is wrong, ignore debug bar time.
 	
 	
 	//t.transferSize
@@ -249,7 +299,6 @@ function dbg_performance(){
 		h += '<tr><th>Time to First Byte</th><td>'+dbg_progress_bar(percs.ttfb)+'</td><td>'+ttfb.toFixed(2)+'ms</td><td>'+percs.ttfb+'%</td></tr>';
 		h += '<tr><th>Send Response</th><td>'+dbg_progress_bar(percs.basePage)+'</td><td>'+basePage.toFixed(2)+'ms</td><td>'+percs.basePage+'%</td></tr>';
 		h += '<tr><th>Front End</th><td>'+dbg_progress_bar(percs.frontEnd)+'</td><td>'+frontEnd.toFixed(2)+'ms</td><td>'+percs.frontEnd+'%</td></tr>';
-		h += '<tr><th>DOM</th><td>'+dbg_progress_bar(percs.dom)+'</td><td>'+domTime.toFixed(2)+'ms</td><td>'+percs.dom+'%</td></tr>';
 		h += '<tr><th>Page Load</th><td></td><td>'+pageloadtime.toFixed(2)+'ms</td><td>100%</td></tr>';
 		
 	jQuery('#dbg_frontend').html(h);	
@@ -259,6 +308,111 @@ function dbg_percentage(v,total){
 	var perc = ((v/total) * 100).toFixed(2); 
 	return perc;
 }
+
+function dbg_cwv(){
+	let cls = 0;
+	new PerformanceObserver((entryList) => {
+	  for (const entry of entryList.getEntries()) {
+		if (!entry.hadRecentInput) {
+		  cls += entry.value;
+		  console.log('Current CLS value:', cls, entry);
+		}
+	  }
+	}).observe({type: 'layout-shift', buffered: true});
+
+	new PerformanceObserver(function(entryList){
+		for (const entry of entryList.getEntries()){
+	  		console.log('LCP candidate:', entry.startTime, entry);
+		}
+	}).observe({type: 'largest-contentful-paint', buffered: true});
+
+	new PerformanceObserver(function(entryList){
+		var fidEntry = entryList.getEntries()[0];
+		var fid = fidEntry.processingStart - fidEntry.startTime;
+		console.log("First Input Delay: " + fid);
+		// Output:
+		//   First Input Delay: 1241.0949999466538
+	}).observe({ type: "first-input", buffered: true });
+}
+
+//See what sweet-alert comes up as for non-blocking css when defered
+//We want to call out tracking, so anything that isn't local or CDN (Just consider External)
+function dbg_resources(){
+	var blockingCount = 0;
+	var durationByType = {};
+	var bytesByType = {};
+	var resources = performance.getEntriesByType('resource'); //May not all be loaded yet? Still some 0's
+	var index = 0;
+
+	//TODO: Indicate blocking before LCP or fully loaded, indicate % impact
+	var html = `<div id=dbg_resource_top></div><table class=wpdb_table style="width:100%;table-layout:fixed">
+		<thead>
+			<tr>
+				<th width=5%>Index</th>
+				<th width=5%>Origin</th>
+				<th width=65%>Name</th>
+				<th width=10%>Type</th>
+				<th width=5%>Blocking</th>
+				<th width=5%>Transfered</th>
+				<th width=5% title="Size After Decompression">Filesize</th>
+				<th width=5%>Protocol</th>
+				<th width=5%>Time Taken (ms)</th>
+		</thead>
+		<tbody>
+	`;
+	var origin = document.location.origin;
+	for(var i=0; i<resources.length; i++){
+		var r = resources[i];
+		var type = r.name.indexOf(origin) === 0 ? 'Local' : 'Remote';
+		//Should detect CDN, WP Rocket or other source? set variable css if used
+		if(r.renderBlockingStatus == 'blocking'){
+			blockingCount++;
+		}
+		var name = r.name.split('?')[0];
+		if( name.indexOf('data:') !== -1 ){
+			name = 'Data URI: '+name.split('base64')[0];
+		}
+		//r.initiatorType css means intiated by css, link is the actual css
+		bytesByType[r.initiatorType] = (bytesByType[r.initiatorType] || 0) + r.decodedBodySize;
+		durationByType[r.initiatorType] = (durationByType[r.initiatorType] || 0) + r.duration;
+		var size  = formatBytes(r.transferSize);
+		var transfer_size = formatBytes(r.decodedBodySize);
+		if(size == 0){
+			size = '';
+			transfer_size = '';
+		}
+		html += `<tr>
+				<td>${index++}
+				<td>${type}</td>
+				<td style="word-wrap:break-word"><span title="${r.name}">${name}</span></td>
+				<td>${r.initiatorType}</td>
+				<td>${r.renderBlockingStatus == 'blocking' ? '🧱':'' }</td>
+				<td>${ size }</td>
+				<td>${ transfer_size }</td>
+				<td>${r.nextHopProtocol}</td>
+				<td>${r.duration.toFixed(2)}</td>
+		</tr>`;
+	}
+	
+	var typeHtml = `<table>
+						<thead>
+							<tr>
+								<th>Type</th>
+								<th>Size</th>
+								<th>Time</th>
+							</tr>
+						</thead>
+						<tbody>`;
+	for(var k in bytesByType){
+		var type = k.replace('css','CSS Initiated').replace('link','css')
+		typeHtml += `<tr><th>${type}<td>${formatBytes(bytesByType[k])}<td>${(durationByType[k]/1000).toFixed(4)}`;
+	}
+	typeHtml += '</table>';
+	//size 0 may mean cached or blocked
+	html = `<div><h2>Blocking: ${blockingCount} Non-Blocking:${resources.length - blockingCount}</h2></div>`+html;
+	jQuery('#dbg_resources').html(typeHtml+html);
+}
+
 function dbg_progress_bar(perc){ return '<progress max=100 value="'+perc+'"></progress>'; }
 
 /*
@@ -313,5 +467,12 @@ function colorize_php(){
 
 }
 
-
+function formatBytes(bytes,decimals) {
+	if(bytes == 0) return '0';
+	var k = 1024,
+		dm = decimals || 2,
+		sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+		i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+ }
 

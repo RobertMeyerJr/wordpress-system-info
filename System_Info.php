@@ -3,7 +3,7 @@
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
 Description: Provides debugging features and insights into wordpress and the server environment it is running on.
-Version: 1.0.5
+Version: 1.1
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 */	
@@ -11,6 +11,7 @@ define('SI_START_TIME', microtime(true)); #Todo: Move this to Must Use Plugin
 define('SI_START_MEM', memory_get_usage());
 define('SI_WPCORE_LOAD', SI_START_TIME - WP_START_TIMESTAMP);
 include('app/Console.php'); #Always included to prevent errors if called
+
 
 /* 
 SQL Debug headers not working for rest routes
@@ -443,7 +444,7 @@ class System_Info{
 	public function debug_start(){
 		$bar_style  = plugins_url( '/media/css/bar.css',__FILE__);
 		$bar_js 	= plugins_url( '/media/js/Bar.js',__FILE__);
-		wp_enqueue_style( 'total-debug-bar', $bar_style);
+		wp_enqueue_style( 'total-debug-bar', $bar_style, []);
 		wp_enqueue_script('total-debug-bar', $bar_js, array('jquery'), '2.2', true);
 		register_shutdown_function(function(){
 			//Check if there was a fatal error, iff so output debugbar script/style manually

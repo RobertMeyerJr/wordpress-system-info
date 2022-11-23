@@ -152,14 +152,8 @@ class System_Info_Admin{
 			return;		
 		}
 		
-		#wp_enqueue_script('td-admin', $folder.'js/Admin.js',['jquery']);				
-		
-		wp_enqueue_script('tablesorter', 'https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.1/js/jquery.tablesorter.js', array('jquery'));	
-		
-		//Enqueue if not already
-		if(!wp_style_is('font-awesome') && !wp_style_is('fontawesome') ){
-			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
-		}
+		#wp_enqueue_script('td-admin', $folder.'js/Admin.js',['jquery']);
+
 		
 	}
 	

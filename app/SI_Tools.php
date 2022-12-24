@@ -301,8 +301,7 @@ class System_Info_Tools{
 	
 	public static function cpu_info(){
 		if(self::is_windows()){
-			self::run_command("wmic CPU get name, NumberOfCores,description, LoadPercentage, maxclockspeed, extclock, manufacturer, revision /format:csv", $info);
-			$cpu_info = self::wmic_to_array($info);											
+			$cpu_info = array();											
 		}
 		else{
 			self::run_command('cat /proc/cpuinfo', $output);			
@@ -319,8 +318,7 @@ class System_Info_Tools{
 	
 	public static function mem_info(){
 		if( self::is_windows() ){
-			exec('wmic MEMORYCHIP get banklabel, devicelocator, caption, capacity /format:csv', $info);
-			$meminfo = self::wmic_to_array($info);			
+			$meminfo = array();			
 		}
 		else{		
 			exec('cat /proc/meminfo',$output);
@@ -332,22 +330,6 @@ class System_Info_Tools{
 			}
 		}
 		return $meminfo;
-	}
-	
-	public static function wmic_to_array($info){
-		#unset($info[0]);
-		$names = explode(',',$info[1]);
-		$c = count($info);
-		$name_count = count($names);
-		$out = array();
-		for($i=2; $i<$c;$i++){
-			$d = explode(',',$info[$i]);
-			$out[$i-2] = array();
-			for($j=0;$j<$name_count;$j++){
-				$out[$i-2][$names[$j]] = $d[$j];
-			}
-		}
-		return $out;
 	}
 	
 	public static function formatBytes($bytes, $precision = 2){ 

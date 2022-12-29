@@ -260,7 +260,8 @@ tr.files{display:none;}
 		<h2>Configuration</h2>
 		<span class=topleft></span>
 		<ul>
-			<li><label>Start Time</label><span><?=date('n/j/Y h:ia',$stats['start_time'])?></span></li>
+			<li><label>Start Time</label><span><?=date('n/j/Y g:ia', $stats['start_time'])?> UTC</span></li>
+			<li><label>Running Time</label><span><?=human_time_diff(time(),$stats['start_time'])?></span></li>
 			<li><label><!-- Reset Count --></label><span></span></li>		
 			<li><label>validate_timestamps</label><span><?=number_format($cfg['opcache.validate_timestamps'])?></span></li>
 			<li><label>revalidate_freq</label><span><?=number_format($cfg['opcache.revalidate_freq'])?></span></li>

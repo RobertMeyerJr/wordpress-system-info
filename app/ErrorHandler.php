@@ -9,32 +9,19 @@ class SI_ErrorHandler{
 		register_shutdown_function( array(__CLASS__,'shutdown_function') );	
 	}
 
-
-	protected static function return_bytes($val){ 
-		$val = trim($val); 
-		if( !is_numeric($val) ){
-			return $val;
-		}
-		$last = strtolower($val[strlen($val) - 1]);
-		switch ($last) {
-			case 'g': $val *= 1024; 
-			case 'm': $val *= 1024; 
-			case 'k': $val *= 1024; 
-		} 
-	 
-		return $val; 
-	} 
-
 	public static function exception_handler($ex){
 		#UnCaught Exception
 		
 		$out = ob_get_clean();
+		$trace = print_r(debug_backtrace(false),true);
 		echo "<h1>Fatal Exception</h1>";
 		echo "<pre>
 				{$ex->getCode()}
 				<p>{$ex->getMessage()}</p>
 				{$ex->getFile()} 
 				Line: {$ex->getLine()}
+				Trace:
+				{$trace}
 		</pre>";
 		self::error_handler($ex->getCode(),$ex->getMessage(),$ex->getFile(),$ex->getLine(),null);
 		exit;
@@ -42,9 +29,6 @@ class SI_ErrorHandler{
 
 	public static function error_handler($errno, $str="",$file=null,$line=null,$context=null){ 
 		global $SI_Errors;	
-		
-		#$mem_usage = memory_get_usage();
-		#$mem_limit = self::return_bytes(ini_get('memory_limit'));
 		
 		//Todo: Only backtrace if we haven't seen the error before, make sure not near mem limit
 		$trace = debug_backtrace(false, 20);

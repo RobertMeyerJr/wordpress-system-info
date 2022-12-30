@@ -9,7 +9,18 @@ Hide Deprecated
 $error_source_counts = [];
 ?>
 <?php ob_start(); ?>
-<h2>Errors</h2>
+<h2 style="margin-top:1em">
+	Errors
+	<span style="float:right;font-size:0.7em">
+		<label>Hide Deprecated <input type=checkbox id=dbg_error_hide_deprecated value=1 onClick="jQuery('#dbg_error_tbody').toggleClass('hide_deprecated')"></label>
+		&nbsp;&nbsp;
+		<label>Hide Warning <input type=checkbox id=dbg_error_hide_deprecated value=1 onClick="jQuery('#dbg_error_tbody').toggleClass('hide_warning')"></label>
+	</span>
+</h2>
+<style>
+#dbg_error_tbody.hide_deprecated :is(.error-num-8192,.error-num-16385){display:none;}
+#dbg_error_tbody.hide_warning 	 .error-num-2{display:none;}
+</style>
 <table class=wpdb_table>
 	<thead>
 		<tr class=hdr>
@@ -19,12 +30,12 @@ $error_source_counts = [];
 			<th width=45%>Code &amp; Trace</th>
 		</tr>
 	</thead>
-	<tbody>
+	<tbody id="dbg_error_tbody">
 		<?php if(empty($SI_Errors)) : ?>
 			<tr><td colspan=5>No Errors</td></tr>
 		<?php else : ?>
 		<?php foreach($SI_Errors as $e) : list($errno,$errstr,$file,$errLine,$context,$trace) = $e; ?>
-			<tr>
+			<tr class="error-num-<?=$errno?>">
 				<td>
 					<?php
 					if( is_numeric($errno) ){

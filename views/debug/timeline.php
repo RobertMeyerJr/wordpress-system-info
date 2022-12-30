@@ -52,17 +52,9 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 		</tfoot>
 	</table>
 <?php endif; ?>
-<h2>Wordpress Measurements</h2>
-<table>
-	<tr><th>WP Core Time</th><td><?php echo $WP_CORE_TIME?></td><td><?=number_format(($WP_CORE_TIME/$total_time)*100,2)?>%</td>
-	<tr><th>Plugin Load</th><td><?php echo $wp_plugin_load?></td><td><?=number_format(($wp_plugin_load/$total_time)*100,2)?>%</td>
-	<tr><th>Query Time</th><td><?php echo $query_time?></td><td><?=number_format(($query_time/$total_time)*100,2)?>%</td>
-	<tr><th>Setup Theme</th><td>
-	<tr><th>Head</th><td>
-	<tr><th>Loop</th><td>
-	<tr><th>Footer</th><td>
-	<tr><th>Request Time</th><td><?php echo $total_time?></td><td></td>
-</table>
+
+
+<?php ob_start(); ?>
 <?php if(!empty(System_Info::$templates_loaded)) : ?>
 <h2>Templates</h2>
 <table>
@@ -124,25 +116,38 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 	</thead>
 	<?php
 	$timeline_entries = count(System_Info::$timeline);
+	$important_actions = ['setup_theme', 'after_setup_theme', 'template_redirect', 'wp_body_open', 
+	'wp_footer','get_footer','get_header','wp_print_scripts',
+	'wp_before_admin_bar_render',
+	'wp_after_admin_bar_render',
+	'wp_print_footer_scripts'
+	];
+	$actions_by_key = [];
 	?>
 	<?php for($i=0;$i<$timeline_entries;$i++) : 
-		list($f, $mem, $dur, $queries) = System_Info::$timeline[$i];
-		list($f2, $mem2, $dur2, $queries2) = System_Info::$timeline_end[$i];
-		$time_taken = $dur2-$dur;
+		list($f, $mem, $start, $queries) = System_Info::$timeline[$i];
+		list($f2, $mem2, $start2, $queries2) = System_Info::$timeline_end[$i];
+		#$dur = $start2-
+		$time_taken = $start2 - $start;
+		if( in_array($f, $important_actions) ){
+			$actions_by_key[$f] = [ 
+				'start'	=> $start,
+				'end'	=> $start2
+			];
+		}
 	?>
 		<tr>
 			<th><?=$f?>
 			<td><?=size_format($mem)?>
 			<td><?=size_format($mem2-$mem)?>
-			<td><?=number_format($dur,5)?>
+			<td><?=number_format($start-WP_START_TIMESTAMP,5)?>
 			<td><?=$queries?> / <?=$queries2-$queries?>
 			<td><?=number_format($time_taken,5)?>
 			<td><?=$wp_actions[$f] ?? ''?>
-			<td class=perc><?php echo number_format(($time_taken/$total_time)*100,4); ?>%</td>
+			<td class=perc><?php echo number_format(($time_taken/$total_time)*100,2); ?>%</td>
 		</tr>
 	<?php endfor; ?>
 </table>
-
 <?php if( isset($_GET['all_actions']) ) : ?>
 <h3>Action Timeline</h3>
 <input type=text id=wptd_action_search placeholder="Search by Action">
@@ -171,8 +176,33 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 		<?php endforeach; ?>
 </table>
 <?php endif; ?>
+<?php $timeline_html = ob_get_clean(); ?>
 
+<h2>Wordpress Measurements</h2>
+<?php 
+$theme_setup 	= $actions_by_key['after_setup_theme']['end'] - $actions_by_key['setup_theme']['start'];
+$head 			= $actions_by_key['wp_print_scripts']['end'] - $actions_by_key['get_header']['start'];
+$body 			= $actions_by_key['wp_footer']['start'] - $actions_by_key['wp_body_open']['start'];
+if( !empty($actions_by_key['wp_print_footer_scripts']['start']) ){
+	$footer 	= $actions_by_key['wp_print_footer_scripts']['start'] - $actions_by_key['get_footer']['start'];
+}
+else{
+	$footer 	= 0;
+}
 
+//ToDo: wp_body_open may not be called if theme doesn't support it, in that case use wp_print_scripts['end']
+?>
+<table>
+	<tr><th>WP Core Time</th><td><?php echo $WP_CORE_TIME?></td><td><?=number_format(($WP_CORE_TIME/$total_time)*100,2)?>%</td>
+	<tr><th>Plugin Load</th><td><?php echo $wp_plugin_load?></td><td><?=number_format(($wp_plugin_load/$total_time)*100,2)?>%</td>
+	<tr><th>Query Time</th><td><?php echo $query_time?></td><td><?=number_format(($query_time/$total_time)*100,2)?>%</td>
+	<tr><th>Setup Theme</th><td><?php echo number_format($theme_setup,4)?><td><?=number_format(($theme_setup/$total_time)*100,2)?>%</td>
+	<tr><th>Head</th><td><?php echo number_format($head,4)?><td><?=number_format(($head/$total_time)*100,2)?>%</td>
+	<tr><th>Body</th><td><?php echo number_format($body,4)?><td><?=number_format(($body/$total_time)*100,2)?>%</td>
+	<tr><th>Footer</th><td><?php echo number_format($footer,4)?><td><?=number_format(($footer/$total_time)*100,2)?>%</td>
+	<tr><th>Total Request Time</th><td><?php echo $total_time?></td><td></td>
+</table>
+<?php echo $timeline_html ?>
 <script>
 jQuery(function($){
 

@@ -16,7 +16,7 @@ if( !empty($_GET['make_first']) ){
 	echo "<h3>Made First Plugin</h3>";
 }
 ?>
-
+<a class="button button-info" href="<?php echo admin_url('?page=wp-total-details&make_first=1')?>">Make First Plugin</a>
 
 <BR/><h2>Server Info</h2>
 <table class='wp-list-table widefat fixed server_info striped'>

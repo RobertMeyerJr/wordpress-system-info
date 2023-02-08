@@ -93,7 +93,7 @@ $error_source_counts = [];
 							<?php foreach($trace as $t) : ?>
 								<li>
 									<?php if(!empty($t['file'])) : ?>
-										<span><?=$t['file']?></span>
+										<span><?=str_replace(ABSPATH,'',$t['file'])?></span>
 									<?php endif; ?>
 									<?php if(!empty($t['line'])) : ?>
 										<span><?=$t['line']?></span>

@@ -13,7 +13,13 @@ define('SI_WPCORE_LOAD', SI_START_TIME - WP_START_TIMESTAMP);
 include('app/Console.php'); #Always included to prevent errors if called
 
 
-/* 
+/*
+
+time in main query?
+
+what happens in body
+
+
 SQL Debug headers not working for rest routes
 */
 if( !empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_guest_debug() ){ #Dont load at all if not logged in unless guest debug enabled
@@ -107,8 +113,18 @@ class System_Info{
 		return self::$instance;
 	}
 
+	public function cron_record(){
+		//Get list of cron actions
+		//before and after each action, log it.
+	}
+
 	public function __construct(){
+		if( defined('DOING_CRON') && DOING_CRON){
+			return;
+		}
 		if( !empty($_GET['disable_admin_bar']) ){
+			show_admin_bar(false);
+
 			add_filter('show_admin_bar', '__return_false');
 			add_action( 'init',function(){
 				#wp_deregister_script('l10n');
@@ -201,12 +217,15 @@ class System_Info{
 			'set_current_user',
 			'auth_cookie_valid',
 			'init',
+			'admin_init',
 			'widgets_init',
 			#'register_sidebar',
 			'wp_loaded',
 			'parse_request',
 			'send_headers',
+			#'option_active_plugins',
 			#'query',		This is a filter
+			#'get_network', #Sometimes Slow
 			'parse_query',
 			'pre_get_posts',
 			'wp',
@@ -215,7 +234,7 @@ class System_Info{
 			'wp_print_scripts',
 			'wp_print_styles',
 			'get_header',
-			'wp_body_open',	
+			'wp_body_open',
 			'wp_head',
 			'loop_start',
 			'the_post',
@@ -281,8 +300,8 @@ class System_Info{
 		self::$timeline[] = [
 			current_filter(),
 			memory_get_peak_usage(),
-			microtime(true)-SI_START_TIME,
-			get_num_queries()
+			microtime(true),
+			get_num_queries(),
 		];
 		return $v;
 	}
@@ -292,8 +311,8 @@ class System_Info{
 		self::$timeline_end[] = [
 			$filter,
 			memory_get_peak_usage(),
-			microtime(true)-SI_START_TIME,
-			get_num_queries()
+			microtime(true),
+			get_num_queries(),
 		];
 		
 		if($filter == 'plugins_loaded'){
@@ -323,17 +342,13 @@ class System_Info{
 			self::$remote_get_urls[$index]['code'] = $res['response']['code'];
 		}
 
-		
 		//See if we can get the size of the request
 		//Console::log($res);
 		#Console::log($ctx);
-		#Console::log($last_key);
-		#Console::log('completed');
 		#Console::log($res);
 		/*
 		Console::log( curl_getinfo($res) );
 		Console::log($res);
-		Console::log($ctx);
 		Console::log($class);
 		Console::log($r);
 		*/
@@ -349,8 +364,8 @@ class System_Info{
 	}	
 	
 	public function all_actions(){		
-		add_action('all', array($this, 'early_action'), -100);
-		add_action('all', array($this, 'late_action'), PHP_INT_MAX);			
+		add_action('all', array($this, 'early_action'), -99999);
+		add_action('all', array($this, 'late_action'), PHP_INT_MAX);
 	}
 	
 	public function early_action($in=null){

@@ -128,7 +128,7 @@ body{
 	color:#edf2f7;
 }
 
-#dbg_bar .dbg_body{background:#101e2c;height:	200px;width:100%;overflow-y:scroll;}
+#dbg_bar .dbg_body{background:#101e2c;height:0;width:100%;overflow-y:scroll;}
 #dbg_bar .dbg_body .panel{
 	padding:15px;
 	color:white;
@@ -320,3 +320,13 @@ ol.trace.show li{display:list-item;}
 #dbg_bar .expand.show div{display:block;}
 
 #dbg_bar .positive_conditionals{color:#2ecc71;}
+
+
+.dbg-progress{display:inline-block;position:relative;width:auto;}
+.dbg-progress label{position:absolute;left:0;right:0;text-align:center;line-height:1.5em;}
+.dbg-progress progress{
+	height:1.5em;
+}
+
+tr.long{background-color:rgba(255,0,0,0.5);}
+tr.long-between{background-color:rgba(255,0,0,0.3) !important;}

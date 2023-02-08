@@ -5,8 +5,11 @@
 #debugbar_dashboard .hndle {
     border-bottom: none;
     color: white;
+}
+#debugbar_dashboard .postbox-header{
     background-color: #2574ab;
 }
+#debugbar_dashboard .handle-actions > button{color:white !important;}
 
 
 #wp_system_info {

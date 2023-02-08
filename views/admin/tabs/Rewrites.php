@@ -1,9 +1,5 @@
 <?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
-<?php
-global $wp_rewrite;
-
-?>
-
+<?php global $wp_rewrite; ?>
 <table class="widefat striped">
 <thead>
 	<tr>
@@ -35,22 +31,37 @@ global $wp_rewrite;
 </ul>
 <?php endforeach; ?>
 
-<?php 
-/*
+<?php
 $rest = rest_get_server(); 
 $routes = $rest->get_routes();
-print_r($routes);
 ?>
 <table>
-	<?php foreach($routes as $r) : ?>
+	<thead>
 		<tr>
-			
+			<th>Route
+			<th>Show in Index
+			<th>Methods
+			<th>Args
+			<th>Permission
+			<th>
+		</tr>
+	</thead>
+	<tbody>
+	<?php foreach($routes as $key => $handler ) : ?>
+		<tr>
+			<th><?=$key?>
+			<td><?=print_r( $handler[0]['show_in_index'],true)?>
+			<td><?=print_r( $handler[0]['methods'],true)?>
+			<td><?=print_r( $handler[0]['args'],true)?>
+			<td><?=print_r( $handler[0]['permission_callback'],true)?>
+			<td><?=print_r( array_keys($handler[0]['callback']),true)?>
 		</tr>
 	<?php endforeach; ?>
+	</tbody>
 </table>
 <!--- 
 $wp_rewrite->rewritecode
 $wp_rewrite->extra_permastructs
 $wp_rewrite->non_wp_rules
 -->
-*/
+

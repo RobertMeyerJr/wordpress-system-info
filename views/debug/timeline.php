@@ -20,9 +20,11 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 				<th>Response Code</th>
 				<th>Time</th>
 				<th>Source</th>
+				<th>Trace</th>
 			</tr>
 		</thead>
 		<tbody>
+		<?php $last_end = 0;?>
 		<?php foreach(System_Info::$remote_get_urls as $req) : 
 			if(empty($end) || empty($start)){
 				$req_time = $req['end']-$req['start'];
@@ -44,6 +46,25 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 					<?php endif; ?>
 				<td>
 					<?=System_Info_Tools::determine_wpdb_backtrace_source($req['trace'])?>
+				<td>
+				<ol class=trace>
+						<?php if(!empty($req['trace'])) : ?>
+							<a class=show_trace href="#">Toggle Trace</a>
+							<?php foreach($req['trace'] as $t) : ?>
+								<li>
+									<?php if(!empty($t['file'])) : ?>
+										<span><?=str_replace(ABSPATH,'',$t['file'])?></span>
+									<?php endif; ?>
+									<?php if(!empty($t['line'])) : ?>
+										<span><?=$t['line']?></span>
+									<?php endif ?>
+									<?php if(!empty($t['function'])) : ?>
+										<span style="float:right;"><?=$t['function']?></span>
+									<?php endif; ?>
+								</li>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</ol>
 		<?php endforeach; ?>
 		<tfoot>
 			<tr>
@@ -117,6 +138,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 	<?php
 	$timeline_entries = count(System_Info::$timeline);
 	$important_actions = ['setup_theme', 'after_setup_theme', 'template_redirect', 'wp_body_open', 
+	'admin_init',
 	'wp_footer','get_footer','get_header','wp_print_scripts',
 	'wp_before_admin_bar_render',
 	'wp_after_admin_bar_render',
@@ -124,19 +146,31 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 	];
 	$actions_by_key = [];
 	?>
+	<?php $last_end = 0; ?>
 	<?php for($i=0;$i<$timeline_entries;$i++) : 
 		list($f, $mem, $start, $queries) = System_Info::$timeline[$i];
-		list($f2, $mem2, $start2, $queries2) = System_Info::$timeline_end[$i];
+		list($f2, $mem2, $end, $queries2) = System_Info::$timeline_end[$i];
 		#$dur = $start2-
-		$time_taken = $start2 - $start;
+		$time_taken = $end - $start;
 		if( in_array($f, $important_actions) ){
 			$actions_by_key[$f] = [ 
 				'start'	=> $start,
-				'end'	=> $start2
+				'end'	=> $end
 			];
 		}
+		if( $dur <= 0.00000010 ){
+			#continue;
+		}
+		$class = "";
+		if($dur >= 0.05){
+			$class = "long";
+		}
+		if( ($start - $last_end) > 0.8){
+			$class = "long-between";
+		}
+		$last_end = $end;
 	?>
-		<tr>
+		<tr class="<?=esc_attr($class)?>">
 			<th><?=$f?>
 			<td><?=size_format($mem)?>
 			<td><?=size_format($mem2-$mem)?>
@@ -160,14 +194,22 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 			<th>Duration
 	</thead>
 	<tbody id=wptd_action_timeline>
-		
+		<?php $last_end = 0; ?>
 		<?php foreach(System_Info::$actions as list($filter, $start, $end) ) : $dur = $end-$start;?>
 			<?php
 				if( $dur <= 0.00000010 ){
-					continue;
+					#continue;
 				}
+				$class = "";
+				if($dur >= 0.05){
+					$class = "long";
+				}
+				if( ($start - $last_end) > 0.1){
+					$class = "long-between";
+				}
+				$last_end = $end;
 			?>
-			<tr>
+			<tr class="<?=esc_attr($class)?>">
 				<th><?php echo $filter?></th>
 				<td><?php echo number_format( $start - $_SERVER['REQUEST_TIME_FLOAT'], 4); ?>
 				<td><?php echo number_format( $end - $_SERVER['REQUEST_TIME_FLOAT'], 4);?>
@@ -181,8 +223,18 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 <h2>Wordpress Measurements</h2>
 <?php 
 $theme_setup 	= $actions_by_key['after_setup_theme']['end'] - $actions_by_key['setup_theme']['start'];
-$head 			= $actions_by_key['wp_print_scripts']['end'] - $actions_by_key['get_header']['start'];
 $body 			= $actions_by_key['wp_footer']['start'] - $actions_by_key['wp_body_open']['start'];
+
+if( is_admin() ){
+	$head = $actions_by_key['wp_print_scripts']['end'] - $actions_by_key['admin_init']['start'];
+	Console::log( $actions_by_key['wp_print_scripts']['end'] );
+	Console::log( $actions_by_key['admin_init']['end'] );
+}
+else{
+	$head = $actions_by_key['wp_print_scripts']['end'] - $actions_by_key['get_header']['start'];
+}
+
+
 if( !empty($actions_by_key['wp_print_footer_scripts']['start']) ){
 	$footer 	= $actions_by_key['wp_print_footer_scripts']['start'] - $actions_by_key['get_footer']['start'];
 }

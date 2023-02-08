@@ -1,5 +1,10 @@
 VERSION: 1.0.025a
 
+Dashboard:
+check if imagick or gd in use
+
+Sessions: If user count > 100, show only admins and editors
+
 HTML pretty dump
 Details::dump($obj, $limit=3)
 

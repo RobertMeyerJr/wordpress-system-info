@@ -35,12 +35,12 @@ $mysql_version = $wpdb->get_var("SELECT VERSION()");
 <?php if(!empty($cpu_details)) : ?>
 	<tr><th>CPU(s)</th><td><?php echo $cpu_details['CPU(s)']?></td></tr>
 	<tr><th>Cores Per Socket</th><td><?php echo $cpu_details['Core(s) per socket']?></td></tr>				
-	<tr>
-		<th>BogoMIPS</th>
-		<td>
-			<?php echo $cpu_details['BogoMIPS']?>
-			<a target=_blank href=https://www.cpubenchmark.net/common_cpus.html>How do I Compare?</a>
-		</td>
-	</tr>
+	<?php #d($cpu_details);
+		/*
+		$cpu_details['L1d cache']
+		$cpu_details['L2 cache']
+		$cpu_details['L3 cache']
+		*/ 
+	?>
 <?php endif; ?>
 <tr><th>MySQL Version</th><td><?=$mysql_version?></td></tr>

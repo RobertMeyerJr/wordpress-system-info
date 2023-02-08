@@ -57,6 +57,7 @@ $show_filters = isset($_GET['filters']);
 			<li><a href=#dbg_cache>Cache</a></li>						
 			<li><a href=#dbg_scripts>Scripts &amp; Styles</a></li>
 			<li><a href=#dbg_resources>Resources</a></li>
+			<li><a href=#dbg_cwv>Core Web Vitals</a></li>
 			<li class="ajax_sql"style="display:none"><a href="#dbg_ajax_sql">AJAX SQL <span id=ajax_sql_count class="bdg bgBlue"></span></a></li>
 			<li class=right id=close_dbg></li>
 			<li class='right stats'<?php echo number_format(memory_get_peak_usage()/1024,0) ?>KB</li>		
@@ -86,6 +87,7 @@ $show_filters = isset($_GET['filters']);
 		<div class="panel <?=($current=='console')?'active':''?>" id=dbg_console><?php include('console.php');?></div>		
 		<div class="panel <?=($current=='errors')?'active':''?>" id=dbg_errors><?php include('errors.php');?></div>
 		<div class=panel id=dbg_resources><p>Loading...</p></div>
+		<div class=panel id=dbg_cwv><p>Loading...</p></div>
 	</div>
 </div>
 <script>

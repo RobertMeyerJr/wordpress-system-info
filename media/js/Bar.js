@@ -108,7 +108,9 @@ jQuery(window).on("load", function(){
 		
 		$('#dbg_bar .tabs li').removeClass('current');
 		$(this).parent().addClass('current');
-		
+		if($('.dbg_body').height() < 5){
+			$('.dbg_body').css('height','300px');
+		}
 		e.preventDefault();
 		e.stopPropagation();
 		return false;
@@ -202,6 +204,7 @@ function included_file_search(){
 // https://stackoverflow.com/questions/72485999/lcp-result-is-totally-opposite-from-performance-api-than-the-pagespeed-insights
 // https://kinsta.com/blog/eliminate-render-blocking-javascript-css/
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
+var PAGELOADTIME;
 function dbg_performance(){
 	//Need a performance observer for LCP and other items
 	// Need % of LCP
@@ -228,7 +231,8 @@ function dbg_performance(){
 	//Show TTFB
 
 	//var t 				= window.performance.timing;		
-	var pageloadtime 	= t.duration;
+	PAGELOADTIME 	= t.duration;
+	var pageloadtime = PAGELOADTIME;
 	//var domComplete = t.domComplete;
 	//var domInteractive = t.interactive;
 
@@ -237,8 +241,8 @@ function dbg_performance(){
 
 	var dns 			= t.domainLookupEnd - t.domainLookupStart;
 	var tcp 			= t.connectEnd - t.connectStart;
-	var ttfb 			= t.responseStart;
-	
+	var ttfb 			= t.responseStart - t.requestStart; 
+
 	var responseTime 	= t.responseStart - t.responseEnd;
 	
 	var connectTime 	= t.responseEnd - t.requestStart;
@@ -246,6 +250,10 @@ function dbg_performance(){
 	var basePage 		= t.responseEnd - t.responseStart;
 	var frontEnd 		= t.loadEventStart - t.responseEnd;
 	var loadEvent 		= t.loadEventEnd - t.loadEventStart;
+
+	var pageloadtime 	= t.loadEventStart - t.requestStart;
+
+	var ssl = t.requestStart - t.secureConnectionStart;//If SSL
 	/*
 		jQuery ready vs load?
 
@@ -256,10 +264,7 @@ function dbg_performance(){
 		font
 		media (video)
 		Bytes for each
-
-
 		domComplete - domLoading
-
 	 	unloadEventStart;
     	unloadEventEnd;
     	domInteractive;
@@ -310,29 +315,48 @@ function dbg_percentage(v,total){
 }
 
 function dbg_cwv(){
+	$('#dbg_cwv').html('');
+
 	let cls = 0;
 	new PerformanceObserver((entryList) => {
 	  for (const entry of entryList.getEntries()) {
 		if (!entry.hadRecentInput) {
 		  cls += entry.value;
-		  console.log('Current CLS value:', cls, entry);
+		  //console.log(entry);
+		  //console.log('Current CLS value:', cls, entry);
 		}
 	  }
 	}).observe({type: 'layout-shift', buffered: true});
+	
+	$('#dbg_cwv').append(`<div><b>Content Largest Shift</b> ${cls.toFixed(2)}</div>`);
 
+	let lcp = '';
 	new PerformanceObserver(function(entryList){
-		for (const entry of entryList.getEntries()){
-	  		console.log('LCP candidate:', entry.startTime, entry);
+		for(const entry of entryList.getEntries()){
+			var lcp_time = entry.renderTime || entry.loadTime;
+			lcp = entry.name+' '+lcp_time.toFixed(2);
+	  		//var el = entry.element;
+			//console.log('<div><b>Largest Content Paint</b> candidate:', entry.startTime.toFixed(2), entry);
+			//el.id;
+			//el.outerHTML
+			//If Element is Image
+			//If Element is text then font related
+			var msg = `<div><b>Largest Content Paint Candidate</b>: ${entry.name} ${entry.url ?? ''} Start:${entry.startTime.toFixed(2)} Load Time:${entry.loadTime}</div>`;
+			$('#dbg_cwv').append(msg);
 		}
 	}).observe({type: 'largest-contentful-paint', buffered: true});
-
+	
+	//$('#dbg_lcp').html(lcp);
+	//Should be in head?
 	new PerformanceObserver(function(entryList){
 		var fidEntry = entryList.getEntries()[0];
 		var fid = fidEntry.processingStart - fidEntry.startTime;
-		console.log("First Input Delay: " + fid);
-		// Output:
-		//   First Input Delay: 1241.0949999466538
+		//console.log('FID:',fid,fidEntry);
+		//console.log("First Input Delay: " + fid);
+		$('#dbg_cwv').append(`<div><b>First Input Delay</b>: ${fid.toFixed(2)}</div>`);	
 	}).observe({ type: "first-input", buffered: true });
+
+	//Calculate TBT per script?
 }
 
 //See what sweet-alert comes up as for non-blocking css when defered
@@ -340,9 +364,12 @@ function dbg_cwv(){
 function dbg_resources(){
 	var blockingCount = 0;
 	var durationByType = {};
+	var durationBlockingByType = {};
 	var bytesByType = {};
 	var resources = performance.getEntriesByType('resource'); //May not all be loaded yet? Still some 0's
 	var index = 0;
+
+	var PAGELOADTIME = performance.getEntriesByType("navigation")[0].duration;
 
 	//TODO: Indicate blocking before LCP or fully loaded, indicate % impact
 	var html = `<div id=dbg_resource_top></div><table class=wpdb_table style="width:100%;table-layout:fixed">
@@ -361,59 +388,87 @@ function dbg_resources(){
 		<tbody>
 	`;
 	var origin = document.location.origin;
+	var total_blocking_time = 0;
 	for(var i=0; i<resources.length; i++){
 		var r = resources[i];
+		if(r.connectEnd > PAGELOADTIME){
+			console.log('Skipping entry, start after load: '+r.name);
+			continue;
+		}
 		var type = r.name.indexOf(origin) === 0 ? 'Local' : 'Remote';
 		//Should detect CDN, WP Rocket or other source? set variable css if used
+
+		bytesByType[r.initiatorType] = (bytesByType[r.initiatorType] || 0) + r.decodedBodySize;
+		durationByType[r.initiatorType] = (durationByType[r.initiatorType] || 0) + r.duration;
+
 		if(r.renderBlockingStatus == 'blocking'){
 			blockingCount++;
+			durationBlockingByType[r.initiatorType] = (durationBlockingByType[r.initiatorType] || 0) + r.duration;
+		}
+		else{
+
 		}
 		var name = r.name.split('?')[0];
 		if( name.indexOf('data:') !== -1 ){
 			name = 'Data URI: '+name.split('base64')[0];
 		}
 		//r.initiatorType css means intiated by css, link is the actual css
-		bytesByType[r.initiatorType] = (bytesByType[r.initiatorType] || 0) + r.decodedBodySize;
-		durationByType[r.initiatorType] = (durationByType[r.initiatorType] || 0) + r.duration;
+		
 		var size  = formatBytes(r.transferSize);
 		var transfer_size = formatBytes(r.decodedBodySize);
 		if(size == 0){
-			size = '';
-			transfer_size = '';
+			size = '';//formatBytes(r.encodedBodySize);
+			//transfer_size = '';
 		}
+		
+		if(r.renderBlockingStatus == 'blocking'){
+			total_blocking_time += r.duration;
+			//Todo: TBT by Type
+		}
+
 		html += `<tr>
 				<td>${index++}
 				<td>${type}</td>
 				<td style="word-wrap:break-word"><span title="${r.name}">${name}</span></td>
 				<td>${r.initiatorType}</td>
 				<td>${r.renderBlockingStatus == 'blocking' ? '🧱':'' }</td>
-				<td>${ size }</td>
 				<td>${ transfer_size }</td>
+				<td>${ size }</td>
 				<td>${r.nextHopProtocol}</td>
-				<td>${r.duration.toFixed(2)}</td>
+				<td>${r.duration.toFixed(0)}</td>
 		</tr>`;
 	}
-	
+	//console.log(PAGELOADTIME);
+	//Need Blocking/Non-Blocking by type so we can compare % of blocking (Page Load)
 	var typeHtml = `<table>
 						<thead>
 							<tr>
 								<th>Type</th>
 								<th>Size</th>
 								<th>Time</th>
+								<th>Blocking</th>
+								<th>% of Load</th>
 							</tr>
 						</thead>
 						<tbody>`;
 	for(var k in bytesByType){
 		var type = k.replace('css','CSS Initiated').replace('link','css')
-		typeHtml += `<tr><th>${type}<td>${formatBytes(bytesByType[k])}<td>${(durationByType[k]/1000).toFixed(4)}`;
+		var dur	 = durationByType[k];///1000;
+		var durBlock = durationBlockingByType[k] || 0;
+		var perc = (durBlock / PAGELOADTIME)*100;
+		
+		typeHtml += `<tr><th>${type}<td>${formatBytes(bytesByType[k])}<td>${(dur).toFixed(4)}<td>${(durBlock).toFixed(4)}<td>${dbg_progress_bar(perc)}`;
 	}
 	typeHtml += '</table>';
 	//size 0 may mean cached or blocked
-	html = `<div><h2>Blocking: ${blockingCount} Non-Blocking:${resources.length - blockingCount}</h2></div>`+html;
+	html = `<div><div><span id=dbg_lcp></span><span id=dbg_fid></span><span id=dbg_cls></span></div><h2>Blocking: ${blockingCount} <span style="float:right">Non-Blocking: ${resources.length - blockingCount}</span></h2></div>`+html;
 	jQuery('#dbg_resources').html(typeHtml+html);
 }
 
-function dbg_progress_bar(perc){ return '<progress max=100 value="'+perc+'"></progress>'; }
+function dbg_progress_bar(perc){
+	var p = parseFloat(perc).toFixed(2);
+	return `<div class=dbg-progress><progress max=100 value="${p}">${p}</progress><label>${p}</label></div>`; 
+}
 
 /*
 This is a quick and dirty colorizer
@@ -423,35 +478,38 @@ Just some basic syntax hilighting
 
 function colorizeQuery(h){
 	h = h.replace(/([!=])/gi,	'<i class=op>$1</i> ');
-	
 
 	h = h.replace(/ SQL_CALC_FOUND_ROWS /gi,		' <i class=op>SQL_CALC_FOUND_ROWS</i> ');
 
 	h = h.replace(/SELECT /gi,		'<i class=mn>SELECT</i> ');
 	h = h.replace(/INSERT INTO /gi, '<i class=mn>INSERT INTO</i> ');
 	h = h.replace(/DELETE /gi, 		'<i class=mn>DELETE</i> ');
-	h = h.replace(/FROM /gi,		'<i class=mn>FROM</i> ');
-	h = h.replace(/ VALUES /gi,		'<i class=mn>VALUES</i> ');
-	h = h.replace(/LIMIT /gi,		'<i class=mn>LIMIT</i> ');
-	h = h.replace(/ORDER BY/gi ,	'<i class=mn>ORDER BY</i> ');
-	h = h.replace(/GROUP BY/gi ,	'<i class=mn>GROUP BY</i> ');
-	h = h.replace(/LEFT JOIN /gi,	'<i class=mn>LEFT JOIN</i> ');
-	h = h.replace(/RIGHT JOIN /gi,	'<i class=mn>RIGHT JOIN</i> ');
-	h = h.replace(/JOIN /gi,		'<i class=mn>JOIN</i> ');
-	h = h.replace(/WHERE /gi,		'<i class=cnd>WHERE</i> ');		
+	h = h.replace(/FROM /gi,		'<br class=fmt/><i class=mn>FROM</i> ');
+	h = h.replace(/\wVALUES /gi,		'<br class=fmt/><i class=mn>VALUES</i> ');
+	h = h.replace(/LIMIT /gi,		'<br class=fmt/><i class=mn>LIMIT</i> ');
+	h = h.replace(/ORDER BY/gi ,	'<br class=fmt/><i class=mn>ORDER BY</i> ');
+	h = h.replace(/GROUP BY/gi ,	'<br class=fmt/><i class=mn>GROUP BY</i> ');
+	h = h.replace(/LEFT JOIN /gi,	'<br class=fmt/><i class=mn>LEFT JOIN</i> ');
+	h = h.replace(/RIGHT JOIN /gi,	'<br class=fmt/><i class=mn>RIGHT JOIN</i> ');
+	h = h.replace(/INNER JOIN /gi,	'<br class=fmt/><i class=mn>INNER JOIN</i> ');
+	h = h.replace(/OUTER JOIN /gi,	'<br class=fmt/><i class=mn>OUTER JOIN</i> ');
+	h = h.replace(/JOIN /gi,		'<br class=fmt/><i class=mn>JOIN</i> ');
+	h = h.replace(/WHERE /gi,		'<br class=fmt/><i class=cnd>WHERE</i> ');		
 	h = h.replace(/'(.*)'/gi,		'<i class=str>\'$1\'</i> ');
 	h = h.replace(/ ON /gi,			' <i class=mn>ON</i> ');
 	h = h.replace(/ AS /gi,			' <i class=mn>AS</i> ');
+	h = h.replace(/ OR /gi,			' <i class=mn>OR</i> ');
 	
 	h = h.replace(/ ASC /gi,		' <i class=mn>ASC</i> '); //May also end the string
 	h = h.replace(/ DESC /gi,		' <i class=mn>DESC</i> ');//May also end the string
 	h = h.replace(/ IN /gi,			' <i class=mn>IN</i> ');
-	h = h.replace(/ AND /gi,		' <i class=mn> AND </i> ');
+	h = h.replace(/\sAND /gi,		'<br class=fmt><i class=mn> AND </i> ');
+	h = h.replace(/`([a-zA-Z0-9_]+)`/gi,			'<i class=op>`$1`</i>');
 	h = h.replace(/ LIKE /gi,		'<i class=mn> LIKE </i> ');			
 	h = h.replace(/ FOUND_ROWS\(\)/gi,'<i class=op> FOUND_ROWS()</i> ');
 	h = h.replace(/SHOW VARIABLES/gi,	'<i class=mn>SHOW VARIABLES </i><br/> ');
-	
-	h = h.replace(/(\d+)/gi,		'<i class=int>$1</i>');
+	//h = h.replace(/\w+\(\)/gi,			'<i class=OP>$1()</i><br/> ');
+	h = h.replace(/\s(\d+)\s/gi,		' <i class=int>$1</i> ');
 	return h;
 }
 

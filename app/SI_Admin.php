@@ -36,8 +36,9 @@ class System_Info_Admin{
 		add_submenu_page($slug, 'Functions', 'Functions', 			$cap, 'wptd-Functions', [__CLASS__,'admin_tab']);		
 		add_submenu_page($slug, 'Options', 'WP Options', 			$cap, 'wptd-Options', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Globals', 'Globals', 				$cap, 'wptd-globals', [__CLASS__,'admin_tab']);
-
-		add_submenu_page($slug, 'Statistics', 'Statistics', 					$cap, 'wptd-Statistics', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Shortcodes', 'Shortcodes', 		$cap, 'wptd-shortcodes', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Blocks', 'Blocks', 				$cap, 'wptd-blocks', [__CLASS__,'admin_tab']);	
+		add_submenu_page($slug, 'Statistics', 'Statistics', 		$cap, 'wptd-Statistics', [__CLASS__,'admin_tab']);
 	}
 	#-----------------------------Tabs
 	

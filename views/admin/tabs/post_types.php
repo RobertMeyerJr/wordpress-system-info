@@ -8,7 +8,9 @@ $counts = [];
 foreach($results as $r){
     $counts[$r->post_type] = $r->total;
 }
+
 ?>
+
 <style>
 table{position:relative;}
 table thead {
@@ -22,16 +24,17 @@ table thead {
     <thead>
         <tr>
             <th width="30px;"></th>
-            <th>label</th>
-            <th>name</th>
-            <th>description</th>
-            <th>public</th>
-            <th>hierarchical</th>
-            <th>exclude_from_search</th>
-            <th>publicly_queryable</th>
-            <th>has_archive</th>
-            <th>rewrite</th>
-            <th>show_in_rest</th>
+            <th>Label</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Public</th>
+            <th>Gutenberg</th>
+            <th>Hierarchical</th>
+            <th>Exclude_from_search</th>
+            <th>Publicly_queryable</th>
+            <th>Has Archive</th>
+            <th>Rewrite</th>
+            <th>Rest</th>
             <th>Count</th>
         </tr>
     </thead>
@@ -49,6 +52,13 @@ table thead {
             <th><?=$t->name?></th>
             <td><?=$t->description?></td>
             <td><?=$t->public?></td>
+            <td>
+                <?php if( use_block_editor_for_post_type($t->name) ) : ?>
+                    ✅
+                <?php else: ?>
+                    
+                <?php endif; ?>
+            </td>
             <td><?=$t->hierarchical?></td>
             <td><?=$t->exclude_from_search?></td>
             <td><?=$t->publicly_queryable?></td>

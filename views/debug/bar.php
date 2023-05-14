@@ -87,7 +87,7 @@ $show_filters = isset($_GET['filters']);
 		<div class="panel <?=($current=='console')?'active':''?>" id=dbg_console><?php include('console.php');?></div>		
 		<div class="panel <?=($current=='errors')?'active':''?>" id=dbg_errors><?php include('errors.php');?></div>
 		<div class=panel id=dbg_resources><p>Loading...</p></div>
-		<div class=panel id=dbg_cwv><p>Loading...</p></div>
+		<div class=panel id=dbg_cwv><?php include('cwv.php'); ?></div>
 	</div>
 </div>
 <script>

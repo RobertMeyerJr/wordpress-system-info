@@ -80,19 +80,23 @@ function where_defined($function_name){
 								<td><?=$where_def['line']?>
 								<td><?=$val['accepted_args']?>
 							<?php else: ?>
-								<td><h2>									
-									<span class=cPurple>
-											<?php 
-												try{
-													echo is_object($val['function'][0]) ? get_class($val['function'][0]) : $val['function'][0];
-												}catch(Throwable $e){
-													echo "Error";
-												}
-											?>
-									</span>
-									::
-									<span class=cBlue><?=is_array($val['function']) ? $val['function'][1] : ''?></span>
-									</h2>
+								<td><h2>		
+									<?php if ($val['function'] instanceof Closure)  :?>
+											<span class=cGreen>CLOSURE</span>
+									<?php else : ?>
+										<span class=cPurple>
+												<?php 
+													try{
+														echo is_object($val['function'][0]) ? get_class($val['function'][0]) : $val['function'][0];
+													}catch(Throwable $e){
+														echo "Error";
+													}
+												?>
+										</span>
+										::
+										<span class=cBlue><?=is_array($val['function']) ? $val['function'][1] : ''?></span>
+										</h2>
+									<?php endif; ?>
 								</td>
 								<td colspan=4>
 									<div style="overflow: hidden;text-overflow: ellipsis;max-height:200px;">

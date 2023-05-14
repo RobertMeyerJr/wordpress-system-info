@@ -1,6 +1,6 @@
 <?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
-global $_wp_additional_image_sizes, $wpdb, $wp_version, $total_details; 
+global $_wp_additional_image_sizes, $wpdb, $wp_version, $total_details, $wp_roles;
 
 $web_root 		= realpath($_SERVER['DOCUMENT_ROOT'].'/../');
 $directories 	= glob($web_root.'/*' , GLOB_ONLYDIR);

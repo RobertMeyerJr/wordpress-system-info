@@ -315,7 +315,7 @@ function dbg_percentage(v,total){
 }
 
 function dbg_cwv(){
-	$('#dbg_cwv').html('');
+	jQuery('#dbg_cwv').html('');
 
 	let cls = 0;
 	new PerformanceObserver((entryList) => {
@@ -328,7 +328,7 @@ function dbg_cwv(){
 	  }
 	}).observe({type: 'layout-shift', buffered: true});
 	
-	$('#dbg_cwv').append(`<div><b>Content Largest Shift</b> ${cls.toFixed(2)}</div>`);
+	jQuery('#dbg_cwv').append(`<div><b>Cumulative Largest Shift</b> ${cls.toFixed(2)}</div>`);
 
 	let lcp = '';
 	new PerformanceObserver(function(entryList){
@@ -341,8 +341,10 @@ function dbg_cwv(){
 			//el.outerHTML
 			//If Element is Image
 			//If Element is text then font related
-			var msg = `<div><b>Largest Content Paint Candidate</b>: ${entry.name} ${entry.url ?? ''} Start:${entry.startTime.toFixed(2)} Load Time:${entry.loadTime}</div>`;
-			$('#dbg_cwv').append(msg);
+			var msg = `<div><b>Largest Content Paint Candidate</b>: Start:${entry.startTime.toFixed(2)} Load Time:${entry.loadTime}
+				<br/>${entry.name} ${entry.url ?? ''} 
+			</div>`;
+			jQuery('#dbg_cwv').append(msg);
 		}
 	}).observe({type: 'largest-contentful-paint', buffered: true});
 	
@@ -353,10 +355,23 @@ function dbg_cwv(){
 		var fid = fidEntry.processingStart - fidEntry.startTime;
 		//console.log('FID:',fid,fidEntry);
 		//console.log("First Input Delay: " + fid);
-		$('#dbg_cwv').append(`<div><b>First Input Delay</b>: ${fid.toFixed(2)}</div>`);	
+		jQuery('#dbg_cwv').append(`<div><b>First Input Delay</b>: ${fid.toFixed(2)}</div>`);	
 	}).observe({ type: "first-input", buffered: true });
 
 	//Calculate TBT per script?
+
+	var totalBlockingTime = 0;
+	var observer = new PerformanceObserver(function (list) {
+	  let perfEntries = list.getEntries();
+	  //console.log('perfEntries',perfEntries);
+	  for (const perfEntry of perfEntries) {
+	    totalBlockingTime += perfEntry.duration - 50;
+	  }
+	  jQuery('#dbg_cwv').append('<b>Total Blocking Time</b> '+totalBlockingTime)
+	});
+	observer.observe({ type: "longtask", buffered: true });
+
+	//Interaction to Next Paint
 }
 
 //See what sweet-alert comes up as for non-blocking css when defered
@@ -380,7 +395,7 @@ function dbg_resources(){
 				<th width=65%>Name</th>
 				<th width=10%>Type</th>
 				<th width=5%>Blocking</th>
-				<th width=5%>Transfered</th>
+				<th width=5%>Transferred</th>
 				<th width=5% title="Size After Decompression">Filesize</th>
 				<th width=5%>Protocol</th>
 				<th width=5%>Time Taken (ms)</th>
@@ -389,10 +404,13 @@ function dbg_resources(){
 	`;
 	var origin = document.location.origin;
 	var total_blocking_time = 0;
+	
+	console.log(resources);
+
 	for(var i=0; i<resources.length; i++){
 		var r = resources[i];
 		if(r.connectEnd > PAGELOADTIME){
-			console.log('Skipping entry, start after load: '+r.name);
+			//console.log('Skipping entry, start after load: '+r.name);
 			continue;
 		}
 		var type = r.name.indexOf(origin) === 0 ? 'Local' : 'Remote';
@@ -415,7 +433,7 @@ function dbg_resources(){
 		//r.initiatorType css means intiated by css, link is the actual css
 		
 		var size  = formatBytes(r.transferSize);
-		var transfer_size = formatBytes(r.decodedBodySize);
+		var decoded_size = formatBytes(r.decodedBodySize);
 		if(size == 0){
 			size = '';//formatBytes(r.encodedBodySize);
 			//transfer_size = '';
@@ -426,21 +444,23 @@ function dbg_resources(){
 			//Todo: TBT by Type
 		}
 
-		html += `<tr>
+		var cls = r.renderBlockingStatus == 'blocking' ? 'blocking':'non-blocking';
+
+		html += `<tr class="${cls}">
 				<td>${index++}
 				<td>${type}</td>
 				<td style="word-wrap:break-word"><span title="${r.name}">${name}</span></td>
 				<td>${r.initiatorType}</td>
 				<td>${r.renderBlockingStatus == 'blocking' ? '🧱':'' }</td>
-				<td>${ transfer_size }</td>
 				<td>${ size }</td>
+				<td>${ decoded_size }</td>
 				<td>${r.nextHopProtocol}</td>
 				<td>${r.duration.toFixed(0)}</td>
 		</tr>`;
 	}
 	//console.log(PAGELOADTIME);
 	//Need Blocking/Non-Blocking by type so we can compare % of blocking (Page Load)
-	var typeHtml = `<table>
+	var typeHtml = `<table id="dbg_resources_table">
 						<thead>
 							<tr>
 								<th>Type</th>
@@ -456,7 +476,6 @@ function dbg_resources(){
 		var dur	 = durationByType[k];///1000;
 		var durBlock = durationBlockingByType[k] || 0;
 		var perc = (durBlock / PAGELOADTIME)*100;
-		
 		typeHtml += `<tr><th>${type}<td>${formatBytes(bytesByType[k])}<td>${(dur).toFixed(4)}<td>${(durBlock).toFixed(4)}<td>${dbg_progress_bar(perc)}`;
 	}
 	typeHtml += '</table>';

@@ -123,11 +123,13 @@ jQuery(function($){
 	});
 
 	$('#styles_table th').each(function(){
+		/*
 		var name = $(this).text();
 		var onload = $('link#'+name).attr('onload') || '';
 		if( onload.indexOf('this.rel') != -1 ){
 			$(this).parent().find('.attr').html('Defer');
 		}
+		*/
 	});
 });
 </script>

@@ -12,6 +12,7 @@ $options = array_map(function($o){
 },$options);
 usort($options,function($a,$b){ return $b[1] > $a[1]; });
 ?>
+<h1>Site Options - <?=$wpdb->options?></h1>
 <table class='widefat striped'>
 	<thead>
 	<tr>

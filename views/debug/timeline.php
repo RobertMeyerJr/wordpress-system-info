@@ -9,6 +9,10 @@ $total_time 	= number_format($NOW - $_SERVER['REQUEST_TIME_FLOAT'], 4);
 $query_time 	= number_format($total_query_time,4);
 $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 
+
+//body_open
+//header
+//footer
 ?>
 <?php if(!empty(System_Info::$remote_get_urls)) : $total_req_time = 0;?>	
 	<h3>Remote URL Requests</h3>
@@ -92,7 +96,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 			?>
 			<tr>
 				<th><?=str_replace(WP_CONTENT_DIR,'',$tpl)?></th>
-				<td><?=$r['once']?></td>
+				<td><?=$r['once'] ?? ''?></td>
 				<td><?=number_format($time_taken,4)?></td>
 				<td class=perc><?php echo number_format(($time_taken/$total_time)*100,4); ?>%</td>
 			</tr>

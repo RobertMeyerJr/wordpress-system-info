@@ -1,6 +1,6 @@
 <?php
 global $wpdb,$wp_version;
-defined('ABSPATH') or die("Nope!");
+defined('ABSPATH') or die(-1);
 		
 add_thickbox();
 		

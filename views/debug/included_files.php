@@ -93,6 +93,25 @@ foreach($plugins as $p){
 	</tbody>
 </table>
 <?php $html = ob_get_clean(); ?>
+<table>
+	<thead>
+		<tr>
+			<th>Template</th>
+			<th>Require Once</th>
+			<th>Duration</th>
+		</tr>
+	</thead>
+	<?php foreach(System_Info::$templates_loaded as $tpl=>$rows) :  ?>
+		<?php foreach($rows as $data) : ?>
+			<tr>
+				<th><?=str_replace(WP_CONTENT_DIR.'/', '', $tpl)?></th>
+				<td><?=$data['require_once'] ? 'Once' : ''?></td>
+				<td><?=number_format($data['end'] - $data['start'],4)?></td>
+			</tr>
+		<?php endforeach; ?>
+	<?php endforeach; ?>
+</table>
+
 <?php if(!empty(System_Info::$templates)) : ?>
 	<h2>Template Parts</h2>
 	<table>
@@ -105,14 +124,15 @@ foreach($plugins as $p){
 		</thead>
 		<tbody>
 			<tr><td><td>Main Template<td><?=$template?>
-	<?php foreach(System_Info::$templates as $tpl) : list($slug,$name,$templates) = $tpl?>
-		<tr>
-			<td><?=$slug?></td>
-			<td><?=$name?></td>
-			<td><?=implode('<br/>',$templates)?></td>
-		</tr>
+			<?php foreach(System_Info::$templates as $tpl) : list($slug, $name, $templates) = $tpl?>
+				<tr>
+					<td><?=$slug?></td>
+					<td><?=$name?></td>
+					<td><?=implode('<br/>',$templates)?></td>
+				</tr>
+				</tbody>
+			<?php endforeach; ?>
 		</tbody>
-	<?php endforeach; ?>
 	</table>
 <?php endif; ?>
 <h2>By Plugin (<?=count($plugin_file_counts)?> Plugins Loaded)</h2>

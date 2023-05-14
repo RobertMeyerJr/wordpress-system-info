@@ -3,7 +3,7 @@
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
 Description: Provides debugging features and insights into wordpress and the server environment it is running on.
-Version: 1.1
+Version: 1.5
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 */	
@@ -15,14 +15,15 @@ include('app/Console.php'); #Always included to prevent errors if called
 
 /*
 
+global EZSQL_ERROR
+use add_filter('query' to get $wpdb for last one (before next runs) ? get count and id if insert
+log_query_custom_data ?
+
 time in main query?
-
-what happens in body
-
 
 SQL Debug headers not working for rest routes
 */
-if( !empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_guest_debug() ){ #Dont load at all if not logged in unless guest debug enabled
+if(defined('LOGGED_IN_COOKIE') && (!empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_guest_debug()) ){ #Dont load at all if not logged in unless guest debug enabled
 	if( isset($_GET['debug']) && is_td_debug() ){
 		include('app/ErrorHandler.php');
 		
@@ -411,14 +412,56 @@ class System_Info{
 			add_action('deprecated_function_run',[$this,'deprecated_function_run'],10,3);
 		}
 
-		
+		add_action('edit_form_advanced', [$this,'edit_form_advanced']);
 	}	
+
+	public function edit_form_advanced($post){
+		if($post->post_type == 'attachment'){
+			$meta = wp_get_attachment_metadata($post->ID);
+			#d($meta);
+			#TODO: Sanitize
+			?>
+			<h2>Total Details - Link to Image Sizes</h2>
+			
+			<table class="table striped widefat">
+				<thead>
+					<tr>
+						<th>Size</th>
+						<th>URL</th>
+						<th>Width</th>
+						<th>Height</th>
+						<th>Filesize</th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach($meta['sizes'] as $size=>$v) : $url = wp_get_attachment_image_url($post->ID, $size); ?>
+				<tr>
+					<th><?=$size?></th>
+					<td><a target=_blank href="<?=$url?>"><?=$url?></a></td>
+					<td><?=$v['width']?></td>
+					<td><?=$v['height']?></td>
+					<td><?=size_format($v['filesize'])?></td>
+				</tr>
+				<?php endforeach; ?>
+			</table>
+			<h2>Total Details - Metadata</h2>
+			<table class="table striped widefat" style="max-width:400px">
+			<?php foreach($meta['image_meta'] as $k=>$v) : ?>
+				<tr>
+					<th><?=$k?></th>
+					<td><?php echo is_scalar(($v)) ? $v : print_r($v,true); ?></td>
+				</tr>
+			<?php endforeach; ?>
+			</table>
+			<?php
+		}
+	}
 	
 	public function deprecated_function_run($func, $replace, $ver){
 		$DEPRECATION_MSG="Deprecated Function {$func} Replacement: $replace Version: $ver";
 		Console::warn($DEPRECATION_MSG);
 		if( !defined('DOING_AJAX') ){
-			Console::log(debug_backtrace(~DEBUG_BACKTRACE_PROVIDE_OBJECT));
+			#Console::log(debug_backtrace(~DEBUG_BACKTRACE_PROVIDE_OBJECT));
 		}
 	}
 

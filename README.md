@@ -1,4 +1,18 @@
+
+TODO:
+do_action suport for logging
+
+Console::dump()
+custom dump function?
+
+[------------------------------------------]
+enqueue_block_assets 
+
+
 VERSION: 1.0.025a
+
+Output theme support for various items.
+output wp_lazy_loading_enabled
 
 Dashboard:
 check if imagick or gd in use

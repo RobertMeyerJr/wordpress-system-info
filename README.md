@@ -1,10 +1,35 @@
+Change functionaltiy based on wp_get_environment_type
+wp_is_application_passwords_supported
+https://developer.wordpress.org/reference/classes/wp_debug_data/debug_data/
+
 
 TODO:
+Total size of CSS and JS on Scripts Tab
+
+Filter by:
+Page Template
+Name
+
+Tree view
+Identify:
+	Gutenberg
+	Divi
+	VC
+
+https://jarothermal.com/wp-content/uploads/2020/09/ProductsBanner-nasa-Q1p7bh3SHj8-unsplash@2x.png	shows as css?
+
 do_action suport for logging
+Todo WP: Timer for last task time?
 
 Console::dump()
 custom dump function?
 
+TODO: Simple MySQL benchmark
+
+Blocking info on JS wrong
+
+If Redis:
+MEMORY STATS
 [------------------------------------------]
 enqueue_block_assets 
 

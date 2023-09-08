@@ -1,8 +1,9 @@
 === WP Total Details ===
 Contributors: Robert Meyer Jr
 Tags: details, debug, information, system
-Requires at least: 5.0
-Tested up to: 6.0
+Requires at least: 5.4
+Tested up to: 6.3
+Requires PHP: 7.4
 
 == Description ==
 

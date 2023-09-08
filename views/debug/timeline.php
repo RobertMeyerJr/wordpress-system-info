@@ -154,7 +154,6 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 	<?php for($i=0;$i<$timeline_entries;$i++) : 
 		list($f, $mem, $start, $queries) = System_Info::$timeline[$i];
 		list($f2, $mem2, $end, $queries2) = System_Info::$timeline_end[$i];
-		#$dur = $start2-
 		$time_taken = $end - $start;
 		if( in_array($f, $important_actions) ){
 			$actions_by_key[$f] = [ 
@@ -162,7 +161,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 				'end'	=> $end
 			];
 		}
-		if( $dur <= 0.00000010 ){
+		if( $time_taken <= 0.00000010 ){
 			#continue;
 		}
 		$class = "";
@@ -175,7 +174,10 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 		$last_end = $end;
 	?>
 		<tr class="<?=esc_attr($class)?>">
-			<th><?=$f?>
+			<th>
+				<a target=_blank href="<?=admin_url('admin.php?page=wptd-Hooks&get_hooks=1&search='.$f)?>">
+					<?=$f?>
+				</a>
 			<td><?=size_format($mem)?>
 			<td><?=size_format($mem2-$mem)?>
 			<td><?=number_format($start-WP_START_TIMESTAMP,5)?>

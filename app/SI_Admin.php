@@ -35,10 +35,14 @@ class System_Info_Admin{
 		add_submenu_page($slug, 'Hooks', 'Hooks', 					$cap, 'wptd-Hooks', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Functions', 'Functions', 			$cap, 'wptd-Functions', [__CLASS__,'admin_tab']);		
 		add_submenu_page($slug, 'Options', 'WP Options', 			$cap, 'wptd-Options', [__CLASS__,'admin_tab']);
-		add_submenu_page($slug, 'Globals', 'Globals', 				$cap, 'wptd-globals', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Globals', 'Globals', 				$cap, 'wptd-globals', [__CLASS__,'admin_tab']);		
+		add_submenu_page($slug, 'Roles', 'Roles', 					$cap, 'wptd-roles', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Shortcodes', 'Shortcodes', 		$cap, 'wptd-shortcodes', [__CLASS__,'admin_tab']);
 		add_submenu_page($slug, 'Blocks', 'Blocks', 				$cap, 'wptd-blocks', [__CLASS__,'admin_tab']);	
 		add_submenu_page($slug, 'Statistics', 'Statistics', 		$cap, 'wptd-Statistics', [__CLASS__,'admin_tab']);
+
+		add_submenu_page($slug, 'Theme', 	 'Theme', 				$cap, 'wptd-theme', [__CLASS__,'admin_tab']);
+		add_submenu_page($slug, 'Tree View', 'Tree View', 			$cap, 'wptd-tree-view', [__CLASS__,'admin_tab']);
 	}
 	#-----------------------------Tabs
 	
@@ -68,8 +72,10 @@ class System_Info_Admin{
 	
 	#-------------AJAX
 	public static function ajax_function_search(){	
+		if( !current_user_can('manage_options') ){
+			wp_send_json_error(['msg'=>'Access Denied']);
+		}
 		$class = $_POST['class_name'];
-		
 		
 		if($class == '(User)'){
 			$funcs = get_defined_functions();
@@ -87,34 +93,30 @@ class System_Info_Admin{
 			
 		}
 		$count = count($funcs);
-		echo "<h3>{$count} Functions found</h3>";
 		
+		$search = $_POST['search'] ?? '';
+
+		echo "<h3>{$count} Functions found ".esc_html($search)."</h3>";
 		$items = array();
-		
-		foreach($funcs as $f){ 
-			$function_name = $f;
-			
-			if( empty($_POST['search']) ){
-				$item = '<span>'.$function_name.'</span>';
+		foreach($funcs as $function_name){ 
+			if( empty($search) ){
+				$items[] = $function_name;
 			}
-			elseif(!empty($_POST['search']) && stripos($f, $_POST['search']) !== false ){
-				$item = '<span>'.$function_name.'</span>';				
+			else if( stripos($function_name, $search) !== false ){
+				$items[] = $function_name;
 			}
 			
 			if($count <= 10){
-				$cls = (!in_array($class,['(Internal)','(User)'])) ? $class:false;
-				echo "[{$f}]\r\n";
-				$item .= self::getFunctionSource($f, $cls);
+				#$cls = (!in_array($class,['(Internal)','(User)'])) ? $class:false;
+				#$item .= self::getFunctionSource($f, $cls);
 			}
-			#if(!in_)
-			$items[] = $item;
 		} 
-		
+		#print_r($items);
 		echo "<ul>";
 		$items = array_unique($items);
 		sort($items);
 		foreach($items as $f){
-			echo "<li>{$f}</li>";		
+			echo "<li>{$f}</li>";
 		}
 		echo "</ul>";
 		exit;
@@ -143,7 +145,9 @@ class System_Info_Admin{
 		#$wpdb->content
 		exit;
 	}
-	public static function ajax_optimize_table(){ wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table'])); }
+	public static function ajax_optimize_table(){ 
+		wp_send_json(System_Info_SQL::optimize_table($_REQUEST['table'])); 
+	}
 	
 	public static function admin_scripts($suffix){
 		$folder = plugins_url( '../media/');

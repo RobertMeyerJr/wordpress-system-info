@@ -11,7 +11,7 @@ $blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
 
 #d($blocks);
 ?>
-<table>
+<table class="tabe widefat">
 <?php foreach($blocks as $b) : ?>
     <tr>
         <th><?=$b->name?></th>

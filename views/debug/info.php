@@ -25,15 +25,15 @@ if(!empty($p->post_type) ){
 	<?php if(!empty($page_meta )) : ?>
 		<tr><th class=hdr colspan=2>Page Meta
 		<?php foreach($page_meta as $key=>$value) : ?>
-			<tr><th><?=$key?><td>
+			<tr><th><?=$key?><td><pre>
 				<?php 
 					if(count($value) == 1){
-						echo $value[0];
+						echo esc_html($value[0]);
 					}
 					else{
-						echo implode('<br/>',$value);
+						echo esc_html(implode("\r\n",$value));
 					}
-		?>
+		?></pre>
 		<?php endforeach; ?>
 	<?php endif; ?>
 	<tr id=dbg_bar_info><th class=hdr colspan=2>Info

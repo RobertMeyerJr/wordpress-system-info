@@ -3,6 +3,9 @@
 global $wp_scripts,$wp_styles;
 #ToDo: Add files included due to dependency arrays
 #ToDo: Add fetchpriority
+
+$total_css_size = 0;
+$total_js_size 	= 0;
 ?>
 <h2>Body Classes</h2>
 <div>
@@ -29,7 +32,8 @@ global $wp_scripts,$wp_styles;
 			<?php $s = $wp_scripts->registered[$q]; ?>
 			<tr>
 				<th><?php echo $q?></th>
-				<td><?=in_array($q, $wp_scripts->in_footer) ? 'footer':'header';?></td>
+				<td>
+					<?=in_array($q, $wp_scripts->in_footer) ? 'footer':'header';?></td>
 				<td>
 					<?php if(!empty($s->src)) : ?>
 						<a class="script-src" href="<?=$s->src?>"><?=$s->src?></a>
@@ -50,12 +54,19 @@ global $wp_scripts,$wp_styles;
 					<?php 
 						if( stripos($s->src,'/wp-content/') !== false || stripos($s->src,'/wp-includes/') !== false ){
 							$file = rtrim(ABSPATH,'.').parse_url($s->src,PHP_URL_PATH);
-							echo size_format(filesize($file));
+							$size = filesize($file);
+							$total_js_size+= $size;
+							echo "<span data-file=".$file.">".size_format($size)."</span>";
 						}
 					?>
 				</td>
 			</tr>
 		<?php endforeach; ?>
+		<tfoot>
+			<th colspan=7>
+				Total JS Size (Without GZip): <?=size_format($total_js_size, 2)?>
+			</th>
+		</tfoot>
 	</tbody>
 </table>
 <h2>Styles (<?=count($wp_styles->queue)?>)</h2>
@@ -94,13 +105,20 @@ global $wp_scripts,$wp_styles;
 				<?php 
 					if( stripos($s->src,'/wp-content/') !== false || stripos($s->src,'/wp-includes/') !== false ){
 						$file = rtrim(ABSPATH,'.').parse_url($s->src,PHP_URL_PATH);
-						echo size_format(filesize($file));
+						$size = filesize($file);
+						$total_css_size += $size;
+						echo size_format($size);
 					}
 				?>
 			</td>
 		</tr>
 	<?php endforeach; ?>
 	</tbody>
+	<tfoot>
+		<th colspan=7>
+			Total CSS Size (Without GZip): <?=size_format($total_css_size, 2)?>
+		</th>
+	</tfoot>
 </table>
 <!-- wordpress-system-info -->
 <script>

@@ -18,6 +18,30 @@ if( !empty($_GET['make_first']) ){
 ?>
 <a class="button button-info" href="<?php echo admin_url('?page=wp-total-details&make_first=1')?>">Make First Plugin</a>
 
+<?php  if(function_exists('fpm_get_status') ): ?>
+	<?php 
+	$fpm_status = fpm_get_status();
+	?>
+	<h2>PHP FPM</h2>
+	<table>
+		<?php foreach($fpm_status as $k=>$v) : ?>
+			<tr>
+				<th><?=$k?></th>
+				<td>
+					<?php if($k == 'start-time') : ?>
+						<?=date('n/j/Y g:ia', $v)?>
+					<?php else : ?>
+						<?php if(is_array($v)) : ?>
+							<pre><?=print_r($v,true)?></pre>
+						<?php else : ?>
+							<?=$v?>
+						<?php endif; ?>
+					<?php endif;?>
+				</td>				
+			</tr>
+		<?php endforeach; ?>
+	</table>
+<?php endif; ?>
 <BR/><h2>Server Info</h2>
 <table class='wp-list-table widefat fixed server_info striped'>
 	<tr><th colspan=2 class=hdr>Software

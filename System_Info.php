@@ -3,7 +3,7 @@
 Plugin Name: WP Total Details	
 Plugin URI: http://www.github.com/robertmeyerjr/wp-total-details/
 Description: Provides debugging features and insights into wordpress and the server environment it is running on.
-Version: 1.5
+Version: 2.0a
 Author: Robert Meyer Jr.
 Author URI: http://www.RobertMeyerJr.com
 */	
@@ -14,7 +14,6 @@ include('app/Console.php'); #Always included to prevent errors if called
 
 
 /*
-
 global EZSQL_ERROR
 use add_filter('query' to get $wpdb for last one (before next runs) ? get count and id if insert
 log_query_custom_data ?
@@ -23,7 +22,9 @@ time in main query?
 
 SQL Debug headers not working for rest routes
 */
-if(defined('LOGGED_IN_COOKIE') && (!empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_guest_debug()) ){ #Dont load at all if not logged in unless guest debug enabled
+
+#Dont load at all if not logged in unless guest debug enabled
+if(defined('LOGGED_IN_COOKIE') && (!empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_guest_debug()) ){ 
 	if( isset($_GET['debug']) && is_td_debug() ){
 		include('app/ErrorHandler.php');
 		
@@ -37,10 +38,7 @@ if(defined('LOGGED_IN_COOKIE') && (!empty($_COOKIE[LOGGED_IN_COOKIE]) || is_td_g
 }
 
 function is_td_guest_debug(){
-	if( !defined('DEBUG_KEY') ){
-		return false;
-	}
-	if( strlen(DEBUG_KEY) < 10 ){
+	if( !defined('DEBUG_KEY') || strlen(DEBUG_KEY) < 10){
 		return false;
 	}
 	
@@ -63,15 +61,15 @@ function is_td_debug(){
 	$referer_debug = false != stripos($_SERVER['HTTP_REFERER'] ?? '','debug=1');
 	
 	if(defined('DOING_AJAX') && DOING_AJAX && $referer_debug){ //Need a better check here
-		return true;
+		#return true;
 	}
 
 	if( defined('REST_REQUEST') && REST_REQUEST && $referer_debug){ //Need a better check here
-		return true;
+		#return true;
 	}
 
 	if($referer_debug && !empty( $GLOBALS['wp']->query_vars['rest_route'] ) ){
-		return true;
+		#return true;
 	}
 
 	return false;
@@ -121,6 +119,7 @@ class System_Info{
 
 	public function __construct(){
 		if( defined('DOING_CRON') && DOING_CRON){
+			$this->doing_cron();
 			return;
 		}
 		if( !empty($_GET['disable_admin_bar']) ){
@@ -132,6 +131,7 @@ class System_Info{
 			});
 		}
 		
+		//this happens very early, and is causing measuring when we dont want it
 		if( is_td_debug() || is_td_guest_debug() ){
 			
 
@@ -203,6 +203,13 @@ class System_Info{
 
 		add_action('activated_plugin', 	array($this,'make_first_plugin') );
 		
+		if( isset($_GET['debug']) ){
+			$this->debugTiming();
+		}
+	}	
+
+
+	public function debugTiming(){
 		$important_filters = [
 			'plugins_loaded',
 			'setup_theme',
@@ -268,7 +275,8 @@ class System_Info{
 		
 		self::$server_timings[] = 'WPTD-Init;dur='. number_format(SI_START_TIME - $_SERVER['REQUEST_TIME_FLOAT'],4);
 		self::$last_timing = microtime(true);
-	}	
+	}
+
 
 	public function doing_it_wrong_run($function, $message, $version){
 		self::$doing_it_wrong[] = [$function, $message, $version];
@@ -503,7 +511,7 @@ class System_Info{
 		$bar_style  = plugins_url( '/media/css/bar.css',__FILE__);
 		$bar_js 	= plugins_url( '/media/js/Bar.js',__FILE__);
 		wp_enqueue_style( 'total-debug-bar', $bar_style, []);
-		wp_enqueue_script('total-debug-bar', $bar_js, array('jquery'), '2.2', true);
+		wp_enqueue_script('total-debug-bar', $bar_js, array('jquery'), '2.3', ['in_footer'=>true,'defer'=>true]);
 		register_shutdown_function(function(){
 			//Check if there was a fatal error, iff so output debugbar script/style manually
 			restore_error_handler(); 
@@ -589,6 +597,47 @@ class System_Info{
 		if( current_user_can('manage_options') ){
 			header('Server-Timing:'.$timings);
 		}
+	}
+
+	public function doing_cron(){
+		/*
+		Goal:
+		Interval[hook] = [duration,memory usage]
+		*/
+		global $cron_record; //TODO: change this from global to instance based
+		$cron_record = [];
+		//Record to a single array, limit the size
+		//array is stored as an option (not autoloaded)
+		//get the cron events, and add a filter early for each?
+		//add start time
+		$cron 		= _get_cron_array();
+		foreach($cron as $timestamp=>$arr){
+			foreach($arr as $hook=>$tasks){
+				add_action($hook,function(){
+					//Record the event start
+					$filter = current_filter();
+					$cron_record[$filter] = ['start'=>microtime(true),'mem'=>memory_get_usage()];
+				},1);	
+			}
+		}
+		add_action('pre_unschedule_event', function($null, $timestamp, $hook, $args, $wp_error){
+			//last event success
+			//get time taken
+			//get memory usage
+			//Cron Task Finished
+		},0, 5);
+		add_action('cron_unschedule_event_error', function(){
+			//Record the error;
+			//get time taken
+			//get memory usage
+		});
+		add_action('shutdown',function(){
+			global $cron_record;
+			//Reord the data
+			error_log('Cron Data to Record: '.print_r($cron_record,true));
+		});
+
+		//Limit and record the data 
 	}
 }
 

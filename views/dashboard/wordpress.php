@@ -10,6 +10,7 @@ TODO:
 <!-- Wordpress -->
 <?php global $wpdb; ?>
 <tr><th class=hdr colspan=2><h2><i class='dashicons dashicons-wordpress'></i> WordPress</h2></th></tr>
+<tr><th>Environment Type<td><?=wp_get_environment_type()?></td>
 <tr><th>Allow Search Engines</th><td><?=get_option('blog_public',1) == 1 ? '<span class="dashicons dashicons-yes cGreen"></span>':'<span class="dashicons dashicons-no cRed"></span>' ?></td></tr>	
 <tr><th>Version</th><td><?php echo $wp_version?></td></tr>			
 <tr><th>Multi-Site</th><td><?php echo is_multisite() ? 'Yes':'No'?></td></tr>			

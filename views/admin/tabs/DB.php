@@ -34,7 +34,6 @@ foreach($tables as $t){
 			<th>Collation</th>
 			<th>Size</th>
 			<th>Fragmentation</th>
-			<th></th>
 		</tr>
 	</thead>
 </thead>
@@ -53,15 +52,6 @@ foreach($tables as $t){
 			<td class=cPurple><?php echo $t->TABLE_COLLATION?></td>
 			<td class=cOrange><?php echo System_Info_Tools::formatBytes($t->DATA_LENGTH)?></td>
 			<td class=cRed><?php echo $t->fragmentation?>%</td>
-			<td class=cPurple>				
-				<?php if($t->fragmentation == 0) : ?>
-					( None )
-				<?php elseif($t->DATA_LENGTH < $TenMB) : ?>
-					<a href=# class=button-secondary onClick='optimizeTable("<?php echo $t->TABLE_NAME?>");'>Optimize</a>
-				<?php else : ?>
-					(Table Too Large. Must be optimized Manually)
-				<?php endif; ?>
-			</td>
 	<?php endforeach; ?>
 </tbody>
 </table>

@@ -413,15 +413,20 @@ function dbg_resources(){
 			//console.log('Skipping entry, start after load: '+r.name);
 			continue;
 		}
-		var type = r.name.indexOf(origin) === 0 ? 'Local' : 'Remote';
+		var origin_type = r.name.indexOf(origin) === 0 ? 'Local' : 'Remote';
 		//Should detect CDN, WP Rocket or other source? set variable css if used
+		var type = r.initiatorType;
+		
+		if(type == 'css' && ( r.name.indexOf('.woff') || r.name.indexOf('.otf') || r.name.indexOf('.ttf')) ){
+			type = 'font';
+		}
 
-		bytesByType[r.initiatorType] = (bytesByType[r.initiatorType] || 0) + r.decodedBodySize;
-		durationByType[r.initiatorType] = (durationByType[r.initiatorType] || 0) + r.duration;
+		bytesByType[type] = (bytesByType[type] || 0) + r.decodedBodySize;
+		durationByType[type] = (durationByType[type] || 0) + r.duration;
 
 		if(r.renderBlockingStatus == 'blocking'){
 			blockingCount++;
-			durationBlockingByType[r.initiatorType] = (durationBlockingByType[r.initiatorType] || 0) + r.duration;
+			durationBlockingByType[type] = (durationBlockingByType[type] || 0) + r.duration;
 		}
 		else{
 
@@ -448,9 +453,9 @@ function dbg_resources(){
 
 		html += `<tr class="${cls}">
 				<td>${index++}
-				<td>${type}</td>
+				<td>${origin_type}</td>
 				<td style="word-wrap:break-word"><span title="${r.name}">${name}</span></td>
-				<td>${r.initiatorType}</td>
+				<td>${type}</td>
 				<td>${r.renderBlockingStatus == 'blocking' ? '🧱':'' }</td>
 				<td>${ size }</td>
 				<td>${ decoded_size }</td>

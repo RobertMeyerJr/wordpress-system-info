@@ -9,6 +9,13 @@ global $shortcode_tags;
 
 <input type=text name=search value="" placeholder="Search Shortcodes">
 <table class="table widefat striped">
+    <thead>
+        <tr>
+            <th>Name
+            <th>Callback Type
+            <th>Callback
+        </tr>
+    </thead>
 <?php foreach($shortcode_tags as $name=>$s) : $type = gettype($s);?>
     <tr>
         <th><?=$name?></th>
@@ -18,11 +25,12 @@ global $shortcode_tags;
                 <b>Object</b> <?=get_class($s)?>
             <?php elseif($type == 'array') : ?>
                 <b>ARRAY</b>
-                <?php foreach($s as $e) :  $et = gettype($e)?>
-                    <?php if($et != 'object') : ?>
+                <?php foreach($s as $e) :  $et = gettype($e); ?>
+                    <?php if($et == 'object') : ?>
                         <?=get_class($e); ?><br/>
                     <?php elseif($et != 'string') : ?>
-                        <?=$et; ?><br/>
+                    <?php elseif($et != 'array') : ?>
+                        (ARRAY)
                     <?php else : ?>
                         <?=$s?><br/>
                     <?php endif; ?>

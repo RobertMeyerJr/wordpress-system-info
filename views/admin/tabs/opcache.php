@@ -1,5 +1,30 @@
 <?php if ( !defined('ABSPATH') ){ die('-1'); } ?>
 <?php 
+global $wp_object_cache;
+
+if( method_exists($wp_object_cache, 'redis_version') ){
+	$info 			= $wp_object_cache->info();
+	$redis 			= $wp_object_cache->redis_instance();
+	
+	$redisinfo = [];
+	if( method_exists($redis,'rawCommand') ){
+		$redis_info = $redis->rawCommand('info');
+		//Read line by line, # signifies new section
+		$lines = explode("\n",$redis_info);
+		$key = 'NOKEY';
+		$line_count = count($lines);
+		for($i=0; $i<$line_count; $i++){
+			$l = $lines[$i];
+			if($i==0 || substr($l, 0, 1) == '#'){
+				$key = trim( str_replace('#','',$lines[$i]) );
+				continue;
+			}
+			list($name,$value) = explode(':', $l, 2); //key:value
+			$redisinfo[$key][$name] = $value;
+		}
+	}
+	#d($redisinfo);
+}
 
 if( !empty($_POST['reset_op_cache']) ){
 	if( function_exists('opcache_reset') ){
@@ -181,11 +206,8 @@ div.donut.purple{
 	background: #DDDDDD linear-gradient(to right, #DDDDDD 50%, #8e44ad 50%);
 }
 .flex-row{
-   display: -webkit-flex;
    display: flex;
-   -webkit-flex-direction: row;
    flex-direction: row;
-   -webkit-flex-wrap: nowrap; /* Safari 6.1+ */
    flex-wrap: nowrap;   
 }
 .flex-row > *{
@@ -210,6 +232,9 @@ tr.files{display:none;}
 .wp-core-ui .button-danger:hover{
 	background:#d00000;
 }
+.tab{display:none;padding:5px;}
+.tab.active{display:block;}
+.cache-stats{position:relative;height:152px;margin:15px 0;}
 </style>
 <form method=POST>
 	<input type=hidden name=reset_op_cache value=1>
@@ -217,24 +242,58 @@ tr.files{display:none;}
 	<button class="button-danger button-primary" type=submit>Clear OpCache</button>
 </form>
 <div class=flex-row>
-<div class=cache-stats>
-			<div class="donut green" style="animation-delay: -<?=$mem_usage_percentage?>s">
-				<span>
-					<?=number_format($mem_usage_percentage)?>%
-					<br/>
-					<span class=cGreen>Mem Usage</span>
-				</span>		
-			</div>
+	<div class=cache-stats>
+		<div class="donut green" style="animation-delay: -<?=$mem_usage_percentage?>s">
+			<span>
+				<?=number_format($mem_usage_percentage)?>%
+				<br/>
+				<span class=cGreen>Opcache<br/>Mem Usage</span>
+			</span>		
 		</div>
+	</div>
 	<div class=cache-stats>
 		<div class=donut style="animation-delay: -<?=$hit_rate_perc?>s">
 			<span>
 				<?=number_format($hit_rate,2)?>%
 				<br/>
-				<span class=cBlue>Hit Rate</span>
+				<span class=cBlue>Opcache<br/>Hit Rate</span>
 			</span>
 		</div>
 	</div>
+	<?php if(!empty($redisinfo)) : ?>
+		<?php 
+			$hits 		= $redisinfo['Stats']['keyspace_hits'] ?? 0;
+			$miss		= $redisinfo['Stats']['keyspace_misses'] ?? 1;
+			$redis_hits = ($hits / ($hits + $miss) ) * 100;
+
+			$redis_mem_used 	= trim($redisinfo['Memory']['used_memory'] ?? 0);
+			$redis_mem_total 	= trim($redisinfo['Memory']['maxmemory']);
+			if( empty($redis_mem_total) ){
+				$redis_mem_total =  trim($redisinfo['Memory']['total_system_memory']) ?? 1;
+			}
+			$redis_mem_usage 	= ($redis_mem_used / max($redis_mem_total,1)) * 100; 
+		?>
+		<div class=cache-stats>
+			<div class=donut style="animation-delay: -<?=$redis_hits?>s">
+				<span>
+					<?=number_format($redis_hits,2)?>%
+					<br/>
+					<span class=cBlue>Redis<br/>Hit Rate</span>
+				</span>
+			</div>
+		</div>
+		<div class=cache-stats>
+			<div class=donut style="animation-delay: -<?=intval($redis_mem_usage)?>s">
+				<span>
+					<?=number_format($redis_mem_usage,2)?>%
+					<br/>
+					<span class=cBlue>Redis<br/>Mem Usage</span>
+				</span>
+			</div>
+		</div>
+	<?php endif; ?>
+</div>
+<div class=flex-row>
 	<div class="card bgBlue">
 		<h2>Memory Stats</h2>
 		<span class=topleft></span>
@@ -272,6 +331,49 @@ tr.files{display:none;}
 	</div>
 	
 </div>
+
+<?php if(!empty($redisinfo)) : ?>
+	<h2>Redis Stats</h2>
+
+	<?php $tab_index=0;?>
+	<div id=redis_tabs>
+		<h2 class="nav-tab-wrapper tabbed_nav">
+			<a class="nav-tab nav-tab-active" href="#tab_summary">Summary</a>
+			<?php foreach($redisinfo as $section=>$data) : ?>
+    		<a class="nav-tab" href="#tab_<?=esc_attr($section)?>"><?=$section?></a>
+			<?php endforeach; ?>
+		</h2>	
+		<div id=tab_summary class="tab active">
+			<table>
+				<tr><th>Redis Version<td><?=$redisinfo['Server']['redis_version']?>
+				<tr><th>User Memory<td><?=$redisinfo['Memory']['used_memory_human']?>
+				<tr><th>User Memory RSS<td><?=$redisinfo['Memory']['used_memory_rss_human']?>
+				<tr><th>Max Memory<td><?=$redisinfo['Memory']['maxmemory_human']?>
+				<tr><th>Max Memory Policy<td><?=$redisinfo['Memory']['maxmemory_policy']?>
+				<tr><th>Total Connections<td><?=$redisinfo['Stats']['total_connections_received']?>
+				<tr><th>instantaneous_ops_per_sec<td><?=$redisinfo['Stats']['instantaneous_ops_per_sec']?>
+				<tr><th>keyspace_hits<td><?=$redisinfo['Stats']['keyspace_hits']?>
+				<tr><th>keyspace_misses<td><?=$redisinfo['Stats']['keyspace_misses']?>
+			</table>
+		</div>
+		<?php foreach($redisinfo as $section=>$data) : ?>
+			<div class="tab" id="tab_<?=esc_attr($section)?>">
+				<table>
+					<?php foreach($data as $k=>$v) : ?>
+						<tr>
+							<th><?=$k?></th>
+							<td><?=$v?></td>
+						</tr>
+					<?php endforeach; ?>
+				</table>
+			</div>
+		<?php endforeach; ?>
+	</div>
+	<table>
+		
+	</table>
+<?php endif; ?>
+
 <?php $folder_id = 0; ?>
 <h2>
 	<span class=cPurple>Files Cached</span> <?=number_format($file_count)?>
@@ -296,6 +398,16 @@ tr.files{display:none;}
 	<?php $folder_id++;?>
 <?php endforeach; ?>
 </table>
+<script>
+jQuery(function($){
+	$('#redis_tabs .nav-tab').click(function(){
+		var tab = $(this).attr('href');
+		$('#redis_tabs .tab').removeClass('active');
+		$(tab).addClass('active');
+		return false;
+	});
+})	
+</script>
 
 
 

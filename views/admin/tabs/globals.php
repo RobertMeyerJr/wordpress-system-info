@@ -16,7 +16,7 @@
 		<th><?=$k?></th>
 		<td><?=$type?>
 		<td>
-			<?php $class = get_class($v); ?>
+			<?php $class = is_object($v) ? get_class($v) : ''; ?>
 			<?=$class?>
 		<td>
 			<?php if($type == 'boolean') : ?>

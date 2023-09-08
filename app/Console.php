@@ -1,5 +1,7 @@
 <?php 
+
 Console::init();
+
 class Console{
 	protected static $log = [];
 	protected static $timers = [];
@@ -21,6 +23,7 @@ class Console{
 	}
 
 	public static function qm_log($msg){
+		//get the action, and display
 		#https://querymonitor.com/docs/logging-variables/
 		Console::log($msg);
 	}

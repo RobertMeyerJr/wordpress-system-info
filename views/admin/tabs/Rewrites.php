@@ -35,7 +35,7 @@
 $rest = rest_get_server(); 
 $routes = $rest->get_routes();
 ?>
-<table>
+<table class="table widefat striped">
 	<thead>
 		<tr>
 			<th>Route

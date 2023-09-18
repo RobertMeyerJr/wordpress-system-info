@@ -21,7 +21,7 @@ $TimebySource=[];
 		<input type=text id=query_search_value style="width:200px;display:inline-block;">
 		<button id=do_query_search type=button>Search</button>
 	</div>
-	<table class="sortable">
+	<table class="sortable" id=total_debug_sql>
 		<thead>
 			<tr>
 				<th></th>
@@ -40,7 +40,7 @@ $TimebySource=[];
 				?>
 				<tr>
 					<td><?php echo $qi++?></td>
-					<td data-sort-value="<?php echo $elapsed?>"><?php echo number_format($elapsed*1000,2) ?>ms</td>
+					<td data-sort="<?php echo $elapsed?>"><?php echo number_format($elapsed*1000,2) ?>ms</td>
 					<td class=qry>						
 						<div class=code_container>
 							<code class=sql><?php echo esc_html($sql) ?></code>
@@ -100,3 +100,8 @@ $TimebySource=[];
 	define('SAVEQUERIES', true );
 	</p>
 <?php endif; ?>
+<script>
+jQuery(function($){
+	new Tablesort(document.getElementById('total_debug_sql'));
+});
+</script>

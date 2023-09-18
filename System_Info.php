@@ -512,6 +512,9 @@ class System_Info{
 		$bar_js 	= plugins_url( '/media/js/Bar.js',__FILE__);
 		wp_enqueue_style( 'total-debug-bar', $bar_style, []);
 		wp_enqueue_script('total-debug-bar', $bar_js, array('jquery'), '2.3', ['in_footer'=>true,'defer'=>true]);
+
+		wp_enqueue_script('total-debug-bar-table-sorter', 'https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js', array('jquery'), '2.3', ['in_footer'=>true,'defer'=>true]);
+
 		register_shutdown_function(function(){
 			//Check if there was a fatal error, iff so output debugbar script/style manually
 			restore_error_handler(); 

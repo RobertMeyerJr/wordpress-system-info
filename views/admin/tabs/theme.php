@@ -1,4 +1,4 @@
-<h1>Theme Features</h1>
+<h1>Theme &amp; Gutenberg Features</h1>
 <?php 
 //filter_theme_json_theme
 global $_wp_theme_features;
@@ -15,6 +15,7 @@ $cats = $pattern_registry->get_all_registered();
     <?php endforeach; ?>
 </table>
 
+<h2>Pattern Categories</h2>
 <table class="table widefat striped">
 <?php foreach($cats as $c) : ?>
     <tr>

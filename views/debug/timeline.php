@@ -165,7 +165,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 			#continue;
 		}
 		$class = "";
-		if($dur >= 0.05){
+		if($time_taken >= 0.05){
 			$class = "long";
 		}
 		if( ($start - $last_end) > 0.8){
@@ -229,7 +229,7 @@ $wp_plugin_load = number_format(SI_PLUGINS_LOADED - WP_START_TIMESTAMP, 4);
 <h2>Wordpress Measurements</h2>
 <?php 
 $theme_setup 	= $actions_by_key['after_setup_theme']['end'] - $actions_by_key['setup_theme']['start'];
-$body 			= $actions_by_key['wp_footer']['start'] - $actions_by_key['wp_body_open']['start'];
+$body 			= $actions_by_key['wp_footer']['start'] - ( $actions_by_key['wp_body_open']['start'] ?? 0);
 
 if( is_admin() ){
 	$head = $actions_by_key['wp_print_scripts']['end'] - $actions_by_key['admin_init']['start'];

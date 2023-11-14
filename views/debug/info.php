@@ -10,7 +10,7 @@ if(!empty($p->post_type) ){
 
 ?>
 
-<table>
+<table id=dbg_summary>
 	<tr><th class=hdr colspan=2>Summary 
 	<tr><th>URI</th><td><?php echo $_SERVER['REQUEST_URI'] ?></td></tr>
 	<?php if(!empty($_SERVER['HTTP_REFERER'])) : ?>

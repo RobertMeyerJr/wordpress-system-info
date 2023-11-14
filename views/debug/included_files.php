@@ -85,9 +85,9 @@ foreach($plugins as $p){
 					$part_counts[$part]++;
 			?>
 			<tr class="part_<?=$part?>">
-				<td><?php echo $i++?></td>				
+				<td><?php echo $i++?></td>
 				<td><?php echo $part?></td>
-				<td class="included_file file-<?php echo $part?>"><?php echo $f?></td>				
+				<td class="included_file file-<?php echo $part?>"><?php echo $f?></td>
 			</tr>
 		<?php endforeach; ?>
 	</tbody>
@@ -98,6 +98,7 @@ foreach($plugins as $p){
 		<tr>
 			<th>Template</th>
 			<th>Require Once</th>
+			<th>Args</th>
 			<th>Duration</th>
 		</tr>
 	</thead>
@@ -106,6 +107,7 @@ foreach($plugins as $p){
 			<tr>
 				<th><?=str_replace(WP_CONTENT_DIR.'/', '', $tpl)?></th>
 				<td><?=$data['require_once'] ? 'Once' : ''?></td>
+				<td><?=implode(', ',$data['args'])?>
 				<td><?=number_format($data['end'] - $data['start'],4)?></td>
 			</tr>
 		<?php endforeach; ?>

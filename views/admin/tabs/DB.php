@@ -23,6 +23,7 @@ foreach($tables as $t){
 	Tables in Database: <span style='color:blue;font-weight:bold;'><?php echo DB_NAME?></span>
 	Total DB Size <span class=cPurple><?php echo System_Info_Tools::formatBytes($total_db_size)?></span>
 	Prefix <span class=cGreen><?=$wpdb->prefix?></span>
+	Base Prefix <span class=cPurple><?=$wpdb->base_prefix?></span>
 </h3>
 <table class='wp-list-table widefat fixed striped'>
 	<thead>

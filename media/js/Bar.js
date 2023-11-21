@@ -1,4 +1,5 @@
 var dbg_start = Date.now();
+var PAGELOADTIME;
 
 console.log('in Bar.js');
 
@@ -44,7 +45,7 @@ jQuery(document).ajaxComplete(function(event, jqXHR, opt){
 
 jQuery(window).on("load", function(){
 	var $ = jQuery;
-	setTimeout(dbg_performance, 3000);
+
 	console.log('In Debug Bar');
 	/*
 	jQuery.ajaxSetup({
@@ -62,9 +63,7 @@ jQuery(window).on("load", function(){
 	});
 	*/
 
-	jQuery(function($){
-		$('.value-info').click(function(){ $(this).toggleClass('expanded') });
-	});
+	$('.value-info').click(function(){ $(this).toggleClass('expanded') });
 
 	$('#close_dbg').click(function(){
 		$('#dbg_bar').hide();
@@ -118,7 +117,6 @@ jQuery(window).on("load", function(){
 	
 	
 	$('#included_file_search_do').click(included_file_search);
-	colorize_sql();
 
 	$('#filter_hooks').click(filter_hooks);
 
@@ -146,7 +144,16 @@ jQuery(window).on("load", function(){
 					 <tr><th>OG Image</th><td>${og_image}</td></tr>
 					 `;
 	$(meta_html).insertBefore('#dbg_bar_info');
+	
+	setTimeout(dbg_after_load, 2000);
 });
+
+function dbg_after_load(){
+
+	dbg_performance()
+	colorize_sql();
+	dbg_ga();
+}
 
 function tdLog(msg, type){
 	jQuery('#dbg_console #log').append('<li class="'+type+'">'+msg+'</li>');
@@ -204,7 +211,6 @@ function included_file_search(){
 // https://stackoverflow.com/questions/72485999/lcp-result-is-totally-opposite-from-performance-api-than-the-pagespeed-insights
 // https://kinsta.com/blog/eliminate-render-blocking-javascript-css/
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
-var PAGELOADTIME;
 function dbg_performance(){
 	//Need a performance observer for LCP and other items
 	// Need % of LCP
@@ -322,6 +328,7 @@ function dbg_cwv(){
 	  for (const entry of entryList.getEntries()) {
 		if (!entry.hadRecentInput) {
 		  cls += entry.value;
+		  //Get the element
 		  //console.log(entry);
 		  //console.log('Current CLS value:', cls, entry);
 		}
@@ -405,7 +412,7 @@ function dbg_resources(){
 	var origin = document.location.origin;
 	var total_blocking_time = 0;
 	
-	console.log(resources);
+	//console.log(resources);
 
 	for(var i=0; i<resources.length; i++){
 		var r = resources[i];
@@ -450,11 +457,11 @@ function dbg_resources(){
 		}
 
 		var cls = r.renderBlockingStatus == 'blocking' ? 'blocking':'non-blocking';
-
+		
 		html += `<tr class="${cls}">
 				<td>${index++}
 				<td>${origin_type}</td>
-				<td style="word-wrap:break-word"><span title="${r.name}">${name}</span></td>
+				<td style="word-wrap:break-word"><span title="${r.name}">${r.name}</span></td>
 				<td>${type}</td>
 				<td>${r.renderBlockingStatus == 'blocking' ? '🧱':'' }</td>
 				<td>${ size }</td>
@@ -494,6 +501,37 @@ function dbg_progress_bar(perc){
 	return `<div class=dbg-progress><progress max=100 value="${p}">${p}</progress><label>${p}</label></div>`; 
 }
 
+function dbg_ga(){
+	var html = '<tr><th class="hdr" colspan="2">Analytics</th></tr>';
+	//gtag?
+	if(typeof ga != 'undefined'){
+		console.log('In GA Debug');
+		var trackers = ga.getAll();
+		
+		console.log(trackers);
+		for(var i=0;i<trackers.length;i++){
+			console.log(trackers[i]);
+			var gaid = trackers[i].get('trackingId');
+			var name = trackers[i].get('name');
+			html += `<tr><th>Google Analytics Tracker</th><td>Name: ${name} ID: ${gaid}</td></tr>`;
+		}
+	}
+
+	if(window.dataLayer){
+		var configs = window.dataLayer.filter(function(c){ return c[0] == 'config'; });
+		for(var i=0;i<configs.length;i++){
+			html += `<tr><th>Google Universal Analytics<td>${configs[i][1]}`;
+		}
+	}
+	if(window.google_tag_manager){
+		var ga4 = Object.keys( window.google_tag_manager || [] ).filter( e => { return e.substring(0,2) == 'G-' } );
+		for(var i=0; i<ga4.length; i++){
+			html += `<tr><th>Google GA4<td>${ga4[i]}`;
+		}
+	}
+
+	jQuery('#dbg_summary tbody').prepend(html);
+}
 /*
 This is a quick and dirty colorizer
 We don't want to load a seperate library like prism or rainbow to do this
@@ -558,3 +596,15 @@ function formatBytes(bytes,decimals) {
 	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
  }
 
+ function getElementsUsingFont(fontName) {
+	var elements = [];
+  
+	document.querySelectorAll('*').forEach(function(element) {
+	  var fontFamily = window.getComputedStyle(element).getPropertyValue('font-family');
+	  if (fontFamily.includes(fontName)) {
+		elements.push(element);
+	  }
+	});
+  
+	return elements;
+}

@@ -85,8 +85,6 @@ $string_stats = $status['interned_strings_usage'];
 
 .card li{font-weight:bold;}
 .card li span{float:right;}
-
-
 .card table{font-size:1.2em;}
 .card th{text-align:left;}
 .card h2{margin:15px 0 15px 0;color:rgba(255,255,255,0.75);font-size:1.5em;}
@@ -108,8 +106,9 @@ $string_stats = $status['interned_strings_usage'];
 
 div .cache-stats{
 	position:relative;
-	
 	display:inline-block;
+	height:7vw;
+	margin-bottom:2em;
 }
 div.donut{
 	display: flex;
@@ -232,9 +231,6 @@ tr.files{display:none;}
 .wp-core-ui .button-danger:hover{
 	background:#d00000;
 }
-.tab{display:none;padding:5px;}
-.tab.active{display:block;}
-.cache-stats{position:relative;height:152px;margin:15px 0;}
 </style>
 <form method=POST>
 	<input type=hidden name=reset_op_cache value=1>
@@ -293,7 +289,7 @@ tr.files{display:none;}
 		</div>
 	<?php endif; ?>
 </div>
-<div class=flex-row>
+<div class=flex-row style="gap:10px">
 	<div class="card bgBlue">
 		<h2>Memory Stats</h2>
 		<span class=topleft></span>
@@ -332,48 +328,6 @@ tr.files{display:none;}
 	
 </div>
 
-<?php if(!empty($redisinfo)) : ?>
-	<h2>Redis Stats</h2>
-
-	<?php $tab_index=0;?>
-	<div id=redis_tabs>
-		<h2 class="nav-tab-wrapper tabbed_nav">
-			<a class="nav-tab nav-tab-active" href="#tab_summary">Summary</a>
-			<?php foreach($redisinfo as $section=>$data) : ?>
-    		<a class="nav-tab" href="#tab_<?=esc_attr($section)?>"><?=$section?></a>
-			<?php endforeach; ?>
-		</h2>	
-		<div id=tab_summary class="tab active">
-			<table>
-				<tr><th>Redis Version<td><?=$redisinfo['Server']['redis_version']?>
-				<tr><th>User Memory<td><?=$redisinfo['Memory']['used_memory_human']?>
-				<tr><th>User Memory RSS<td><?=$redisinfo['Memory']['used_memory_rss_human']?>
-				<tr><th>Max Memory<td><?=$redisinfo['Memory']['maxmemory_human']?>
-				<tr><th>Max Memory Policy<td><?=$redisinfo['Memory']['maxmemory_policy']?>
-				<tr><th>Total Connections<td><?=$redisinfo['Stats']['total_connections_received']?>
-				<tr><th>instantaneous_ops_per_sec<td><?=$redisinfo['Stats']['instantaneous_ops_per_sec']?>
-				<tr><th>keyspace_hits<td><?=$redisinfo['Stats']['keyspace_hits']?>
-				<tr><th>keyspace_misses<td><?=$redisinfo['Stats']['keyspace_misses']?>
-			</table>
-		</div>
-		<?php foreach($redisinfo as $section=>$data) : ?>
-			<div class="tab" id="tab_<?=esc_attr($section)?>">
-				<table>
-					<?php foreach($data as $k=>$v) : ?>
-						<tr>
-							<th><?=$k?></th>
-							<td><?=$v?></td>
-						</tr>
-					<?php endforeach; ?>
-				</table>
-			</div>
-		<?php endforeach; ?>
-	</div>
-	<table>
-		
-	</table>
-<?php endif; ?>
-
 <?php $folder_id = 0; ?>
 <h2>
 	<span class=cPurple>Files Cached</span> <?=number_format($file_count)?>
@@ -398,16 +352,7 @@ tr.files{display:none;}
 	<?php $folder_id++;?>
 <?php endforeach; ?>
 </table>
-<script>
-jQuery(function($){
-	$('#redis_tabs .nav-tab').click(function(){
-		var tab = $(this).attr('href');
-		$('#redis_tabs .tab').removeClass('active');
-		$(tab).addClass('active');
-		return false;
-	});
-})	
-</script>
+
 
 
 

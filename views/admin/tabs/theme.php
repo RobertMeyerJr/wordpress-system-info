@@ -5,6 +5,9 @@ global $_wp_theme_features;
 
 $pattern_registry = WP_Block_Pattern_Categories_Registry::get_instance();
 $cats = $pattern_registry->get_all_registered();
+
+$WP_Theme_JSON = new WP_Theme_JSON();
+$root_css = $WP_Theme_JSON->get_root_layout_rules( $selector, $block_metadata );
 ?>
 <table class="table widefat striped">
     <?php foreach($_wp_theme_features as $feat=>$v) : ?>
@@ -25,5 +28,12 @@ $cats = $pattern_registry->get_all_registered();
     </tr>
 <?php endforeach; ?>
 </table>
+
+<h2>theme.json</h2>
+
+<h2>Root CSS</h2>
+<pre>
+<?=esc_html(str_replace('}',"}\r\n",$root_css))?>
+</pre>
 
 

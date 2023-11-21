@@ -30,7 +30,7 @@ table thead {
             <th>Public</th>
             <th>Gutenberg</th>
             <th>Hierarchical</th>
-            <th>Exclude_from_search</th>
+            <th>Search</th>
             <th>Publicly_queryable</th>
             <th>Has Archive</th>
             <th>Rewrite</th>
@@ -60,7 +60,11 @@ table thead {
                 <?php endif; ?>
             </td>
             <td><?=$t->hierarchical?></td>
-            <td><?=$t->exclude_from_search?></td>
+            <td>
+                <?php if(!$t->exclude_from_search) : ?>
+                    <span class="dashicons dashicons-search"></span>
+                <?php endif; ?>
+            </td>
             <td><?=$t->publicly_queryable?></td>
             <td><?=$t->has_archive?></td>
             <td><pre><?=print_r($t->rewrite,true)?></pre></td>

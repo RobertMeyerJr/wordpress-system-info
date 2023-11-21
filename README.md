@@ -5,6 +5,7 @@ https://developer.wordpress.org/reference/classes/wp_debug_data/debug_data/
 https://developer.wordpress.org/reference/functions/add_post_type_support/
 
 TODO:
+ACF Hooks 
 Total size of CSS and JS on Scripts Tab
 
 application/ld+json

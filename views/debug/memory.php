@@ -10,6 +10,7 @@ $peak_mem = memory_get_peak_usage();
 ?>
 <h2>Peak Usage - <?=size_format($peak_mem,2)?></h2>
 <h2>Plugin Load</h2>
+<?php if( !empty($plugin_memory_load) ) : ?>
 <table>
     <thead>
         <tr>
@@ -31,7 +32,7 @@ $peak_mem = memory_get_peak_usage();
     <?php endforeach; ?>
     </tbody>
 </table>
-
+<?php endif; ?>
 
 <?php if(false) : ?>
 <h2>Memory Usage</h2>

@@ -241,8 +241,8 @@ else{
 }
 
 
-if( !empty($actions_by_key['wp_print_footer_scripts']['start']) ){
-	$footer 	= $actions_by_key['wp_print_footer_scripts']['start'] - $actions_by_key['get_footer']['start'];
+if( !empty($actions_by_key['wp_print_footer_scripts']['start'] ?? false) ){
+	$footer 	= $actions_by_key['wp_print_footer_scripts']['start'] - ($actions_by_key['get_footer']['start'] ?? 0);
 }
 else{
 	$footer 	= 0;

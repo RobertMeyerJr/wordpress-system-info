@@ -1,3 +1,15 @@
+realpath_cache_size()
+
+realpath_cache_size 
+realpath_cache_ttl 
+
+
+Tool is not showing dependancy loaded css
+
+body classes dynamically added
+
+filter errors by source
+
 Change functionaltiy based on wp_get_environment_type
 wp_is_application_passwords_supported
 https://developer.wordpress.org/reference/classes/wp_debug_data/debug_data/

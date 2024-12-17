@@ -23,10 +23,10 @@ $peak_mem = memory_get_peak_usage();
     <tbody>
     <?php foreach($plugin_memory_load as $name=>list($mem,$dur)) : ?>
         <tr>
-            <th><?=str_replace(WP_PLUGIN_DIR.'/','', $name)?></th>
-            <td><?=size_format($mem,2)?></td>
-            <td><?=size_format($mem-$last_mem,2)?></td>
-            <td><?=number_format($dur-SI_START_TIME,4)?></td>
+            <th><?php echo esc_html(str_replace(WP_PLUGIN_DIR.'/','', $name))?></th>
+            <td><?php echo size_format($mem,2)?></td>
+            <td><?php echo size_format($mem-$last_mem,2)?></td>
+            <td><?php echo number_format($dur-SI_START_TIME,4)?></td>
         </tr>
         <?php $last_mem = $mem; ?>
     <?php endforeach; ?>
@@ -39,8 +39,8 @@ $peak_mem = memory_get_peak_usage();
 <table>
     <?php foreach($vars as $name=>$data) : ?>
         <tr>
-            <th><?=$name?></th>
-            <td><?=size_format(System_Info::sizeofvar($data),2)?></td>
+            <th><?php echo esc_html($name)?></th>
+            <td><?php echo size_format(System_Info::sizeofvar($data),2)?></td>
         </tr>
     <?php endforeach; ?>
 </table>
